@@ -1,0 +1,57 @@
+S3 dead-code scan
+
+Method:
+- vulture/ruff are not installed in this environment, so I used an AST + `rg` pass over `legacy/`.
+- I scanned 66 Python files outside `_trash/` with a UTF-16 fallback for `legacy/test_main.py`.
+- The candidates below are static-analysis findings only. Dynamic imports, framework routing, CLI entrypoints, and reflection can still use them.
+
+Top-level dead-code candidates
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/api/auth.py:25 | 0.91 | `register_parent` has no direct name references in scanned `legacy/` Python files; it may still be wired in through FastAPI routing or reflection.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/api/auth.py:84 | 0.91 | `register_child` has no direct name references in scanned `legacy/` Python files; dynamic routing remains a risk.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/api/auth.py:151 | 0.91 | `login` has no direct name references in scanned `legacy/` Python files; framework-level dispatch may still use it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/api/auth.py:248 | 0.91 | `logout` has no direct name references in scanned `legacy/` Python files; framework-level dispatch may still use it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/main.py:54 | 0.91 | `global_exception_handler` has no direct name references in scanned `legacy/` Python files; exception middleware can still register it dynamically.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/main.py:90 | 0.91 | `health_check` has no direct name references in scanned `legacy/` Python files; it is likely an HTTP route handler.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/main.py:101 | 0.91 | `root` has no direct name references in scanned `legacy/` Python files; it is likely an HTTP route handler.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/models.py:67 | 0.91 | `Category` has no direct name references in scanned `legacy/` Python files; ORM metadata may still use it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/models.py:84 | 0.91 | `Lesson` has no direct name references in scanned `legacy/` Python files; ORM metadata may still use it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/models.py:170 | 0.91 | `Game` has no direct name references in scanned `legacy/` Python files; ORM metadata may still use it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/models.py:186 | 0.91 | `GameSession` has no direct name references in scanned `legacy/` Python files; ORM metadata may still use it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/schemas.py:106 | 0.91 | `TokenPayload` has no direct name references in scanned `legacy/` Python files; it may be a Pydantic contract used externally.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/schemas.py:121 | 0.91 | `CategoryCreate` has no direct name references in scanned `legacy/` Python files; it may be part of API schema wiring.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/schemas.py:145 | 0.91 | `LessonCreate` has no direct name references in scanned `legacy/` Python files; it may be part of API schema wiring.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/schemas.py:246 | 0.91 | `GameCreate` has no direct name references in scanned `legacy/` Python files; it may be part of API schema wiring.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/services/gamification.py:527 | 0.91 | `GamificationService` has no direct name references in scanned `legacy/` Python files; service wiring may still import it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/services/spaced_repetition.py:13 | 0.91 | `SpacedRepetitionService` has no direct name references in scanned `legacy/` Python files; service wiring may still import it.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/services/tts_service.py:25 | 0.91 | `generate_audio` has no direct name references in scanned `legacy/` Python files; it may be used by API routes or background jobs.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parser.py:40 | 0.91 | `create_directories` has no direct name references in scanned `legacy/` Python files; this Ozon parser subtree is otherwise self-contained.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parser.py:47 | 0.91 | `setup_driver` has no direct name references in scanned `legacy/` Python files; this Ozon parser subtree is otherwise self-contained.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parser.py:93 | 0.91 | `parse_ozon_products` has no direct name references in scanned `legacy/` Python files; it looks like an isolated parser entrypoint.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parallel_parser.py:59 | 0.91 | `create_directories` has no direct name references in scanned `legacy/` Python files; this parallel Ozon parser subtree is isolated.
+- parser_ya_maps_new/legacy/src/dashboard/ozon_dashboard.py:19 | 0.91 | `get_dashboard_template` has no direct name references in scanned `legacy/` Python files; this Ozon dashboard subtree is isolated.
+- parser_ya_maps_new/legacy/src/dashboard/modern_dashboard.py:643 | 0.91 | `generate_dashboard` has no direct name references in scanned `legacy/` Python files; dashboard generation is likely only reached from scripts.
+- parser_ya_maps_new/legacy/src/dashboard/static_dashboard.py:35 | 0.91 | `load_all_data` has no direct name references in scanned `legacy/` Python files; dashboard generation is likely only reached from scripts.
+- parser_ya_maps_new/legacy/src/dashboard/client_dashboard.py:681 | 0.91 | `generate_html_dashboard` has no direct name references in scanned `legacy/` Python files; dashboard generation is likely only reached from scripts.
+
+Clearly non-core subsystem candidates
+- parser_ya_maps_new/legacy/run_ozon_parallel.py:1 | 0.84 | Ozon-only launcher; no non-Ozon callers found in the scanned tree.
+- parser_ya_maps_new/legacy/run_ozon_with_dashboard.py:1 | 0.84 | Ozon-only launcher plus dashboard glue; isolated from the Yandex Maps parser core.
+- parser_ya_maps_new/legacy/test_ozon_integrated.py:1 | 0.82 | Ozon integration test harness; maintenance-only unless Ozon support is still active.
+- parser_ya_maps_new/legacy/test_ozon_parallel.py:1 | 0.82 | Ozon integration test harness; maintenance-only unless Ozon support is still active.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parser.py:1 | 0.86 | Ozon parser subtree; separate from the Yandex Maps parsing path.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parallel_parser.py:1 | 0.86 | Ozon parallel parser subtree; separate from the Yandex Maps parsing path.
+- parser_ya_maps_new/legacy/src/dashboard/ozon_dashboard.py:1 | 0.86 | Ozon dashboard subtree; separate from the Yandex Maps parsing path.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/main.py:1 | 0.83 | Separate FastAPI app subtree; not referenced by the parser code.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/services/gamification.py:1 | 0.83 | Separate app service subtree; not referenced by the parser code.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/services/spaced_repetition.py:1 | 0.83 | Separate app service subtree; not referenced by the parser code.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/services/tts_service.py:1 | 0.83 | Separate app service subtree; not referenced by the parser code.
+- parser_ya_maps_new/legacy/src/dashboard/static_dashboard.py:1 | 0.83 | Dashboard-only generator; not part of the parser core.
+- parser_ya_maps_new/legacy/src/dashboard/client_dashboard.py:1 | 0.83 | Dashboard-only generator; not part of the parser core.
+- parser_ya_maps_new/legacy/src/dashboard/modern_dashboard.py:1 | 0.83 | Dashboard-only generator; not part of the parser core.
+- parser_ya_maps_new/legacy/test_debug_scroll.py:1 | 0.78 | Debug/test variant; likely obsolete if only retained for troubleshooting.
+- parser_ya_maps_new/legacy/test_fixed_scroll.py:1 | 0.78 | Debug/test variant; likely obsolete if only retained for troubleshooting.
+- parser_ya_maps_new/legacy/test_fast_scroll.py:1 | 0.78 | Debug/test variant; likely obsolete if only retained for troubleshooting.
+
+Notes
+- I did not remove anything.
+- The strongest risk on every line above is dynamic use: FastAPI routes, ORM models, test discovery, CLI menus, and `if __name__ == "__main__"` branches can all make a symbol look unused in a static pass.

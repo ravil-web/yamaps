@@ -1,0 +1,30 @@
+S3 unused-import scan
+
+Method:
+- vulture/ruff are not installed in this environment, so this list comes from the same AST + `rg` pass over `legacy/`.
+- The check reports imports whose alias is never referenced in the file body.
+- These are candidates only; some may be kept for side effects, future edits, or dynamic use.
+
+Unused import candidates
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/models.py:7 | 0.98 | `JSON` is imported from `sqlalchemy` but never referenced in the file body.
+- parser_ya_maps_new/legacy/kids-english-app/backend/app/services/gamification.py:10 | 0.98 | `ActivityLog` is imported from `app.models` but never referenced in the file body.
+- parser_ya_maps_new/legacy/run_parser_with_dashboard.py:11 | 0.98 | `HTMLDashboardGenerator` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/scrolling_parser.py:20 | 0.98 | `NoSuchElementException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/static_dashboard.py:9 | 0.98 | `make_subplots` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/targeted_parser.py:20 | 0.98 | `NoSuchElementException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/test_ozon_integrated.py:225 | 0.98 | `OZON_FOLDER_STRUCTURE` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/test_ozon_integrated.py:225 | 0.98 | `OZON_SAVE_OPTIONS` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/test_ozon_integrated.py:225 | 0.98 | `OZON_ERROR_HANDLING` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/test_parser.py:23 | 0.98 | `openpyxl` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/test_parser.py:26 | 0.98 | `selenium` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/test_parser.py:29 | 0.98 | `undetected_chromedriver` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/universal_parser.py:19 | 0.98 | `NoSuchElementException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/universal_parser.py:19 | 0.98 | `WebDriverException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/dashboard/client_dashboard.py:9 | 0.98 | `make_subplots` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/dashboard/static_dashboard.py:13 | 0.98 | `make_subplots` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parallel_parser.py:19 | 0.98 | `NoSuchElementException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parallel_parser.py:19 | 0.98 | `WebDriverException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/parsers/ozon_parser.py:19 | 0.98 | `NoSuchElementException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/parsers/single_parser.py:13 | 0.98 | `Union` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/parsers/single_parser.py:18 | 0.98 | `NoSuchElementException` is imported but never referenced in the file body.
+- parser_ya_maps_new/legacy/src/parsers/yandex_parser.py:16 | 0.98 | `NoSuchElementException` is imported but never referenced in the file body.

@@ -1,0 +1,518 @@
+{
+  "version": "ui-parameters-v1",
+  "stack": [
+    "legacy/main.py",
+    "legacy/src/config.py:Yandex",
+    "legacy/src/parsers/yandex_parser.py",
+    "legacy/src/parsers/single_parser.py"
+  ],
+  "parameters": [
+    {
+      "name": "search_url",
+      "type": "string",
+      "default": "https://yandex.ru/maps/39/rostov-na-donu/search/Кейтеринг/?ll=39.686872%2C47.287867&sctx=ZAAAAAgBEAAaKAoSCaHYCpqW2ENAEZhsPNhiqUdAEhIJDJQUWABTtj8Rgjy7fOvDoj8iBgABAgMEBSgKOABA6IgGSAFiC2ZyZXNobmVzcz0wYhdzb3VyY2U9YnVzaW5lc3M6ZXhwX3JlZmoCcnWdAc3MzD2gAQCoAQC9ATYL1P%2FCAY8BtLSw4MYEvLjP20DO7KWWxASmgMfBuQHrvL7lA9bvvocErtne668G4pvb8NMFzr3Pj9gDwIGP35IDvLXrqNMF%2BOuKo%2F0D1%2BPlkgTtu7nDoAX30%2FfSsQLerKa10gSVlefjBJjZyOvPA%2FG72vOHBIqkgpAF97774oQH3rjZp%2BwGhMTgh4EC9KLXircGxffLwQSCAhLQmtC10LnRgtC10YDQuNC90LOKAgkxODQxMDgzMjGSAgCaAgxkZXNrdG9wLW1hcHOqAgo0MTgxNDA5MTk22gIoChIJ14aKcf7YQ0ARF%2B55NQekR0ASEgkA8wGBzqTZPxEADxE3p5LFP%2BACAQ%3D%3D&sll=39.686872%2C47.287867&sspn=0.230133%2C0.096788&z=12.6",
+      "group": "entrypoint",
+      "ui_widget": "text",
+      "description": "URL поиска Яндекс Карт, с которого стартует основной парсинг.",
+      "source": "legacy/src/config.py:8-9"
+    },
+    {
+      "name": "target_businesses_count",
+      "type": "number",
+      "default": 0,
+      "group": "limits",
+      "ui_widget": "number",
+      "description": "Лимит предприятий для парсинга; 0 означает все найденные.",
+      "source": "legacy/src/config.py:11-12"
+    },
+    {
+      "name": "target_products_count",
+      "type": "number",
+      "default": 50,
+      "group": "limits",
+      "ui_widget": "number",
+      "description": "Лимит товаров/услуг для каждого предприятия.",
+      "source": "legacy/src/config.py:14-15"
+    },
+    {
+      "name": "delays.page_load",
+      "type": "number",
+      "default": 5,
+      "group": "timing",
+      "ui_widget": "number",
+      "description": "Пауза или таймаут ожидания загрузки страницы.",
+      "source": "legacy/src/config.py:17-24"
+    },
+    {
+      "name": "delays.scroll",
+      "type": "number",
+      "default": 1,
+      "group": "timing",
+      "ui_widget": "number",
+      "description": "Задержка между скроллами.",
+      "source": "legacy/src/config.py:17-24"
+    },
+    {
+      "name": "delays.tab_switch",
+      "type": "number",
+      "default": 3,
+      "group": "timing",
+      "ui_widget": "number",
+      "description": "Задержка на переключение вкладок.",
+      "source": "legacy/src/config.py:17-24"
+    },
+    {
+      "name": "delays.element_click",
+      "type": "number",
+      "default": 2,
+      "group": "timing",
+      "ui_widget": "number",
+      "description": "Задержка после клика по элементу.",
+      "source": "legacy/src/config.py:17-24"
+    },
+    {
+      "name": "delays.between_businesses",
+      "type": "number",
+      "default": 3,
+      "group": "timing",
+      "ui_widget": "number",
+      "description": "Пауза между обработкой предприятий.",
+      "source": "legacy/src/config.py:17-24"
+    },
+    {
+      "name": "browser.window_size",
+      "type": "string",
+      "default": "1920,1080",
+      "group": "browser",
+      "ui_widget": "text",
+      "description": "Размер окна Chrome.",
+      "source": "legacy/src/config.py:26-32"
+    },
+    {
+      "name": "browser.start_maximized",
+      "type": "boolean",
+      "default": true,
+      "group": "browser",
+      "ui_widget": "checkbox",
+      "description": "Запускать браузер в развёрнутом состоянии.",
+      "source": "legacy/src/config.py:26-32"
+    },
+    {
+      "name": "browser.disable_logging",
+      "type": "boolean",
+      "default": true,
+      "group": "browser",
+      "ui_widget": "checkbox",
+      "description": "Скрыть системный шум Chrome logging.",
+      "source": "legacy/src/config.py:26-32"
+    },
+    {
+      "name": "browser.log_level",
+      "type": "number",
+      "default": 3,
+      "group": "browser",
+      "ui_widget": "number",
+      "description": "Уровень логирования Chrome.",
+      "source": "legacy/src/config.py:26-32"
+    },
+    {
+      "name": "folder.base_folder",
+      "type": "string",
+      "default": "parsing_results",
+      "group": "storage",
+      "ui_widget": "text",
+      "description": "Корневая папка результатов.",
+      "source": "legacy/src/config.py:34-39"
+    },
+    {
+      "name": "folder.businesses_subfolder",
+      "type": "string",
+      "default": "businesses",
+      "group": "storage",
+      "ui_widget": "text",
+      "description": "Подпапка с данными предприятий.",
+      "source": "legacy/src/config.py:34-39"
+    },
+    {
+      "name": "folder.logs_subfolder",
+      "type": "string",
+      "default": "logs",
+      "group": "storage",
+      "ui_widget": "text",
+      "description": "Подпапка логов.",
+      "source": "legacy/src/config.py:34-39"
+    },
+    {
+      "name": "logging.level",
+      "type": "string",
+      "default": "INFO",
+      "group": "logging",
+      "ui_widget": "select",
+      "description": "Уровень Python logging.",
+      "source": "legacy/src/config.py:41-46"
+    },
+    {
+      "name": "logging.file_encoding",
+      "type": "string",
+      "default": "utf-8",
+      "group": "logging",
+      "ui_widget": "text",
+      "description": "Кодировка файлов логов.",
+      "source": "legacy/src/config.py:41-46"
+    },
+    {
+      "name": "logging.include_timestamp",
+      "type": "boolean",
+      "default": true,
+      "group": "logging",
+      "ui_widget": "checkbox",
+      "description": "Добавлять timestamp в имена артефактов.",
+      "source": "legacy/src/config.py:41-46"
+    },
+    {
+      "name": "save.save_json",
+      "type": "boolean",
+      "default": true,
+      "group": "output",
+      "ui_widget": "checkbox",
+      "description": "Сохранять JSON результаты.",
+      "source": "legacy/src/config.py:48-54"
+    },
+    {
+      "name": "save.save_csv",
+      "type": "boolean",
+      "default": true,
+      "group": "output",
+      "ui_widget": "checkbox",
+      "description": "Сохранять CSV результаты.",
+      "source": "legacy/src/config.py:48-54"
+    },
+    {
+      "name": "save.save_products_separate",
+      "type": "boolean",
+      "default": true,
+      "group": "output",
+      "ui_widget": "checkbox",
+      "description": "Сохранять товары отдельным CSV.",
+      "source": "legacy/src/config.py:48-54"
+    },
+    {
+      "name": "save.include_timestamp",
+      "type": "boolean",
+      "default": true,
+      "group": "output",
+      "ui_widget": "checkbox",
+      "description": "Добавлять timestamp в имена файлов выгрузки.",
+      "source": "legacy/src/config.py:48-54"
+    },
+    {
+      "name": "error.continue_on_error",
+      "type": "boolean",
+      "default": true,
+      "group": "recovery",
+      "ui_widget": "checkbox",
+      "description": "Продолжать обработку при ошибке одного предприятия.",
+      "source": "legacy/src/config.py:56-61"
+    },
+    {
+      "name": "error.max_retries",
+      "type": "number",
+      "default": 3,
+      "group": "recovery",
+      "ui_widget": "number",
+      "description": "Максимум повторных попыток для одного объекта.",
+      "source": "legacy/src/config.py:56-61"
+    },
+    {
+      "name": "error.save_on_interrupt",
+      "type": "boolean",
+      "default": true,
+      "group": "recovery",
+      "ui_widget": "checkbox",
+      "description": "Сохранять данные при прерывании процесса.",
+      "source": "legacy/src/config.py:56-61"
+    },
+    {
+      "name": "main.session_name",
+      "type": "string",
+      "default": null,
+      "group": "entrypoint",
+      "ui_widget": "text",
+      "description": "Имя сессии; если пусто, создаётся parsing_YYYYMMDD_HHMMSS.",
+      "source": "legacy/main.py:21-31"
+    },
+    {
+      "name": "single.session_folder",
+      "type": "string",
+      "default": "parsing_results/businesses",
+      "group": "storage",
+      "ui_widget": "text",
+      "description": "Папка для артефактов одного предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:24-31"
+    },
+    {
+      "name": "single.max_products",
+      "type": "number",
+      "default": 10,
+      "group": "limits",
+      "ui_widget": "number",
+      "description": "Базовый лимит товаров/услуг в SingleBusinessParser.",
+      "source": "legacy/src/parsers/single_parser.py:24-31"
+    },
+    {
+      "name": "single.address_timeout",
+      "type": "number",
+      "default": 5,
+      "group": "timing",
+      "ui_widget": "number",
+      "description": "Таймаут поиска адреса в карточке предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:130-147"
+    },
+    {
+      "name": "single.find_element_by_selectors_with_timeout.timeout",
+      "type": "number",
+      "default": 10,
+      "group": "timing",
+      "ui_widget": "number",
+      "description": "Дефолтный таймаут поиска по набору селекторов.",
+      "source": "legacy/src/parsers/single_parser.py:592-610"
+    }
+  ],
+  "selectors": [
+    {
+      "kind": "selector",
+      "name": "yandex.search.scroll_selectors",
+      "type": "selector[]",
+      "default": [
+        "div.search-list-view__list",
+        "div.search-snippet-view",
+        "div.scroll__container",
+        "div.search-tab-business"
+      ],
+      "group": "selectors.search",
+      "ui_widget": "list",
+      "description": "Контейнеры списка предприятий на странице выдачи.",
+      "source": "legacy/src/parsers/yandex_parser.py:137-154",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "yandex.search.title_links",
+      "type": "selector[]",
+      "default": [
+        "a.card-title-view__title-link[href*='/maps/org/']",
+        "//a[contains(@href, '/maps/org/')]",
+        "//a[contains(@href, '/org/')]"
+      ],
+      "group": "selectors.search",
+      "ui_widget": "list",
+      "description": "Ссылки на предприятия в выдаче.",
+      "source": "legacy/src/parsers/yandex_parser.py:234-252",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.basic.name_selectors",
+      "type": "selector[]",
+      "default": [
+        "//h1[@itemprop='name']",
+        "//h1[contains(@class, 'orgpage-header-view__header')]",
+        "//h1[contains(@class, 'card-title-view__title')]",
+        "//h1"
+      ],
+      "group": "selectors.business",
+      "ui_widget": "list",
+      "description": "Селекторы названия предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:112-120",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.basic.address_selectors",
+      "type": "selector[]",
+      "default": [
+        "//div[contains(@class, 'orgpage-header-view__address')]",
+        "//div[contains(@class, 'business-contacts-view__address')]",
+        "//div[contains(@class, 'address')]",
+        "//span[contains(@class, 'address')]",
+        "//meta[@itemprop='address']/@content"
+      ],
+      "group": "selectors.business",
+      "ui_widget": "list",
+      "description": "Селекторы адреса предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:129-163",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.basic.category_selectors",
+      "type": "selector[]",
+      "default": [
+        "//a[contains(@class, 'business-categories-view__category')]",
+        "//div[contains(@class, 'business-card-title-view__categories')]//a",
+        "//div[contains(@class, 'categories')]//a"
+      ],
+      "group": "selectors.business",
+      "ui_widget": "list",
+      "description": "Селекторы категорий предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:167-186",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.contact.phone_selectors",
+      "type": "selector[]",
+      "default": [
+        "//span[@itemprop='telephone']",
+        "//div[contains(@class, 'card-phones-view__number')]//span"
+      ],
+      "group": "selectors.business",
+      "ui_widget": "list",
+      "description": "Селекторы телефонов предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:193-216",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.contact.website_selectors",
+      "type": "selector[]",
+      "default": [
+        "//a[contains(@class, 'business-urls-view__link')][@itemprop='url']"
+      ],
+      "group": "selectors.business",
+      "ui_widget": "list",
+      "description": "Селектор сайта предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:218-224",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.products.tab_selectors",
+      "type": "selector[]",
+      "default": [
+        "//div[@class='tabs-select-view__title _name_prices']",
+        "//div[contains(@class, 'tabs-select-view__title') and contains(text(), 'Цены')]",
+        "//div[contains(@class, 'tabs-select-view__title') and contains(text(), 'Товары')]",
+        "//div[contains(@class, 'tabs-select-view__title') and contains(text(), 'Услуги')]",
+        "//a[contains(@href, 'prices')]"
+      ],
+      "group": "selectors.products",
+      "ui_widget": "list",
+      "description": "Селекторы вкладки товаров/услуг.",
+      "source": "legacy/src/parsers/single_parser.py:238-271",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.products.primary_selectors",
+      "type": "selector[]",
+      "default": [
+        "//div[contains(@class, 'business-full-items-grouped-view__item')]",
+        "//div[contains(@class, 'related-item-photo-view')]",
+        "//div[contains(@class, 'related-item-list-view__item')]",
+        "//div[contains(@class, 'related-product-view')]"
+      ],
+      "group": "selectors.products",
+      "ui_widget": "list",
+      "description": "Основные селекторы карточек товаров/услуг.",
+      "source": "legacy/src/parsers/single_parser.py:305-339",
+      "editable": false
+    },
+    {
+      "kind": "selector",
+      "name": "single.products.additional_selectors",
+      "type": "selector[]",
+      "default": [
+        "//div[contains(@class, 'product-item')]",
+        "//div[contains(@class, 'service-item')]",
+        "//div[contains(@class, 'price-item')]",
+        "//div[contains(@class, 'menu-item')]",
+        "//li[contains(@class, 'item')]"
+      ],
+      "group": "selectors.products",
+      "ui_widget": "list",
+      "description": "Дополнительные селекторы карточек товаров/услуг.",
+      "source": "legacy/src/parsers/single_parser.py:340-359",
+      "editable": false
+    }
+  ],
+  "fields": [
+    {
+      "kind": "field",
+      "name": "business.name",
+      "type": "string",
+      "default": "",
+      "group": "business_fields",
+      "ui_widget": "text",
+      "description": "Название предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:107-120",
+      "editable": false
+    },
+    {
+      "kind": "field",
+      "name": "business.rating",
+      "type": "string",
+      "default": "",
+      "group": "business_fields",
+      "ui_widget": "text",
+      "description": "Рейтинг предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:122-127",
+      "editable": false
+    },
+    {
+      "kind": "field",
+      "name": "business.address",
+      "type": "string",
+      "default": "",
+      "group": "business_fields",
+      "ui_widget": "text",
+      "description": "Адрес предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:129-165",
+      "editable": false
+    },
+    {
+      "kind": "field",
+      "name": "business.categories",
+      "type": "array",
+      "default": [],
+      "group": "business_fields",
+      "ui_widget": "list",
+      "description": "Список категорий предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:167-186",
+      "editable": false
+    },
+    {
+      "kind": "field",
+      "name": "business.phones",
+      "type": "array",
+      "default": [],
+      "group": "business_fields",
+      "ui_widget": "list",
+      "description": "Список телефонов предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:193-216",
+      "editable": false
+    },
+    {
+      "kind": "field",
+      "name": "business.website",
+      "type": "string",
+      "default": "",
+      "group": "business_fields",
+      "ui_widget": "text",
+      "description": "Сайт предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:218-224",
+      "editable": false
+    },
+    {
+      "kind": "field",
+      "name": "business.products_and_services",
+      "type": "array",
+      "default": [],
+      "group": "business_fields",
+      "ui_widget": "list",
+      "description": "Товары и услуги предприятия.",
+      "source": "legacy/src/parsers/single_parser.py:233-568",
+      "editable": false
+    }
+  ]
+}
