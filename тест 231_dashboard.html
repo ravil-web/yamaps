@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд - тест 231</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .header .timestamp {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .summary-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .label {
+            font-size: 1.1em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .search-section {
+            padding: 20px 30px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #2980b9;
+        }
+        
+        .section {
+            margin: 30px;
+        }
+        
+        .section-title {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
+        
+        /* Стили аккордеона */
+        .accordion {
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .accordion.hidden {
+            display: none;
+        }
+        
+        .accordion-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+        }
+        
+        .accordion-header.active {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        
+        .accordion-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .accordion-arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+        
+        .accordion-header.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: white;
+        }
+        
+        .accordion-content.active {
+            max-height: 2000px;
+        }
+        
+        .accordion-body {
+            padding: 25px;
+            background: #f8f9fa;
+        }
+        
+        /* Стили для карточек данных */
+        .data-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .data-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .data-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            margin-right: 10px;
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+        
+        .info-value {
+            color: #2c3e50;
+            word-break: break-word;
+            flex: 1;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .summary {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .section {
+                margin: 20px;
+            }
+            
+            .accordion-header {
+                padding: 15px;
+            }
+            
+            .accordion-title {
+                font-size: 1.1em;
+            }
+            
+            .data-info {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .accordion-body {
+            animation: fadeIn 0.3s ease;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <header class="header">
+            <h1>📊 тест 231</h1>
+            <div class="subtitle">Дашборд данных парсинга</div>
+            <div class="timestamp">Создано: 04.09.2025 23:27:37</div>
+        </header>
+        
+        
+        <section class="summary">
+            <div class="summary-card">
+                <div class="number">3</div>
+                <div class="label">Всего записей</div>
+            </div>
+            <div class="summary-card">
+                <div class="number">1</div>
+                <div class="label">Категорий</div>
+            </div>
+        </section>
+        
+        
+        <section class="search-section">
+            <input type="text" class="search-input" placeholder="🔍 Поиск по всем данным...">
+        </section>
+        
+        <section class="section"><h2 class="section-title">📋 Данные</h2>
+            <div class="accordion">
+                <div class="accordion-header" tabindex="0">
+                    <span class="accordion-title">Авеню</span>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="data-card">
+                            <div class="data-title">Авеню</div>
+                            <div class="data-info">
+                                
+            <div class="info-item">
+                <span class="info-label">📝 Название:</span>
+                <span class="info-value">Авеню</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Verified:</span>
+                <span class="info-value">True</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Categories:</span>
+                <span class="info-value">Стоматологическая клиника, Детская стоматология</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Rating:</span>
+                <span class="info-value">4,8</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Awards:</span>
+                <span class="info-value">Хорошее место 2025</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">📍 Адрес:</span>
+                <span class="info-value">Ростов-на-Дону, садовое товарищество Урожай, 10-й Лазоревый переулок, 5945</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Phones:</span>
+                <span class="info-value">+7 (863) 333-95-96</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">🌐 Сайт:</span>
+                <span class="info-value">https://avenudent.ru/</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Social Links:</span>
+                <span class="info-value">{
+  &quot;youtube&quot;: &quot;&quot;,
+  &quot;whatsapp&quot;: &quot;https://wa.me/79281208811?text=%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5+%D0%B8%D0%B7+%D0%AF%D0%BD%D0%B4%D0%B5%D0%BA%D1%81+%D0%9A%D0%B0%D1%80%D1%82%0A%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!+%D0%9C%D0%B5%D0%BD%D1%8F+%D0%B7%D0%B0%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%B5%D1%81%D0%BE%D0%B2%D0%B0%D0%BB%D0%BE+%D0%B2%D0%B0%D1%88%D0%B5+%D0%BF%D1%80%D0%B5%D0%B4%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5&quot;,
+  &quot;vk&quot;: &quot;https://vk.com/yandex.maps&quot;,
+  &quot;ok&quot;: &quot;&quot;,
+  &quot;other&quot;: [
+    &quot;https://t.me/mapsyandex&quot;,
+    &quot;https://zen.yandex.ru/yandexmaps&quot;
+  ]
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Working Hours:</span>
+                <span class="info-value">{
+  &quot;current_status&quot;: &quot;Закрыто до 08:00&quot;,
+  &quot;schedule&quot;: [
+    &quot;Mo 08:00-20:00&quot;,
+    &quot;Tu 08:00-20:00&quot;,
+    &quot;We 08:00-20:00&quot;,
+    &quot;Th 08:00-20:00&quot;,
+    &quot;Fr 08:00-20:00&quot;,
+    &quot;Sa 08:00-15:00&quot;,
+    &quot;Su 08:00-15:00&quot;
+  ]
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Services:</span>
+                <span class="info-value">хирургия, эстетическая стоматология, имплантология, рентгенография, протезирование, терапия, пломбирование, удаление зубов, отбеливание, лечение кариеса, виниры и люминиры, гигиена полости рта, коронки, лечение дёсен, лечение каналов, компьютерная томография, костная пластика, лечение кисты зуба, реставрация зубов</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Products:</span>
+                <span class="info-value">{&#x27;name&#x27;: &#x27;Коллагеновая мембрана Bio-Gide и аналоги 25х25&#x27;, &#x27;price&#x27;: &#x27;10000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Коллагеновая мембрана Bio-Gide и аналоги 25х25&#x27;, &#x27;price&#x27;: &#x27;10000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Внутрикостная дентальная имплантация (установка имплантата Dentium)&#x27;, &#x27;price&#x27;: &#x27;25000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Установка формирователя десны (одномоментная )&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Установка формирователя десны (отсроченная )&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Лечение переимплантита&#x27;, &#x27;price&#x27;: &#x27;3000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Восстановление зуба циркониевой коронкой анатомия&#x27;, &#x27;price&#x27;: &#x27;19000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Акриловый протез (на системе ALL-ON-4)&#x27;, &#x27;price&#x27;: &#x27;250000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Протезирование коронкой из диоксида циркония на имплантанте с использованием индивидуального абатмента&#x27;, &#x27;price&#x27;: &#x27;30000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Акриловый протез (на систетме ALL-ON-6)&#x27;, &#x27;price&#x27;: &#x27;280000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Вкладка культевая&#x27;, &#x27;price&#x27;: &#x27;4100 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Вкладка культевая разборная&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Восстановление зуба виниром/коронкой/полукоронкой/накладкой Е-max&#x27;, &#x27;price&#x27;: &#x27;22000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление временной коронки из пластмассы клиническим путем&#x27;, &#x27;price&#x27;: &#x27;2500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Протезирование коронкой металлокерамической на имплантате с использованием индивидуального абатмента&#x27;, &#x27;price&#x27;: &#x27;26900 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Съемный протез на балочной системе фиксации&#x27;, &#x27;price&#x27;: &#x27;250000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Коронки из диокида циркония/мк (на системе ALL-ON-4)&#x27;, &#x27;price&#x27;: &#x27;330000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Коронки из диокида циркония/мк (на системе ALL-ON-6)&#x27;, &#x27;price&#x27;: &#x27;350000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Протезирование коронкой металлокерамической на имплантате без абатмента в составе мостовидного протеза&#x27;, &#x27;price&#x27;: &#x27;9500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Протезирование коронкой Е-max на имплантате&#x27;, &#x27;price&#x27;: &#x27;35000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление временной коронки на имплантате (лабораторная)&#x27;, &#x27;price&#x27;: &#x27;8000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление временной коронки на имплантате&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление ретенционной каппы (1 челюсть)&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление каппы для бруксизма (1 челюсть)&#x27;, &#x27;price&#x27;: &#x27;5500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Протезирование частичными съемными пластиночными протезами&#x27;, &#x27;price&#x27;: &#x27;30000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление бюгельного протеза с кламмерной фиксацией с фрезеровками&#x27;, &#x27;price&#x27;: &#x27;50000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление бюгельного протеза с аттачменами с фрезеровками&#x27;, &#x27;price&#x27;: &#x27;45000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Протезирование съемными бюгельными протезами&#x27;, &#x27;price&#x27;: &#x27;42000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Перебазировка съемного протеза клиническая&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Починка клиническим методом&#x27;, &#x27;price&#x27;: &#x27;1900 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Приварка искусственного зуба из пластмассы (1-3 зуба)&#x27;, &#x27;price&#x27;: &#x27;2500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Починка съемного протеза&#x27;, &#x27;price&#x27;: &#x27;2000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление телескопической коронки&#x27;, &#x27;price&#x27;: &#x27;10500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Прием (осмотр,консультация)врача-стоматолога-ортопеда первичный&#x27;, &#x27;price&#x27;: &#x27;500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Прием (осмотр,консультация) врача-стоматолога-ортопеда повторный&#x27;, &#x27;price&#x27;: &#x27;500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Система элайнеров Spark 1 категория сложности&#x27;, &#x27;price&#x27;: &#x27;250000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Система элайнеров Spark 1 категория сложности&#x27;, &#x27;price&#x27;: &#x27;250000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Система элайнеров Spark 2 категория сложности&#x27;, &#x27;price&#x27;: &#x27;300000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Система элайнеров Spark 3 категория сложности&#x27;, &#x27;price&#x27;: &#x27;340000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Система элайнеров Spark 4 категория сложности&#x27;, &#x27;price&#x27;: &#x27;370000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Ортодонтическая коррекция съемным ортодонтическим аппаратом&#x27;, &#x27;price&#x27;: &#x27;8000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление съемной ортодонтической пластины без винта&#x27;, &#x27;price&#x27;: &#x27;16000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление съемной ортодонтической пластины с винтом Бертони&#x27;, &#x27;price&#x27;: &#x27;30000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление съемной ортодонтической пластины с 2-мя винтами&#x27;, &#x27;price&#x27;: &#x27;18000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление съемной ортодонтической пластины с 3-мя винтами&#x27;, &#x27;price&#x27;: &#x27;18000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Изготовление аппарата Твин-Блока&#x27;, &#x27;price&#x27;: &#x27;25000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Металлическая самолигирующая система Damon Q (фиксация 1 челюсть )&#x27;, &#x27;price&#x27;: &#x27;65000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Фиксация частичной металлической лигатурной брекет-системой, 1 челюсть&#x27;, &#x27;price&#x27;: &#x27;25000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Замена дуги во время лечения (1 челюсть )&#x27;, &#x27;price&#x27;: &#x27;3500 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}, {&#x27;name&#x27;: &#x27;Снятие брекет-системы, 1 челюсть&#x27;, &#x27;price&#x27;: &#x27;6000 ₽&#x27;, &#x27;description&#x27;: &#x27;Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11&#x27;}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Has Panorama:</span>
+                <span class="info-value">True</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Coordinates:</span>
+                <span class="info-value">{
+  &quot;lat&quot;: &quot;&quot;,
+  &quot;lon&quot;: &quot;&quot;
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Yandex Id:</span>
+                <span class="info-value">160697557979</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">🔗 Ссылка:</span>
+                <span class="info-value">https://yandex.ru/maps/org/avenyu/160697557979/?ll=39.683222%2C47.326955&amp;z=16</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Last Updated:</span>
+                <span class="info-value">2025-09-01T02:32:09.845622</span>
+            </div>
+            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion">
+                <div class="accordion-header" tabindex="0">
+                    <span class="accordion-title">Стоматология Коломакиных</span>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="data-card">
+                            <div class="data-title">Стоматология Коломакиных</div>
+                            <div class="data-info">
+                                
+            <div class="info-item">
+                <span class="info-label">📝 Название:</span>
+                <span class="info-value">Стоматология Коломакиных</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Verified:</span>
+                <span class="info-value">True</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Categories:</span>
+                <span class="info-value">Стоматологическая клиника, Детская стоматология</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Rating:</span>
+                <span class="info-value">5,0</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Awards:</span>
+                <span class="info-value">Хорошее место 2025</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">📍 Адрес:</span>
+                <span class="info-value">Ростов-на-Дону, улица Петренко, 26А</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Phones:</span>
+                <span class="info-value">+7 (967) 529-80-25</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">🌐 Сайт:</span>
+                <span class="info-value">https://stkolomakin.ru/?utm_source=yaBPe</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Social Links:</span>
+                <span class="info-value">{
+  &quot;youtube&quot;: &quot;&quot;,
+  &quot;whatsapp&quot;: &quot;https://wa.me/79281741101?text=%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5+%D0%B8%D0%B7+%D0%AF%D0%BD%D0%B4%D0%B5%D0%BA%D1%81+%D0%9A%D0%B0%D1%80%D1%82%0A%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!+%D0%9C%D0%B5%D0%BD%D1%8F+%D0%B7%D0%B0%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%B5%D1%81%D0%BE%D0%B2%D0%B0%D0%BB%D0%BE+%D0%B2%D0%B0%D1%88%D0%B5+%D0%BF%D1%80%D0%B5%D0%B4%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5&quot;,
+  &quot;vk&quot;: &quot;https://vk.com/yandex.maps&quot;,
+  &quot;ok&quot;: &quot;&quot;,
+  &quot;other&quot;: [
+    &quot;https://t.me/mapsyandex&quot;,
+    &quot;https://zen.yandex.ru/yandexmaps&quot;
+  ]
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Working Hours:</span>
+                <span class="info-value">{
+  &quot;current_status&quot;: &quot;Закрыто до 09:00&quot;,
+  &quot;schedule&quot;: [
+    &quot;Mo 09:00-20:00&quot;,
+    &quot;Tu 09:00-20:00&quot;,
+    &quot;We 09:00-20:00&quot;,
+    &quot;Th 09:00-20:00&quot;,
+    &quot;Fr 09:00-20:00&quot;,
+    &quot;Sa 09:00-20:00&quot;,
+    &quot;Su 09:00-20:00&quot;
+  ]
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Services:</span>
+                <span class="info-value">ортопедия, наркоз, элайнеры, лечение кисты зуба, реставрация зубов, лечение периодонтита, костная пластика, компьютерная томография, лечение каналов, пломбирование, лечение дёсен, коронки, отбеливание, брекеты, терапия, френулопластика, гигиена полости рта, ортодонтия, виниры и люминиры, рентгенография, протезирование, лечение кариеса, имплантология, эндодонтия, удаление зубов, челюстно-лицевая хирургия, эстетическая стоматология, хирургия</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Products:</span>
+                <span class="info-value">{&#x27;name&#x27;: &#x27;Фиксация коронки 1 единица&#x27;, &#x27;price&#x27;: &#x27;1500 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Фиксация коронки 1 единица&#x27;, &#x27;price&#x27;: &#x27;1500 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка временной коронки&#x27;, &#x27;price&#x27;: &#x27;4000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Коронка цельнолитая без напыления/с напылением&#x27;, &#x27;price&#x27;: &#x27;14000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Коронка металлокерамическая&#x27;, &#x27;price&#x27;: &#x27;16000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Коронка из диоксида циркония без нанесения/с нанесением&#x27;, &#x27;price&#x27;: &#x27;20000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Винир композитный&#x27;, &#x27;price&#x27;: &#x27;7200 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Винир керамический Emax (+ временный)&#x27;, &#x27;price&#x27;: &#x27;29000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Культевая вкладка&#x27;, &#x27;price&#x27;: &#x27;8000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Съемный протез полный&#x27;, &#x27;price&#x27;: &#x27;25700 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Съемный протез AcryFree частичный (1-3 зуба)&#x27;, &#x27;price&#x27;: &#x27;17000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Протез Бабочка (1-3 зуба)&#x27;, &#x27;price&#x27;: &#x27;10000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Перебазировка съемного протеза&#x27;, &#x27;price&#x27;: &#x27;6600 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Починка съемного протеза&#x27;, &#x27;price&#x27;: &#x27;4400 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Консультация ортопеда&#x27;, &#x27;price&#x27;: &#x27;1 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Снятие коронки (любой) 1 единица&#x27;, &#x27;price&#x27;: &#x27;1500 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Консультация&#x27;, &#x27;price&#x27;: &#x27;900 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Консультация&#x27;, &#x27;price&#x27;: &#x27;900 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Диагностика&#x27;, &#x27;price&#x27;: &#x27;3500 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Коррекция брекет-системы&#x27;, &#x27;price&#x27;: &#x27;4000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка брекет-системы Damon Q (металлические)&#x27;, &#x27;price&#x27;: &#x27;75000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка брекет-системы Damon Clear (керамические)&#x27;, &#x27;price&#x27;: &#x27;85000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Элайнеры Spark (США) 1 челлюсть (неогран.кол-во капп)&#x27;, &#x27;price&#x27;: &#x27;200000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Элайнеры Spark (США) 1 челлюсть 10 капп(+1)&#x27;, &#x27;price&#x27;: &#x27;180000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Элайнеры Spark (США) 1 челлюсть 20 капп (+1)&#x27;, &#x27;price&#x27;: &#x27;245000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Плановый визит при ношении элайнеров&#x27;, &#x27;price&#x27;: &#x27;7000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Ортодонтическая пластина&#x27;, &#x27;price&#x27;: &#x27;18000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка ретейнера&#x27;, &#x27;price&#x27;: &#x27;7000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Снятие ретейнера&#x27;, &#x27;price&#x27;: &#x27;4000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Повторная фиксация ретейнера 1 зуб (не наша работа)&#x27;, &#x27;price&#x27;: &#x27;2000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Ретенционная каппа (при бруксизме) 1 челюсть&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Консультация&#x27;, &#x27;price&#x27;: &#x27;1 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Консультация&#x27;, &#x27;price&#x27;: &#x27;1 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка импланта NeoBioTech (работа, имплант, повт. осмотр)&#x27;, &#x27;price&#x27;: &#x27;37000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка импланта AnyOne Internal&#x27;, &#x27;price&#x27;: &#x27;46000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка импланта Shtraumann Roxolid&#x27;, &#x27;price&#x27;: &#x27;63000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Установка импланта Shtraumann SLActive&#x27;, &#x27;price&#x27;: &#x27;68000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Формирователь десны&#x27;, &#x27;price&#x27;: &#x27;2500 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Коронка на имплант металлокерамическая&#x27;, &#x27;price&#x27;: &#x27;27000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Коронка на имплант из диоксида циркония&#x27;, &#x27;price&#x27;: &#x27;30000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Постоянный протез «All-on-4» акрил/циркон&#x27;, &#x27;price&#x27;: &#x27;390000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Постоянный протез «All-on-6» акрил/циркон&#x27;, &#x27;price&#x27;: &#x27;500000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Коронка на имплант цельнокерамическая&#x27;, &#x27;price&#x27;: &#x27;33500 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Лечение кариеса&#x27;, &#x27;price&#x27;: &#x27;5400 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Лечение кариеса&#x27;, &#x27;price&#x27;: &#x27;5400 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Художественная реставрация зуба (до ½)&#x27;, &#x27;price&#x27;: &#x27;12000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Эндодонтическое лечение (проводится в 2-3 этапа)&#x27;, &#x27;price&#x27;: &#x27;11000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Консультация терапевта&#x27;, &#x27;price&#x27;: &#x27;1 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Визиографический снимок зуба&#x27;, &#x27;price&#x27;: &#x27;600 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Гигиена полости рта&#x27;, &#x27;price&#x27;: &#x27;5500 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Has Panorama:</span>
+                <span class="info-value">True</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Coordinates:</span>
+                <span class="info-value">{
+  &quot;lat&quot;: &quot;&quot;,
+  &quot;lon&quot;: &quot;&quot;
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Yandex Id:</span>
+                <span class="info-value">63665148745</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">🔗 Ссылка:</span>
+                <span class="info-value">https://yandex.ru/maps/org/stomatologiya_kolomakinykh/63665148745/?ll=39.689052%2C47.319277&amp;z=16</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Last Updated:</span>
+                <span class="info-value">2025-09-01T02:32:45.854693</span>
+            </div>
+            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion">
+                <div class="accordion-header" tabindex="0">
+                    <span class="accordion-title">Стоматология Коломакиных</span>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="data-card">
+                            <div class="data-title">Стоматология Коломакиных</div>
+                            <div class="data-info">
+                                
+            <div class="info-item">
+                <span class="info-label">📝 Название:</span>
+                <span class="info-value">Стоматология Коломакиных</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Verified:</span>
+                <span class="info-value">True</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Categories:</span>
+                <span class="info-value">Стоматологическая клиника</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Rating:</span>
+                <span class="info-value">5,0</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Awards:</span>
+                <span class="info-value">Хорошее место 2025</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">📍 Адрес:</span>
+                <span class="info-value">Ростов-на-Дону, переулок Белоусова, 6</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Phones:</span>
+                <span class="info-value">+7 (965) 229-59-50</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">🌐 Сайт:</span>
+                <span class="info-value">https://stkolomakin.ru/?utm_source=yaBBe</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Social Links:</span>
+                <span class="info-value">{
+  &quot;youtube&quot;: &quot;&quot;,
+  &quot;whatsapp&quot;: &quot;https://wa.me/79281741101?text=%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5+%D0%B8%D0%B7+%D0%AF%D0%BD%D0%B4%D0%B5%D0%BA%D1%81+%D0%9A%D0%B0%D1%80%D1%82%0A%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!+%D0%9C%D0%B5%D0%BD%D1%8F+%D0%B7%D0%B0%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%B5%D1%81%D0%BE%D0%B2%D0%B0%D0%BB%D0%BE+%D0%B2%D0%B0%D1%88%D0%B5+%D0%BF%D1%80%D0%B5%D0%B4%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5&quot;,
+  &quot;vk&quot;: &quot;https://vk.com/yandex.maps&quot;,
+  &quot;ok&quot;: &quot;&quot;,
+  &quot;other&quot;: [
+    &quot;https://t.me/kolomakins&quot;,
+    &quot;https://t.me/mapsyandex&quot;,
+    &quot;https://zen.yandex.ru/yandexmaps&quot;
+  ]
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Working Hours:</span>
+                <span class="info-value">{
+  &quot;current_status&quot;: &quot;Закрыто до 09:00&quot;,
+  &quot;schedule&quot;: [
+    &quot;Mo 09:00-20:00&quot;,
+    &quot;Tu 09:00-20:00&quot;,
+    &quot;We 09:00-20:00&quot;,
+    &quot;Th 09:00-20:00&quot;,
+    &quot;Fr 09:00-20:00&quot;,
+    &quot;Sa 09:00-20:00&quot;,
+    &quot;Su 09:00-20:00&quot;
+  ]
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Services:</span>
+                <span class="info-value">хирургия, эндодонтия, имплантология, рентгенография, ортодонтия, протезирование, терапия, пломбирование, удаление зубов, отбеливание, лечение кариеса, виниры и люминиры, брекеты, гигиена полости рта, коронки, лечение дёсен, лечение каналов</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Products:</span>
+                <span class="info-value">{&#x27;name&#x27;: &#x27;Визиографический снимок зуба&#x27;, &#x27;price&#x27;: &#x27;500 ₽&#x27;, &#x27;description&#x27;: &#x27;Визиографический снимок зуба&#x27;}, {&#x27;name&#x27;: &#x27;Визиографический снимок зуба&#x27;, &#x27;price&#x27;: &#x27;500 ₽&#x27;, &#x27;description&#x27;: &#x27;Визиографический снимок зуба&#x27;}, {&#x27;name&#x27;: &#x27;Фторирование (снятие чувствительности) 1 челюсть&#x27;, &#x27;price&#x27;: &#x27;1000 ₽&#x27;, &#x27;description&#x27;: &#x27;Фторирование (снятие чувствительности) 1 челюсть&#x27;}, {&#x27;name&#x27;: &#x27;Лечение кариеса (первичный)&#x27;, &#x27;price&#x27;: &#x27;4600 ₽&#x27;, &#x27;description&#x27;: &#x27;Лечение кариеса (первичный)&#x27;}, {&#x27;name&#x27;: &#x27;Лечение (дефект пломбы + штифт)&#x27;, &#x27;price&#x27;: &#x27;5600 ₽&#x27;, &#x27;description&#x27;: &#x27;Лечение (дефект пломбы + штифт)&#x27;}, {&#x27;name&#x27;: &#x27;Консультация ортодонта&#x27;, &#x27;price&#x27;: &#x27;700 ₽&#x27;, &#x27;description&#x27;: &#x27;Консультация ортодонта&#x27;}, {&#x27;name&#x27;: &#x27;Гигиена полости рта&#x27;, &#x27;price&#x27;: &#x27;4300 ₽&#x27;, &#x27;description&#x27;: &#x27;Гигиена полости рта&#x27;}, {&#x27;name&#x27;: &#x27;Фторирование (снятие чувствительности) 1 зуб&#x27;, &#x27;price&#x27;: &#x27;300 ₽&#x27;, &#x27;description&#x27;: &#x27;Фторирование (снятие чувствительности) 1 зуб&#x27;}, {&#x27;name&#x27;: &#x27;Пульпит в 2-3 посещения (в зависимости от кол-ва корневых каналов)&#x27;, &#x27;price&#x27;: &#x27;9000 ₽&#x27;, &#x27;description&#x27;: &#x27;Пульпит в 2-3 посещения (в зависимости от кол-ва корневых каналов)&#x27;}, {&#x27;name&#x27;: &#x27;Консультация ортодонта&#x27;, &#x27;price&#x27;: &#x27;700 ₽&#x27;, &#x27;description&#x27;: &#x27;Консультация ортодонта&#x27;}, {&#x27;name&#x27;: &#x27;Консультация ортодонта&#x27;, &#x27;price&#x27;: &#x27;700 ₽&#x27;, &#x27;description&#x27;: &#x27;Консультация ортодонта&#x27;}, {&#x27;name&#x27;: &#x27;Установка одного имплантата (в зависимости от импланта)&#x27;, &#x27;price&#x27;: &#x27;33000 ₽&#x27;, &#x27;description&#x27;: &#x27;Установка одного имплантата (в зависимости от импланта)&#x27;}, {&#x27;name&#x27;: &#x27;Костная пластика&#x27;, &#x27;price&#x27;: &#x27;10000 ₽&#x27;, &#x27;description&#x27;: &#x27;Костная пластика&#x27;}, {&#x27;name&#x27;: &#x27;Мягкотканая пластика&#x27;, &#x27;price&#x27;: &#x27;10000 ₽&#x27;, &#x27;description&#x27;: &#x27;Мягкотканая пластика&#x27;}, {&#x27;name&#x27;: &#x27;Аббатмент, винт + коронка из диоксида циркония&#x27;, &#x27;price&#x27;: &#x27;27000 ₽&#x27;, &#x27;description&#x27;: &#x27;Аббатмент, винт + коронка из диоксида циркония&#x27;}, {&#x27;name&#x27;: &#x27;Аббатмент, винт + коронка из металлокерамики&#x27;, &#x27;price&#x27;: &#x27;23000 ₽&#x27;, &#x27;description&#x27;: &#x27;Аббатмент, винт + коронка из металлокерамики&#x27;}, {&#x27;name&#x27;: &#x27;Временная коронка на имплантат&#x27;, &#x27;price&#x27;: &#x27;6000 ₽&#x27;, &#x27;description&#x27;: &#x27;Временная коронка на имплантат&#x27;}, {&#x27;name&#x27;: &#x27;Визиографический снимок зуба&#x27;, &#x27;price&#x27;: &#x27;500 ₽&#x27;, &#x27;description&#x27;: &#x27;Визиографический снимок зуба&#x27;}, {&#x27;name&#x27;: &#x27;Визиографический снимок зуба&#x27;, &#x27;price&#x27;: &#x27;500 ₽&#x27;, &#x27;description&#x27;: &#x27;Визиографический снимок зуба&#x27;}, {&#x27;name&#x27;: &#x27;Гигиена полости рта&#x27;, &#x27;price&#x27;: &#x27;3200 ₽&#x27;, &#x27;description&#x27;: &#x27;Гигиена полости рта&#x27;}, {&#x27;name&#x27;: &#x27;Лечение кариеса (постоянного зуба)&#x27;, &#x27;price&#x27;: &#x27;3700 ₽&#x27;, &#x27;description&#x27;: &#x27;Лечение кариеса (постоянного зуба)&#x27;}, {&#x27;name&#x27;: &#x27;Пульпит (в 2-3 посещения)&#x27;, &#x27;price&#x27;: &#x27;5600 ₽&#x27;, &#x27;description&#x27;: &#x27;Пульпит (в 2-3 посещения)&#x27;}, {&#x27;name&#x27;: &#x27;Консультация ортодонта&#x27;, &#x27;price&#x27;: &#x27;700 ₽&#x27;, &#x27;description&#x27;: &#x27;Консультация ортодонта&#x27;}, {&#x27;name&#x27;: &#x27;Лечение кариеса (молочного)&#x27;, &#x27;price&#x27;: &#x27;2800 ₽&#x27;, &#x27;description&#x27;: &#x27;Лечение кариеса (молочного)&#x27;}, {&#x27;name&#x27;: &#x27;Периодонтит (в 2-3 посещения)&#x27;, &#x27;price&#x27;: &#x27;5200 ₽&#x27;, &#x27;description&#x27;: &#x27;Периодонтит (в 2-3 посещения)&#x27;}, {&#x27;name&#x27;: &#x27;Коронка - Съемные протезы&#x27;, &#x27;price&#x27;: &#x27;25000 ₽&#x27;, &#x27;description&#x27;: &#x27;Коронка - Съемные протезы&#x27;}, {&#x27;name&#x27;: &#x27;Коронка - Съемные протезы&#x27;, &#x27;price&#x27;: &#x27;25000 ₽&#x27;, &#x27;description&#x27;: &#x27;Коронка - Съемные протезы&#x27;}, {&#x27;name&#x27;: &#x27;Коронка - С напылением (булат), С циркониевым покрытием&#x27;, &#x27;price&#x27;: &#x27;10000 ₽&#x27;, &#x27;description&#x27;: &#x27;Коронка - С напылением (булат), С циркониевым покрытием&#x27;}, {&#x27;name&#x27;: &#x27;Коронка - Металлокерамическая&#x27;, &#x27;price&#x27;: &#x27;13000 ₽&#x27;, &#x27;description&#x27;: &#x27;Коронка - Металлокерамическая&#x27;}, {&#x27;name&#x27;: &#x27;Коронка - Диоксид циркония&#x27;, &#x27;price&#x27;: &#x27;17000 ₽&#x27;, &#x27;description&#x27;: &#x27;Коронка - Диоксид циркония&#x27;}, {&#x27;name&#x27;: &#x27;Коронка - Винир керамический&#x27;, &#x27;price&#x27;: &#x27;25000 ₽&#x27;, &#x27;description&#x27;: &#x27;Коронка - Винир керамический&#x27;}, {&#x27;name&#x27;: &#x27;Коронка - Временная коронка&#x27;, &#x27;price&#x27;: &#x27;3000 ₽&#x27;, &#x27;description&#x27;: &#x27;Коронка - Временная коронка&#x27;}, {&#x27;name&#x27;: &#x27;Снятие ретейнера с 1 челюсти&#x27;, &#x27;price&#x27;: &#x27;3500 ₽&#x27;, &#x27;description&#x27;: &#x27;Снятие ретейнера с 1 челюсти&#x27;}, {&#x27;name&#x27;: &#x27;Снятие ретейнера с 1 челюсти&#x27;, &#x27;price&#x27;: &#x27;3500 ₽&#x27;, &#x27;description&#x27;: &#x27;Снятие ретейнера с 1 челюсти&#x27;}, {&#x27;name&#x27;: &#x27;Консультация - первичный осмотр&#x27;, &#x27;price&#x27;: &#x27;700 ₽&#x27;, &#x27;description&#x27;: &#x27;Консультация - первичный осмотр&#x27;}, {&#x27;name&#x27;: &#x27;Ортодонтическое лечение на одной челюсти, на самолигируюшей аппаратуре Damon Q&#x27;, &#x27;price&#x27;: &#x27;65000 ₽&#x27;, &#x27;description&#x27;: &#x27;Ортодонтическое лечение на одной челюсти, на самолигируюшей аппаратуре Damon Q&#x27;}, {&#x27;name&#x27;: &#x27;Ортодонтическая пластина съемная (детская) на 1 чел&#x27;, &#x27;price&#x27;: &#x27;15000 ₽&#x27;, &#x27;description&#x27;: &#x27;Ортодонтическая пластина съемная (детская) на 1 чел&#x27;}, {&#x27;name&#x27;: &#x27;Фиксация несъемного ретейнера на 1 челюсть&#x27;, &#x27;price&#x27;: &#x27;5000 ₽&#x27;, &#x27;description&#x27;: &#x27;Фиксация несъемного ретейнера на 1 челюсть&#x27;}, {&#x27;name&#x27;: &#x27;Консультация ортодонта&#x27;, &#x27;price&#x27;: &#x27;700 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Консультация ортодонта&#x27;, &#x27;price&#x27;: &#x27;700 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Снятие коронки (1ед.)&#x27;, &#x27;price&#x27;: &#x27;1000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Цементировка не гарантийной коронки (1ед.)&#x27;, &#x27;price&#x27;: &#x27;1000 ₽&#x27;, &#x27;description&#x27;: &#x27;&#x27;}, {&#x27;name&#x27;: &#x27;Удаление постоянного зуба (в зависимости от сложности)&#x27;, &#x27;price&#x27;: &#x27;2300 ₽&#x27;, &#x27;description&#x27;: &#x27;Удаление постоянного зуба (в зависимости от сложности)&#x27;}, {&#x27;name&#x27;: &#x27;Удаление постоянного зуба (в зависимости от сложности)&#x27;, &#x27;price&#x27;: &#x27;2300 ₽&#x27;, &#x27;description&#x27;: &#x27;Удаление постоянного зуба (в зависимости от сложности)&#x27;}, {&#x27;name&#x27;: &#x27;Удаление зуба мудрости (в зависимости от сложности)&#x27;, &#x27;price&#x27;: &#x27;3300 ₽&#x27;, &#x27;description&#x27;: &#x27;Удаление зуба мудрости (в зависимости от сложности)&#x27;}, {&#x27;name&#x27;: &#x27;Усечение зубодесневого кармана, перикоронит (уздечка)&#x27;, &#x27;price&#x27;: &#x27;2300 ₽&#x27;, &#x27;description&#x27;: &#x27;Усечение зубодесневого кармана, перикоронит (уздечка)&#x27;}, {&#x27;name&#x27;: &#x27;Удаление молочного зуба&#x27;, &#x27;price&#x27;: &#x27;1000 ₽&#x27;, &#x27;description&#x27;: &#x27;Удаление молочного зуба&#x27;}, {&#x27;name&#x27;: &#x27;Удаление молочного зуба&#x27;, &#x27;price&#x27;: &#x27;1000 ₽&#x27;, &#x27;description&#x27;: &#x27;Удаление молочного зуба&#x27;}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Has Panorama:</span>
+                <span class="info-value">True</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Coordinates:</span>
+                <span class="info-value">{
+  &quot;lat&quot;: &quot;&quot;,
+  &quot;lon&quot;: &quot;&quot;
+}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Yandex Id:</span>
+                <span class="info-value">48587544963</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">🔗 Ссылка:</span>
+                <span class="info-value">https://yandex.ru/maps/org/stomatologiya_kolomakinykh/48587544963/?ll=39.684668%2C47.322448&amp;z=16</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Last Updated:</span>
+                <span class="info-value">2025-09-01T02:41:47.073744</span>
+            </div>
+            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+        
+        <footer class="footer">
+            <p>Дашборд создан автоматически системой парсинга данных</p>
+        </footer>
+        
+    </div>
+    
+    <script>
+        
+        // Функция для работы с аккордеонами
+        function initAccordions() {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    const isActive = this.classList.contains('active');
+                    
+                    // Переключаем состояние текущего аккордеона
+                    if (isActive) {
+                        this.classList.remove('active');
+                        content.classList.remove('active');
+                    } else {
+                        this.classList.add('active');
+                        content.classList.add('active');
+                    }
+                });
+                
+                // Добавляем поддержку клавиатуры
+                header.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+        }
+        
+        // Функция для анимации чисел в сводке
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.summary-card .number');
+            
+            numbers.forEach(number => {
+                const target = parseInt(number.textContent) || 0;
+                if (target === 0) return;
+                
+                let current = 0;
+                const increment = Math.max(1, Math.ceil(target / 50));
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    number.textContent = current;
+                }, 30);
+            });
+        }
+        
+        // Функция поиска
+        function initSearch() {
+            const searchInput = document.querySelector('.search-input');
+            const accordions = document.querySelectorAll('.accordion');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase().trim();
+                    
+                    accordions.forEach(accordion => {
+                        const text = accordion.textContent.toLowerCase();
+                        if (query === '' || text.includes(query)) {
+                            accordion.classList.remove('hidden');
+                        } else {
+                            accordion.classList.add('hidden');
+                        }
+                    });
+                });
+            }
+        }
+        
+        // Инициализация после загрузки страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Инициализация дашборда...');
+            initAccordions();
+            animateNumbers();
+            initSearch();
+            console.log('Дашборд готов к использованию!');
+        });
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+selenium
+pandas
+plotly
+beautifulsoup4
+lxml
+openpyxl
+webdriver-manager

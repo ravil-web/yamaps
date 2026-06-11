@@ -1,0 +1,90 @@
+[
+  {
+    "name": "Стоматология 'Улыбка'",
+    "verified": true,
+    "categories": [
+      "Стоматология",
+      "Медицинские услуги"
+    ],
+    "rating": 4.8,
+    "reviews_count": 127,
+    "awards": [
+      "Лучшая клиника 2023"
+    ],
+    "address": "г. Ростов-на-Дону, ул. Суворовская, 52",
+    "phones": [
+      "+7 (863) 123-45-67"
+    ],
+    "website": "https://smile-dent.ru",
+    "social_links": {
+      "whatsapp": "https://wa.me/78631234567",
+      "vk": "https://vk.com/smile_dent",
+      "youtube": ""
+    },
+    "working_hours": {
+      "current_status": "Открыто",
+      "schedule": "Пн-Пт: 9:00-20:00"
+    },
+    "services": [
+      "Лечение кариеса",
+      "Протезирование"
+    ],
+    "products": [
+      {
+        "name": "Консультация стоматолога",
+        "price": "1500 ₽",
+        "description": "Первичный осмотр"
+      },
+      {
+        "name": "Лечение кариеса",
+        "price": "3000 ₽",
+        "description": "С пломбированием"
+      }
+    ],
+    "has_panorama": true,
+    "stories": [
+      "История клиники"
+    ],
+    "url": "https://yandex.ru/maps/org/test/1234567890",
+    "yandex_id": "1234567890"
+  },
+  {
+    "name": "Медицинский центр 'Здоровье'",
+    "verified": false,
+    "categories": [
+      "Медицинский центр"
+    ],
+    "rating": 4.2,
+    "reviews_count": 89,
+    "awards": [],
+    "address": "г. Ростов-на-Дону, пр. Ворошиловский, 15",
+    "phones": [
+      "+7 (863) 234-56-78"
+    ],
+    "website": "https://zdorovie-rostov.ru",
+    "social_links": {
+      "whatsapp": "",
+      "vk": "https://vk.com/zdorovie_center",
+      "youtube": ""
+    },
+    "working_hours": {
+      "current_status": "Открыто",
+      "schedule": "Ежедневно: 8:00-21:00"
+    },
+    "services": [
+      "УЗИ диагностика",
+      "Анализы крови"
+    ],
+    "products": [
+      {
+        "name": "Общий анализ крови",
+        "price": "1200 ₽",
+        "description": "Стандартный анализ"
+      }
+    ],
+    "has_panorama": false,
+    "stories": [],
+    "url": "https://yandex.ru/maps/org/test/0987654321",
+    "yandex_id": "0987654321"
+  }
+]

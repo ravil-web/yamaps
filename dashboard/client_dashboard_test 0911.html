@@ -1,0 +1,1890 @@
+
+            <!DOCTYPE html>
+            <html lang="ru">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Аналитический дашборд стоматологических услуг</title>
+                <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+                
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+                color: #ffffff;
+                overflow-x: hidden;
+            }
+            
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: 
+                    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+                pointer-events: none;
+                z-index: -1;
+            }
+            
+            .header {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 30px 0;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                animation: shimmer 3s infinite;
+            }
+            
+            @keyframes shimmer {
+                0% { left: -100%; }
+                100% { left: 100%; }
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+                font-weight: 800;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-align: center;
+                margin-bottom: 10px;
+                text-shadow: 
+                    0 0 30px rgba(102, 126, 234, 0.5),
+                    -0.5px -0.5px 0 rgba(255, 255, 255, 0.6),
+                    0.5px -0.5px 0 rgba(255, 255, 255, 0.6),
+                    -0.5px 0.5px 0 rgba(255, 255, 255, 0.6),
+                    0.5px 0.5px 0 rgba(255, 255, 255, 0.6);
+            }
+            
+            .page {
+                display: none;
+                padding: 30px 0;
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            
+            .page.active {
+                display: block;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .back-btn {
+                margin-bottom: 30px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+                color: white;
+                padding: 15px 30px;
+                border-radius: 50px;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .back-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .back-btn:hover::before {
+                left: 100%;
+            }
+            
+            .back-btn:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            }
+            
+            .chart-container {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 20px;
+                padding: 40px;
+                box-shadow: 
+                    0 20px 40px rgba(0,0,0,0.3),
+                    inset 0 1px 0 rgba(255,255,255,0.1);
+                margin-bottom: 30px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .chart-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            }
+            
+            .chart-container:hover {
+                transform: translateY(-5px);
+                box-shadow: 
+                    0 25px 50px rgba(0,0,0,0.4),
+                    inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+            
+            .card {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 20px;
+                box-shadow: 
+                    0 15px 35px rgba(0,0,0,0.2),
+                    inset 0 1px 0 rgba(255,255,255,0.1);
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .card:hover::before {
+                opacity: 1;
+            }
+            
+            .card:hover {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: 
+                    0 25px 50px rgba(0,0,0,0.3),
+                    inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+            
+            .card-title {
+                font-size: 2.5rem;
+                font-weight: 800;
+                background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-shadow: 0 0 20px rgba(255,255,255,0.3);
+            }
+            
+            .stats-card {
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .stats-card::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                transition: all 0.6s ease;
+                transform: translate(-50%, -50%);
+                border-radius: 50%;
+            }
+            
+            .stats-card:hover::after {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .btn {
+                border-radius: 50px;
+                font-weight: 600;
+                padding: 12px 24px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                border: none;
+                white-space: nowrap;
+            }
+            
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .btn:hover::before {
+                left: 100%;
+            }
+            
+            .btn-outline-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: 2px solid transparent;
+                background-clip: padding-box;
+            }
+            
+            .btn-outline-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            }
+            
+            .btn-outline-info {
+                background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+                color: white;
+                border: 2px solid transparent;
+            }
+            
+            .btn-outline-info:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(23, 162, 184, 0.4);
+            }
+            
+            .btn-outline-success {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                border: 2px solid transparent;
+            }
+            
+            .btn-outline-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+            }
+            
+            .table {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+            
+            .table thead th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 20px 15px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.9rem;
+                text-align: left;
+            }
+            
+            .table tbody tr {
+                background: rgba(255, 255, 255, 0.05);
+                transition: all 0.3s ease;
+                border: none;
+            }
+            
+            .table tbody tr:hover {
+                background: rgba(255, 255, 255, 0.1);
+                transform: scale(1.01);
+            }
+            
+            .table tbody td {
+                border: none;
+                padding: 15px;
+                color: #ffffff;
+                vertical-align: middle;
+            }
+            
+            .table tbody td.price-cell,
+            .table thead th.price-cell {
+                width: auto;
+                min-width: 120px;
+                white-space: nowrap;
+                text-align: right;
+            }
+            
+            .accordion {
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            }
+            
+            .accordion-item {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                margin-bottom: 10px;
+                border-radius: 15px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .accordion-item:hover {
+                background: rgba(255, 255, 255, 0.15);
+                transform: translateY(-2px);
+            }
+            
+            .accordion-button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 20px 25px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .accordion-button::after {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+            }
+            
+            .accordion-button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .accordion-button:hover::before {
+                left: 100%;
+            }
+            
+            .accordion-button:not(.collapsed) {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                box-shadow: inset 0 -1px 0 rgba(255,255,255,0.1);
+                color: white;
+            }
+            
+            .accordion-button:not(.collapsed)::after {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+            }
+            
+            .accordion-button:focus {
+                box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+            }
+            
+            .accordion-body {
+                background: rgba(255, 255, 255, 0.05);
+                color: #ffffff;
+                padding: 25px;
+            }
+            
+            .alert {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                color: #ffffff;
+                backdrop-filter: blur(20px);
+            }
+            
+            .alert-info {
+                background: linear-gradient(135deg, rgba(23, 162, 184, 0.2) 0%, rgba(19, 132, 150, 0.2) 100%);
+                border-color: rgba(23, 162, 184, 0.3);
+            }
+            
+            /* Анимации для загрузки */
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .loading {
+                animation: pulse 2s infinite;
+            }
+            
+            /* Стили для мобильных устройств */
+            @media (max-width: 768px) {
+                .header h1 {
+                    font-size: 2rem;
+                }
+                
+                .chart-container {
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+                
+                .card-title {
+                    font-size: 2rem;
+                }
+                
+                .table tbody td.price-cell,
+                .table thead th.price-cell {
+                    min-width: 100px;
+                    font-size: 0.9rem;
+                }
+            }
+        </style>
+        
+            </head>
+            <body>
+                <div class="header">
+                    <div class="container">
+                        <h1 class="text-center mb-0">Аналитический дашборд стоматологических услуг</h1>
+                        <p class="text-center mb-0 mt-2">Сгенерировано: 2025-11-09 02:16:09</p>
+                    </div>
+                </div>
+
+                <!-- Главная страница -->
+                <div id="main-page" class="page active">
+                    <div class="container">
+                        <!-- Статистические карточки -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card stats-card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="showPage('businesses-page')">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title">5</h4>
+                                        <p class="card-text">Предприятий</p>
+                                        <small>Нажмите для просмотра списка</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);" onclick="showPage('products-page')">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title">55</h4>
+                                        <p class="card-text">Услуг всего</p>
+                                        <small>Нажмите для просмотра по предприятиям</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="showPage('comparison-page')">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title">8</h4>
+                                        <p class="card-text">Групп для сравнения</p>
+                                        <small>Нажмите для просмотра сравнения</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Список предприятий на главной странице -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h3 class="mb-3">Список предприятий</h3>
+                                <div class="chart-container">
+                                    
+        <div class="row">
+        
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Алекса</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 5,0<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Алекса'); return false;" class="btn btn-sm btn-outline-primary">20</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79586134027" class="btn btn-sm btn-outline-info"> +7 (958) 613-40-27</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="https://aleksa-dent.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a>
+                            <a href="https://yandex.ru/maps/org/aleksa/188259100105/?ll=39.828901%2C47.286561&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Новая Улыбка</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 4,3<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Новая Улыбка'); return false;" class="btn btn-sm btn-outline-primary">0</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+78632986864" class="btn btn-sm btn-outline-info"> +7 (863) 298-68-64</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="https://novayaulibka.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a>
+                            <a href="https://yandex.ru/maps/org/novaya_ulybka/1934188474/?ll=39.804278%2C47.278749&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Дентал студия</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 4,5<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Дентал студия'); return false;" class="btn btn-sm btn-outline-primary">0</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79282795591" class="btn btn-sm btn-outline-info"> +7 (928) 279-55-91</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="https://dentalstudio-rnd.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a>
+                            <a href="https://yandex.ru/maps/org/dental_studiya/60791919256/?ll=39.813361%2C47.272540&z=14" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Уайт Смайл</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 4,9<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Уайт Смайл'); return false;" class="btn btn-sm btn-outline-primary">15</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79081844404" class="btn btn-sm btn-outline-info"> +7 (908) 184-44-04</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            
+                            <a href="https://yandex.ru/maps/org/uayt_smayl/186750944633/?ll=39.804943%2C47.262571&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Стоматология Сергея Новикова</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 4,3<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Стоматология Сергея Новикова'); return false;" class="btn btn-sm btn-outline-primary">20</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+78632980504" class="btn btn-sm btn-outline-info"> +7 (863) 298-05-04</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="https://ultra-denta.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a>
+                            <a href="https://yandex.ru/maps/org/stomatologiya_sergeya_novikova/67588967489/?ll=39.795888%2C47.269529&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница предприятий -->
+                <div id="businesses-page" class="page">
+                    <div class="container">
+                        <button class="btn btn-secondary back-btn" onclick="showPage('main-page')">
+Назад к главной странице
+                        </button>
+                        <h2>Список всех предприятий</h2>
+                        <div class="chart-container">
+                            
+        <table border="1" class="dataframe table table-striped table-bordered table-hover">
+        <thead>
+            <tr style="text-align: right;">
+                <th>Название</th>
+                <th>Рейтинг</th>
+                <th>Адрес</th>
+                <th>Телефоны</th>
+                <th>Категории</th>
+                <th>Товары/услуги</th>
+                <th>Отзывы</th>
+                <th>Ссылки</th>
+            </tr>
+        </thead>
+        <tbody>
+        
+            <tr>
+                <td>Алекса</td>
+                <td>5,0</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+79586134027" class="btn btn-sm btn-outline-info"> +7 (958) 613-40-27</a></td>
+                <td>Стоматологическая клиника</td>
+                <td>20</td>
+                <td></td>
+                <td><a href="https://aleksa-dent.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a> <a href="https://yandex.ru/maps/org/aleksa/188259100105/?ll=39.828901%2C47.286561&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>Новая Улыбка</td>
+                <td>4,3</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+78632986864" class="btn btn-sm btn-outline-info"> +7 (863) 298-68-64</a></td>
+                <td>Стоматологическая клиника</td>
+                <td>0</td>
+                <td></td>
+                <td><a href="https://novayaulibka.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a> <a href="https://yandex.ru/maps/org/novaya_ulybka/1934188474/?ll=39.804278%2C47.278749&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>Дентал студия</td>
+                <td>4,5</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+79282795591" class="btn btn-sm btn-outline-info"> +7 (928) 279-55-91</a></td>
+                <td>Стоматологическая клиника</td>
+                <td>0</td>
+                <td></td>
+                <td><a href="https://dentalstudio-rnd.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a> <a href="https://yandex.ru/maps/org/dental_studiya/60791919256/?ll=39.813361%2C47.272540&z=14" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>Уайт Смайл</td>
+                <td>4,9</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+79081844404" class="btn btn-sm btn-outline-info"> +7 (908) 184-44-04</a></td>
+                <td>Стоматологическая клиника</td>
+                <td>15</td>
+                <td></td>
+                <td>Не указан <a href="https://yandex.ru/maps/org/uayt_smayl/186750944633/?ll=39.804943%2C47.262571&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>Стоматология Сергея Новикова</td>
+                <td>4,3</td>
+                <td>Закрыто до 08:00</td>
+                <td><a href="tel:+78632980504" class="btn btn-sm btn-outline-info"> +7 (863) 298-05-04</a></td>
+                <td>Стоматологическая клиника, Детская стоматология</td>
+                <td>20</td>
+                <td></td>
+                <td><a href="https://ultra-denta.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a> <a href="https://yandex.ru/maps/org/stomatologiya_sergeya_novikova/67588967489/?ll=39.795888%2C47.269529&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            </tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница товаров -->
+                <div id="products-page" class="page">
+                    <div class="container">
+                        <button class="btn btn-secondary back-btn" onclick="showPage('main-page')">
+Назад к главной странице
+                        </button>
+                        <h2>Товары и услуги</h2>
+                        <div class="chart-container">
+                            
+        <div class="accordion" id="productsAccordion">
+        
+            <div class="accordion-item" style="border: 2px solid #28a745; margin-bottom: 20px; border-radius: 15px;">
+                <h2 class="accordion-header" id="heading-comparison">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse-comparison" aria-expanded="false" aria-controls="collapse-comparison" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <strong>Сравнение товаров и услуг</strong> - 8 групп для сравнения
+                    </button>
+                </h2>
+                <div id="collapse-comparison" class="accordion-collapse collapse" aria-labelledby="heading-comparison">
+                    <div class="accordion-body" style="background: rgba(40, 167, 69, 0.05);">
+                        <div class="alert alert-success mb-3" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border: 1px solid rgba(40, 167, 69, 0.3);">
+                            <strong>Товары и услуги, которые предлагают несколько предприятий:</strong>
+                        </div>
+            
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Ортодонтическая Коррекция. Лабораторный Этап Изготовления Несъемного Ортодонтического Аппарата Для Дистализации Моляров (Типа Пендюллюм И Ему Подобные)</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Алекса</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;"></p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">17 500 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Алекса</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;"></p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">17 500 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Установка Виниров</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Современная стоматология предлагает эффективные методы восстановления не только функциональности зубов, но и их эстетики. Сегодня представление о здоровых зубах включает и их красоту - большинство людей хотят иметь ровную и белую улыбку.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">28 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Современная стоматология предлагает эффективные методы восстановления не только функциональности зубов, но и их эстетики. Сегодня представление о здоровых зубах включает и их красоту - большинство людей хотят иметь ровную и белую улыбку.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">28 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Лечение Кариеса</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Терапевтическое лечение кариеса на любой стадии в Ростове-на-Дону. Запишитесь на бесплатную консультацию стоматолога-терапевта сейчас!</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">5 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Терапевтическое лечение кариеса на любой стадии в Ростове-на-Дону. Запишитесь на бесплатную консультацию стоматолога-терапевта сейчас!</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">5 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Удаление Зубов Без Боли И Травм</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Хирургическое удаление зуба возможно только после лечения, которое не дало никаких результатов.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">3 500 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Хирургическое удаление зуба возможно только после лечения, которое не дало никаких результатов.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">3 500 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Бесплатная Консультация</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Бесплатная консультация у лучших докторов Ростова-на-Дону</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">1 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Бесплатная консультация у лучших докторов Ростова-на-Дону</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">1 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Художественная Реставрация</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">У кого-то от природы неровные зубы, у кого-то повлияли внешние факторы и впоследствии раскололись или отвалились частички зубов. Как раз для таких случаев предусмотрена реставрация зубов.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">8 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">У кого-то от природы неровные зубы, у кого-то повлияли внешние факторы и впоследствии раскололись или отвалились частички зубов. Как раз для таких случаев предусмотрена реставрация зубов.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">8 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Синус-Лифтинг</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Синус-лифтинг – это операция, что предусматривает наращивание кости верхней челюсти и ее плотности.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">60 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Уайт Смайл</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Синус-лифтинг – это операция, что предусматривает наращивание кости верхней челюсти и ее плотности.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">60 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Кюретаж Пародонтальных Карманов</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Стоматология Сергея Новикова</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Кюретаж пародонтальных карманов проводится после диагностики оборудованием. Процедура помогает при пародонтите. Обратитесь за кюретажем карманов в нашу стоматологию в Ростове-на-Дону.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">400 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Стоматология Сергея Новикова</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Кюретаж пародонтальных карманов проводится после диагностики оборудованием. Процедура помогает при пародонтите. Обратитесь за кюретажем карманов в нашу стоматологию в Ростове-на-Дону.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">400 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center my-4">
+                <hr style="border: 2px solid #667eea; border-radius: 2px;">
+                <h4 style="color: #667eea; font-weight: 600;">Товары и услуги по предприятиям</h4>
+                <hr style="border: 2px solid #667eea; border-radius: 2px;">
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading0">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse0" aria-expanded="false" aria-controls="collapse0">
+                        <strong>Алекса</strong> - 20 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse0" class="accordion-collapse collapse" aria-labelledby="heading0">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лабораторный этап изготовления несъемного ортодонтического аппарата для дистализации моляров (типа Пендюллюм и ему подобные)</strong></td>
+                                        <td class="price-cell">17 500 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лабораторный этап изготовления несъемного ортодонтического аппарата для дистализации моляров (типа Пендюллюм и ему подобные)</strong></td>
+                                        <td class="price-cell">17 500 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Установка несъемного ортодонтического аппарата для дистализации моляров (типа Пендюллюм и ему подобные)</strong></td>
+                                        <td class="price-cell">17 500 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Установка несъемного ретейнера. ( 1 зубной ряд).</strong></td>
+                                        <td class="price-cell">6 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лабораторный этап изготовления несъемного ортодонтического аппарата лингвальная дуга</strong></td>
+                                        <td class="price-cell">10 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Установка несъемного ортодонтического аппарата лингвальная дуга</strong></td>
+                                        <td class="price-cell">10 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лечение несъемным ортодонтическим аппаратом шипы для языка (1 шт)</strong></td>
+                                        <td class="price-cell">3 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лечение аппаратом Гербста. Лабораторный этап</strong></td>
+                                        <td class="price-cell">40 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лечение аппаратом Гербста. Клинический этап</strong></td>
+                                        <td class="price-cell">40 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лечение аппаратом Forsus. Лабораторный этап.</strong></td>
+                                        <td class="price-cell">25 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лечение аппаратом Forsus. Клинический этап.</strong></td>
+                                        <td class="price-cell">25 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лечение аппаратом Carriere Motion 3D. Лабораторный этап.</strong></td>
+                                        <td class="price-cell">30 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лечение аппаратом Carriere Motion 3D. Клинический этап.</strong></td>
+                                        <td class="price-cell">30 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лабораторный этап изготовления несъемного ортодонтического аппарата для ускоренного раскрытия небного шва (с хирургическим пособием)</strong></td>
+                                        <td class="price-cell">50 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Установка несъемного ортодонтического аппарата для ускоренного раскрытия небного шва (с хирургическим пособием)</strong></td>
+                                        <td class="price-cell">50 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Лабораторный этап изготовления аппарата кольцо с удерживающим элементом («распорка») для удержания места для одного зуба</strong></td>
+                                        <td class="price-cell">5 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Установка аппарата кольцо с удерживающим элементом («распорка») для удержания места для одного зуба</strong></td>
+                                        <td class="price-cell">5 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Контрольный осмотр и активация несъёмного аппарата.</strong></td>
+                                        <td class="price-cell">500 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Снятие несъемного ортодонтического аппарата</strong></td>
+                                        <td class="price-cell">1 500 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ортодонтическая коррекция. Форсированная экструзия зуба.</strong></td>
+                                        <td class="price-cell">15 000 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading3">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                        <strong>Уайт Смайл</strong> - 15 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Установка виниров</strong></td>
+                                        <td class="price-cell">28 000 ₽</td>
+                                        <td>Современная стоматология предлагает эффективные методы восстановления не только функциональности зубов, но и их эстетики. Сегодня представление о здоровых зубах включает и их красоту - большинство людей хотят иметь ровную и белую улыбку.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Установка виниров</strong></td>
+                                        <td class="price-cell">28 000 ₽</td>
+                                        <td>Современная стоматология предлагает эффективные методы восстановления не только функциональности зубов, но и их эстетики. Сегодня представление о здоровых зубах включает и их красоту - большинство людей хотят иметь ровную и белую улыбку.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Металлокерамическая коронка</strong></td>
+                                        <td class="price-cell">10 000 ₽</td>
+                                        <td>Протезирование коронками подходит в том случае, если нужно вернуть зубу его прежнюю функциональность и эстетический вид, укрепить и предотвратить дальнейшие разрушения.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Лечение кариеса</strong></td>
+                                        <td class="price-cell">5 000 ₽</td>
+                                        <td>Терапевтическое лечение кариеса на любой стадии в Ростове-на-Дону. Запишитесь на бесплатную консультацию стоматолога-терапевта сейчас!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Лечение кариеса</strong></td>
+                                        <td class="price-cell">5 000 ₽</td>
+                                        <td>Терапевтическое лечение кариеса на любой стадии в Ростове-на-Дону. Запишитесь на бесплатную консультацию стоматолога-терапевта сейчас!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Лечение канала</strong></td>
+                                        <td class="price-cell">3 000 ₽</td>
+                                        <td>Лечение канала
+3000 ₽</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Удаление зубов без боли и травм</strong></td>
+                                        <td class="price-cell">3 500 ₽</td>
+                                        <td>Хирургическое удаление зуба возможно только после лечения, которое не дало никаких результатов.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Удаление зубов без боли и травм</strong></td>
+                                        <td class="price-cell">3 500 ₽</td>
+                                        <td>Хирургическое удаление зуба возможно только после лечения, которое не дало никаких результатов.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Имплантация</strong></td>
+                                        <td class="price-cell">35 000 ₽</td>
+                                        <td>Современные технологии имплантологии – это многоэтапный, но безболезненный процесс. В итоге имплантированный зуб не отличается по внешнему виду и функциональности от остальных естественных зубов.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бесплатная консультация</strong></td>
+                                        <td class="price-cell">1 ₽</td>
+                                        <td>Бесплатная консультация у лучших докторов Ростова-на-Дону</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бесплатная консультация</strong></td>
+                                        <td class="price-cell">1 ₽</td>
+                                        <td>Бесплатная консультация у лучших докторов Ростова-на-Дону</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Художественная реставрация</strong></td>
+                                        <td class="price-cell">8 000 ₽</td>
+                                        <td>У кого-то от природы неровные зубы, у кого-то повлияли внешние факторы и впоследствии раскололись или отвалились частички зубов. Как раз для таких случаев предусмотрена реставрация зубов.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Художественная реставрация</strong></td>
+                                        <td class="price-cell">8 000 ₽</td>
+                                        <td>У кого-то от природы неровные зубы, у кого-то повлияли внешние факторы и впоследствии раскололись или отвалились частички зубов. Как раз для таких случаев предусмотрена реставрация зубов.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Синус-лифтинг</strong></td>
+                                        <td class="price-cell">60 000 ₽</td>
+                                        <td>Синус-лифтинг – это операция, что предусматривает наращивание кости верхней челюсти и ее плотности.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Синус-лифтинг</strong></td>
+                                        <td class="price-cell">60 000 ₽</td>
+                                        <td>Синус-лифтинг – это операция, что предусматривает наращивание кости верхней челюсти и ее плотности.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading4">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                        <strong>Стоматология Сергея Новикова</strong> - 20 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Кюретаж пародонтальных карманов</strong></td>
+                                        <td class="price-cell">400 ₽</td>
+                                        <td>Кюретаж пародонтальных карманов проводится после диагностики оборудованием. Процедура помогает при пародонтите. Обратитесь за кюретажем карманов в нашу стоматологию в Ростове-на-Дону.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Кюретаж пародонтальных карманов</strong></td>
+                                        <td class="price-cell">400 ₽</td>
+                                        <td>Кюретаж пародонтальных карманов проводится после диагностики оборудованием. Процедура помогает при пародонтите. Обратитесь за кюретажем карманов в нашу стоматологию в Ростове-на-Дону.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Открытый кюретаж пародонтальных карманов</strong></td>
+                                        <td class="price-cell">300 ₽</td>
+                                        <td>Открытый кюретаж пародонтальных карманов включает разрезы для вычищения. Цена кюретажа зависит от объема. Процедура эффективна для глубоких карманов. Выберите открытый кюретаж карманов в Ростове-на-Дону в нашей клинике.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Закрытый кюретаж пародонтальных карманов</strong></td>
+                                        <td class="price-cell">300 ₽</td>
+                                        <td>Закрытый кюретаж пародонтальных карманов — чистка без разрезов для выскабливания. В клинике «Стоматология Сергея Новикова» доступные цены и безболезненность. Идеально для начальных стадий.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Медикаментозная обработка парадонтального кармана в области одного зуба</strong></td>
+                                        <td class="price-cell">200 ₽</td>
+                                        <td>Медикаментозная обработка парадонтального кармана в области одного зуба
+200 ₽
+1 шт.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Пластика уздечки верхней губы</strong></td>
+                                        <td class="price-cell">6 000 ₽</td>
+                                        <td>Пластика уздечки верхней губы — подрезание тканей лазером без боли. Устраняет дефекты развития. Выберите пластику уздечки верхней губы для эстетики улыбки.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Пластика уздечки нижней губы</strong></td>
+                                        <td class="price-cell">6 000 ₽</td>
+                                        <td>Пластика уздечки нижней губы френулопластика устраняет короткую уздечку оборудованием. В клинике «Стоматология Сергея Новикова» гарантируют комфорт. Приходите на пластику уздечки нижней губы за качественным результатом.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Вестибулопластика</strong></td>
+                                        <td class="price-cell">14 000 ₽</td>
+                                        <td>Вестибулопластика на челюстях снижает риски и улучшает исходы операций, возможно с лазером. В клинике «Стоматология Сергея Новикова» цены зависят от метода. Процедура для протезирования. Обратитесь за вестибулопластикой в нашу клинику в Ростове-на...</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Расщепление альвеолярного гребня</strong></td>
+                                        <td class="price-cell">15 000 ₽</td>
+                                        <td>Расщепление альвеолярного гребня — остеопластика для узкого гребня перед имплантами. В клинике «Стоматология Сергея Новикова» только точные методы. Устраняет неровности.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Лечение альвеолита</strong></td>
+                                        <td class="price-cell">15 000 ₽</td>
+                                        <td>Лечение альвеолита включает альвеолопластику с очищением лунки и промываниями. В клинике «Стоматология Сергея Новикова» устраняют воспаление без осложнений. Сохраняет здоровье зубов. Обратитесь за лечением альвеолита в нашу клинику в Ростове-на-Дону.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Гингивэктомия</strong></td>
+                                        <td class="price-cell">15 000 ₽</td>
+                                        <td>Гингивэктомия удаляет края десны для предотвращения воспалений и карманов. Наши пародонтологи лечат без боли с современным оборудованием. Эффективно для десен. Выберите гингивэктомию в Ростове-на-Дону в нашей стоматологии.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Гингивопластика</strong></td>
+                                        <td class="price-cell">15 000 ₽</td>
+                                        <td>Гингивопластика корректирует линию десен хирургически по доступным ценам. В клинике «Стоматология Сергея Новикова» только соременное оборудование. Приходите на гингивопластику за красивой улыбкой.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Гингивотомия</strong></td>
+                                        <td class="price-cell">6 000 ₽</td>
+                                        <td>Гингивотомия — разрез десны лазером для лечения или эстетики без боли. Стоматологическая процедура улучшает пародонт. Обратитесь за гингивотомией в нашу клинику в Ростове-на-Дону.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Синус лифтинг</strong></td>
+                                        <td class="price-cell">15 000 ₽</td>
+                                        <td>Синус-лифтинг увеличивает кость в гайморовой пазухе для имплантов на верхней челюсти. В клинике «Стоматология Сергея Новикова» доступные цены и врачи с большим опытом. Выберите синус-лифтинг для успешной имплантации.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Открытый синус лифтинг</strong></td>
+                                        <td class="price-cell">45 000 ₽</td>
+                                        <td>Открытый синус-лифтинг — сложное вмешательство при истончении тканей более 6 мм. В клинике «Стоматология Сергея Новикова» для отсутствующих зубов. Доступные цены.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Закрытый синус лифтинг</strong></td>
+                                        <td class="price-cell">15 000 ₽</td>
+                                        <td>Закрытый синус-лифтинг восстанавливает кость с низкой травмой, позволяя установить имплант сразу. Эффективно для боковых участков. Обратитесь за закрытым синус-лифтингом в нашу стоматологию в Ростове-на-Дону.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Цистотомия или цистэктомия удаление ретенционной кисты, эпулиса</strong></td>
+                                        <td class="price-cell">8 000 ₽</td>
+                                        <td>Цистотомия или цистэктомия лечит кисту вокруг корня с сохранением зуба без боли. В клинике «Стоматология Сергея Новикова» квалифицированные хирурги. Выберите удаление ретенционной кисты в Ростове-на-Дону в нашей клинике.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Коррекция десневого края в области одного зуба</strong></td>
+                                        <td class="price-cell">2 000 ₽</td>
+                                        <td>Коррекция десневого края в области одного зуба
+2000 ₽
+1 шт.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Удаление кисты зуба</strong></td>
+                                        <td class="price-cell">8 000 ₽</td>
+                                        <td>Удаление кисты зуба современными методами с сохранением зуба. В клинике «Стоматология Сергея Новикова» доступные цены и качество. Процедура предотвращает осложнения. Приходите на удаление кисты зуба в Ростове-на-Дону за надежным лечением.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Лоскутная операция в области одного зуба</strong></td>
+                                        <td class="price-cell">5 000 ₽</td>
+                                        <td>Лоскутная операция в области одного зуба срезает десну для лечения пародонтита. Лоскутную операцию применяют при консервативных методах лечения. Выберите лоскутную операцию в Ростове-на-Дону в нашей клинике.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница сравнения товаров -->
+                <div id="comparison-page" class="page">
+                    <div class="container">
+                        <button class="btn btn-secondary back-btn" onclick="showPage('main-page')">
+Назад к главной странице
+                        </button>
+                        <h2>🔄 Сравнение товаров и услуг</h2>
+                        <div class="chart-container">
+                            
+        <div class="accordion" id="comparisonAccordion">
+        
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading0">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse0" aria-expanded="false" aria-controls="comparison-collapse0">
+                        <strong>Ортодонтическая Коррекция. Лабораторный Этап Изготовления Несъемного Ортодонтического Аппарата Для Дистализации Моляров (Типа Пендюллюм И Ему Подобные)</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse0" class="accordion-collapse collapse" aria-labelledby="comparison-heading0">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Алекса</strong></td>
+                                        <td class="price-cell">17 500 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Алекса</strong></td>
+                                        <td class="price-cell">17 500 ₽</td>
+                                        <td></td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading1">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse1" aria-expanded="false" aria-controls="comparison-collapse1">
+                        <strong>Установка Виниров</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse1" class="accordion-collapse collapse" aria-labelledby="comparison-heading1">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">28 000 ₽</td>
+                                        <td>Современная стоматология предлагает эффективные методы восстановления не только функциональности зубов, но и их эстетики. Сегодня представление о здоровых зубах включает и их красоту - большинство людей хотят иметь ровную и белую улыбку.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">28 000 ₽</td>
+                                        <td>Современная стоматология предлагает эффективные методы восстановления не только функциональности зубов, но и их эстетики. Сегодня представление о здоровых зубах включает и их красоту - большинство людей хотят иметь ровную и белую улыбку.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading2">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse2" aria-expanded="false" aria-controls="comparison-collapse2">
+                        <strong>Лечение Кариеса</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse2" class="accordion-collapse collapse" aria-labelledby="comparison-heading2">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">5 000 ₽</td>
+                                        <td>Терапевтическое лечение кариеса на любой стадии в Ростове-на-Дону. Запишитесь на бесплатную консультацию стоматолога-терапевта сейчас!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">5 000 ₽</td>
+                                        <td>Терапевтическое лечение кариеса на любой стадии в Ростове-на-Дону. Запишитесь на бесплатную консультацию стоматолога-терапевта сейчас!</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading3">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse3" aria-expanded="false" aria-controls="comparison-collapse3">
+                        <strong>Удаление Зубов Без Боли И Травм</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse3" class="accordion-collapse collapse" aria-labelledby="comparison-heading3">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">3 500 ₽</td>
+                                        <td>Хирургическое удаление зуба возможно только после лечения, которое не дало никаких результатов.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">3 500 ₽</td>
+                                        <td>Хирургическое удаление зуба возможно только после лечения, которое не дало никаких результатов.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading4">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse4" aria-expanded="false" aria-controls="comparison-collapse4">
+                        <strong>Бесплатная Консультация</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse4" class="accordion-collapse collapse" aria-labelledby="comparison-heading4">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">1 ₽</td>
+                                        <td>Бесплатная консультация у лучших докторов Ростова-на-Дону</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">1 ₽</td>
+                                        <td>Бесплатная консультация у лучших докторов Ростова-на-Дону</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading5">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse5" aria-expanded="false" aria-controls="comparison-collapse5">
+                        <strong>Художественная Реставрация</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse5" class="accordion-collapse collapse" aria-labelledby="comparison-heading5">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">8 000 ₽</td>
+                                        <td>У кого-то от природы неровные зубы, у кого-то повлияли внешние факторы и впоследствии раскололись или отвалились частички зубов. Как раз для таких случаев предусмотрена реставрация зубов.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">8 000 ₽</td>
+                                        <td>У кого-то от природы неровные зубы, у кого-то повлияли внешние факторы и впоследствии раскололись или отвалились частички зубов. Как раз для таких случаев предусмотрена реставрация зубов.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading6">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse6" aria-expanded="false" aria-controls="comparison-collapse6">
+                        <strong>Синус-Лифтинг</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse6" class="accordion-collapse collapse" aria-labelledby="comparison-heading6">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">60 000 ₽</td>
+                                        <td>Синус-лифтинг – это операция, что предусматривает наращивание кости верхней челюсти и ее плотности.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уайт Смайл</strong></td>
+                                        <td class="price-cell">60 000 ₽</td>
+                                        <td>Синус-лифтинг – это операция, что предусматривает наращивание кости верхней челюсти и ее плотности.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading7">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse7" aria-expanded="false" aria-controls="comparison-collapse7">
+                        <strong>Кюретаж Пародонтальных Карманов</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse7" class="accordion-collapse collapse" aria-labelledby="comparison-heading7">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Стоматология Сергея Новикова</strong></td>
+                                        <td class="price-cell">400 ₽</td>
+                                        <td>Кюретаж пародонтальных карманов проводится после диагностики оборудованием. Процедура помогает при пародонтите. Обратитесь за кюретажем карманов в нашу стоматологию в Ростове-на-Дону.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Стоматология Сергея Новикова</strong></td>
+                                        <td class="price-cell">400 ₽</td>
+                                        <td>Кюретаж пародонтальных карманов проводится после диагностики оборудованием. Процедура помогает при пародонтите. Обратитесь за кюретажем карманов в нашу стоматологию в Ростове-на-Дону.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+                
+        <script>
+            function showPage(pageId) {
+                // Скрываем все страницы
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Показываем выбранную страницу
+                document.getElementById(pageId).classList.add('active');
+            }
+            
+            function showBusinessProducts(businessName) {
+                // Скрываем все страницы
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Показываем страницу товаров
+                document.getElementById('products-page').classList.add('active');
+                
+                // Прокручиваем к нужному предприятию
+                const targetElement = document.querySelector(`[data-business="${businessName}"]`);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            // Функция для работы с аккордеонами
+            function toggleAccordion(button) {
+                const target = button.getAttribute('data-target');
+                const collapse = document.querySelector(target);
+                
+                if (!collapse) return;
+                
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                
+                if (isExpanded) {
+                    // Закрываем
+                    collapse.classList.remove('show');
+                    button.classList.add('collapsed');
+                    button.setAttribute('aria-expanded', 'false');
+                } else {
+                    // Открываем
+                    collapse.classList.add('show');
+                    button.classList.remove('collapsed');
+                    button.setAttribute('aria-expanded', 'true');
+                }
+            }
+            
+            // Обработчики событий для аккордеонов
+            document.addEventListener('DOMContentLoaded', function() {
+                // Добавляем обработчики для всех кнопок аккордеонов
+                document.querySelectorAll('.accordion-button').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        toggleAccordion(this);
+                    });
+                });
+                
+                // Добавляем класс loading при загрузке страницы
+                document.body.classList.add('loading');
+                
+                // Убираем класс loading через 1 секунду
+                setTimeout(() => {
+                    document.body.classList.remove('loading');
+                }, 1000);
+                
+                // Добавляем эффекты при наведении на карточки
+                document.querySelectorAll('.card').forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-5px) scale(1.02)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0) scale(1)';
+                    });
+                });
+                
+                // Добавляем эффекты при наведении на кнопки
+                document.querySelectorAll('.btn').forEach(btn => {
+                    btn.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-2px)';
+                    });
+                    
+                    btn.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                    });
+                });
+            });
+        </script>
+        
+            </body>
+            </html>
+            

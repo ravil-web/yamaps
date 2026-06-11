@@ -1,0 +1,3151 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 Дашборд стоматологических клиник</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .table th { position: sticky; top: 0; background: #343a40; }
+        .nav-pills .nav-link.active { background-color: #0d6efd; }
+        
+        /* Аккордеон стили */
+        .accordion-button:not(.collapsed) {
+            background-color: #e7f3ff;
+            border-color: #0d6efd;
+        }
+        .accordion-button:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .accordion-item {
+            border: 1px solid #dee2e6;
+            margin-bottom: 0.5rem;
+            border-radius: 0.375rem;
+        }
+        .accordion-item:last-of-type {
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        /* Цветовое кодирование цен */
+        .table-success {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+        .table-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        /* Hover эффекты для таблиц */
+        .table-hover tbody tr:hover td {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        
+        /* Бейджи */
+        .badge {
+            font-size: 0.75em;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .accordion-button {
+                padding: 0.75rem;
+            }
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Заголовок -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <h1 class="display-4">🏥 Дашборд стоматологических клиник</h1>
+                <p class="lead text-muted">Результаты парсинга от 04.09.2025 23:05</p>
+                <hr>
+            </div>
+        </div>
+        
+        <!-- Статистические карточки -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <h2 class="card-title">6</h2>
+                        <p class="card-text">Предприятий</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stat-card bg-success text-white">
+                    <div class="card-body">
+                        <h2 class="card-title">377</h2>
+                        <p class="card-text">Товаров/услуг</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <h2 class="card-title">63</h2>
+                        <p class="card-text">Среднее услуг</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stat-card bg-info text-white">
+                    <div class="card-body">
+                        <h2 class="card-title">23,410 ₽</h2>
+                        <p class="card-text">Средняя цена</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Навигация по вкладкам -->
+        <ul class="nav nav-pills justify-content-center mb-4" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="charts-tab" data-bs-toggle="pill" data-bs-target="#charts" 
+                        type="button" role="tab">📊 Аналитика</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="businesses-tab" data-bs-toggle="pill" data-bs-target="#businesses" 
+                        type="button" role="tab">🏥 Предприятия</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="products-tab" data-bs-toggle="pill" data-bs-target="#products" 
+                        type="button" role="tab">🛍️ Товары/услуги</button>
+            </li>
+        </ul>
+        
+        <!-- Контент вкладок -->
+        <div class="tab-content" id="dashboardContent">
+            <!-- Аналитика -->
+            <div class="tab-pane fade show active" id="charts" role="tabpanel">
+                <h3>📊 Аналитические графики</h3>
+                
+        <div class="row">
+            <div class="col-md-6">
+                <div>                            <div id="e8e94088-d90a-4ebd-8234-633a172f4f6f" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("e8e94088-d90a-4ebd-8234-633a172f4f6f")) {                    Plotly.newPlot(                        "e8e94088-d90a-4ebd-8234-633a172f4f6f",                        [{"hovertemplate":"\u041f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0435=%{x}\u003cbr\u003e\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0443\u0441\u043b\u0443\u0433=%{marker.color}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":{"dtype":"i1","bdata":"ZGRCPzAA"},"coloraxis":"coloraxis","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":["\u0410\u0432\u0435\u043d\u044e","\u0410\u0432\u0435\u043d\u044e","\u0410\u0432\u0442\u043e\u0440\u0441\u043a\u0430\u044f \u0443\u043b\u044b\u0431\u043a\u0430","\u0421\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u044f \u041a\u043e\u043b\u043e\u043c\u0430\u043a\u0438\u043d\u044b\u0445","\u0421\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u044f \u041a\u043e\u043b\u043e\u043c\u0430\u043a\u0438\u043d\u044b\u0445","\u0421\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u043a\u0430\u0431\u0438\u043d\u0435\u0442"],"xaxis":"x","y":{"dtype":"i1","bdata":"ZGRCPzAA"},"yaxis":"y","type":"bar"}],                        {"barmode":"relative","coloraxis":{"colorbar":{"title":{"text":"\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0443\u0441\u043b\u0443\u0433"}},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]]},"height":500,"legend":{"tracegroupgap":0},"template":{"data":{"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"#E5ECF6","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2}}},"title":{"text":"\u0422\u041e\u041f-10 \u043f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0439 \u043f\u043e \u043a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u0443 \u0443\u0441\u043b\u0443\u0433"},"xaxis":{"anchor":"y","domain":[0.0,1.0],"tickangle":45,"title":{"text":"\u041f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0435"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0443\u0441\u043b\u0443\u0433"}}},                        {"responsive": true}                    )                };            </script>        </div>
+            </div>
+            <div class="col-md-6">
+                <div>                            <div id="96110a78-0bbc-41a9-a120-15b23058edcf" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("96110a78-0bbc-41a9-a120-15b23058edcf")) {                    Plotly.newPlot(                        "96110a78-0bbc-41a9-a120-15b23058edcf",                        [{"hovertemplate":"\u041f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0435=%{x}\u003cbr\u003e\u0421\u0440\u0435\u0434\u043d\u044f\u044f \u0446\u0435\u043d\u0430 (\u20bd)=%{marker.color}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":{"dtype":"i4","bdata":"m5oAANKOAAA7dQAAXR8AALwHAAA="},"coloraxis":"coloraxis","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":["\u0410\u0432\u0435\u043d\u044e","\u0421\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u044f \u041a\u043e\u043b\u043e\u043c\u0430\u043a\u0438\u043d\u044b\u0445","\u0410\u0432\u0442\u043e\u0440\u0441\u043a\u0430\u044f \u0443\u043b\u044b\u0431\u043a\u0430","\u0421\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u044f \u041a\u043e\u043b\u043e\u043c\u0430\u043a\u0438\u043d\u044b\u0445","\u0410\u0432\u0435\u043d\u044e"],"xaxis":"x","y":{"dtype":"i4","bdata":"m5oAANKOAAA7dQAAXR8AALwHAAA="},"yaxis":"y","type":"bar"}],                        {"barmode":"relative","coloraxis":{"colorbar":{"title":{"text":"\u0421\u0440\u0435\u0434\u043d\u044f\u044f \u0446\u0435\u043d\u0430 (\u20bd)"}},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"height":500,"legend":{"tracegroupgap":0},"template":{"data":{"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"#E5ECF6","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2}}},"title":{"text":"\u0422\u041e\u041f-10 \u043f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0439 \u043f\u043e \u0441\u0440\u0435\u0434\u043d\u0435\u0439 \u0446\u0435\u043d\u0435 \u0443\u0441\u043b\u0443\u0433"},"xaxis":{"anchor":"y","domain":[0.0,1.0],"tickangle":45,"title":{"text":"\u041f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0435"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"\u0421\u0440\u0435\u0434\u043d\u044f\u044f \u0446\u0435\u043d\u0430 (\u20bd)"}}},                        {"responsive": true}                    )                };            </script>        </div>
+            </div>
+        </div>
+        
+            <div class="row">
+                <div class="col-md-6">
+                    <div>                            <div id="aea4ef61-563f-4660-8798-72db409ec69c" class="plotly-graph-div" style="height:400px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("aea4ef61-563f-4660-8798-72db409ec69c")) {                    Plotly.newPlot(                        "aea4ef61-563f-4660-8798-72db409ec69c",                        [{"bingroup":"x","hovertemplate":"\u0426\u0435\u043d\u0430 (\u20bd)=%{x}\u003cbr\u003ecount=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","nbinsx":30,"orientation":"v","showlegend":false,"x":{"dtype":"i4","bdata":"ECcAABAnAACoYQAAiBMAAIgTAAC4CwAAOEoAAJDQAwAwdQAAwEUEAAQQAACIEwAA8FUAAMQJAAAUaQAAkNADABAJBQAwVwUAiBMAABwlAAC4iAAAQB8AAIgTAAB8FQAAMHUAAFDDAADIrwAAEKQAAIgTAABsBwAAxAkAANAHAAAEKQAA9AEAAPQBAACQ0AMAkNADAOCTBAAgMAUAUKUFAEAfAACAPgAAMHUAAFBGAABQRgAAqGEAAOj9AACoYQAArA0AAHAXAACIEwAA6AMAAKwNAADIrwAA4C4AACBOAAD0AQAA9AEAAKwNAAD0AQAA7BMAAEAfAADUFwAAHCUAALgkAACILAAAYDsAAGhCAAD4KgAAyDIAAIA+AADgRwAA9AEAALwCAADECQAA9AEAAOgDAACsDQAArA0AALgLAABwFwAAFAUAAGQZAAC4CwAAuAsAALgLAADIMgAAAH0AAEAGAADcBQAA6AMAAOgDAABwFwAAcBcAAPQBAABwFwAArA0AAHAXAACqAAAAqgAAAGAJAABgCQAAYAkAAHgFAADcBQAA0AcAAKQGAAD8CAAANAgAAJgIAABgCQAA\u002fAgAAOgDAABMBAAATAQAALYDAABAEAAAYAkAANwFAADoAwAAqgUAAEwEAADWBgAA6AMAAOgDAABMBAAAeAUAAOgDAABMBAAAFAUAADQIAADgCwAAQAYAANAHAABgCQAAjAoAANAHAABAEAAATAQAAGwHAADQBwAAYAkAAEwEAABMBAAAtgMAAEwEAACkBgAA3AUAALYDAAC2AwAA6AMAAEwEAAAUBQAAFAUAAEAGAAD8CAAA\u002fAgAAEAGAAA0CAAANAgAAPwIAABUCwAAmAgAANAHAAA0CAAA3AUAANwFAADcBQAA3AUAANwFAADcBQAAeAUAAHgFAAB4BQAAsAQAABQFAADcBQAATB0AAEwdAAC2AwAA6AMAANwFAAC4CwAAbAcAAEgNAACADAAAaBAAAGgQAABMHQAAHAwAAGgQAADQBwAACAcAAKQGAACkBgAATgwAAE4CAAAIAgAAJgIAANIAAACYOgAAmDoAAAEAAAB8FQAAcBcAAKAPAACAOAEAmDoAANwFAAC4iAAAgD4AACBOAACgDwAACAcAAAgHAACsDQAAuIgAALiIAACYOgAAECcAABAnAAABAAAAyCADAMggAwCIkAAAiBMAAIgTAAAoIwAA2NYAANjWAABg6gAAYOoAAHARAQBwEQEAqGEAAKhhAADsEwAA7BMAAAB9AAAAfQAAWJgAAFiYAACoYQAAqGEAAHAXAABwFwAAZBkAAGQZAACsDQAArA0AANCEAADQhAAAIE4AACBOAABQRgAAUEYAALiIAAC4iAAAgAwAAIAMAADECQAAxAkAAEjoAQBI6AEAYG0AAGBtAAD0AQAA9AEAAOgDAAD4EQAA4BUAALwCAADMEAAALAEAACgjAAC8AgAAvAIAAOiAAAAQJwAAECcAAHhpAADYWQAAcBcAAPQBAAD0AQAAgAwAAHQOAADgFQAAvAIAAPAKAABQFAAAqGEAAKhhAAAQJwAAyDIAAGhCAACoYQAAuAsAAKwNAACsDQAAvAIAAOj9AACYOgAAiBMAALwCAAC8AgAA6AMAAOgDAAD8CAAA\u002fAgAAOQMAAD8CAAA6AMAAOgDAADcBQAA3AUAAKAPAACwNgAAgD4AACBOAAAgHAAASHEAAEAfAABkZAAAaEIAABAnAADIGQAAMBEAAAEAAADcBQAAhAMAAIQDAACsDQAAoA8AAPgkAQAITAEAQA0DACC\u002fAgAIvQMAWBsAAFBGAABYGwAAoA8AANAHAACIEwAAAQAAAAEAAACIkAAAsLMAABj2AACgCQEAxAkAAHhpAAAwdQAAcPMFACChBwDcggAAGBUAABgVAADgLgAA+CoAAAEAAABYAgAAfBUAAJABAAC4iAAAAQAAAAEAAAAYFQAAcBcAANwFAAC4CwAAuAsAAKAPAAD8CAAATAQAAEwEAAA="},"xaxis":"x","yaxis":"y","type":"histogram"}],                        {"barmode":"relative","height":400,"legend":{"tracegroupgap":0},"template":{"data":{"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"#E5ECF6","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2}}},"title":{"text":"\u0420\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u0435 \u0446\u0435\u043d \u043d\u0430 \u0443\u0441\u043b\u0443\u0433\u0438"},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"\u0426\u0435\u043d\u0430 (\u20bd)"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"count"}}},                        {"responsive": true}                    )                };            </script>        </div>
+                </div>
+            
+                <div class="col-md-6">
+                    <div>                            <div id="e4865597-8c48-4196-bc2e-ca705bf7f9c9" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("e4865597-8c48-4196-bc2e-ca705bf7f9c9")) {                    Plotly.newPlot(                        "e4865597-8c48-4196-bc2e-ca705bf7f9c9",                        [{"domain":{"x":[0.0,1.0],"y":[0.0,1.0]},"hovertemplate":"label=%{label}\u003cbr\u003evalue=%{value}\u003cextra\u003e\u003c\u002fextra\u003e","labels":["\u0421\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043a\u043b\u0438\u043d\u0438\u043a\u0430","\u0414\u0435\u0442\u0441\u043a\u0430\u044f \u0441\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u044f","\u0421\u0442\u043e\u043c\u0430\u0442\u043e\u043b\u043e\u0433\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u043e\u043b\u0438\u043a\u043b\u0438\u043d\u0438\u043a\u0430"],"legendgroup":"","name":"","showlegend":true,"values":{"dtype":"i1","bdata":"BQIB"},"type":"pie"}],                        {"height":500,"legend":{"tracegroupgap":0},"template":{"data":{"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"#E5ECF6","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"bgcolor":"#E5ECF6","caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","zerolinewidth":2}}},"title":{"text":"\u0420\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u0435 \u043f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0439 \u043f\u043e \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f\u043c"}},                        {"responsive": true}                    )                };            </script>        </div>
+                </div>
+            </div>
+            
+            </div>
+            
+            <!-- Предприятия -->
+            <div class="tab-pane fade" id="businesses" role="tabpanel">
+                <h3>🏥 Список предприятий</h3>
+                <p class="text-muted">Найдено 6 предприятий</p>
+                
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="businessesTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Название</th>
+                        <th>Рейтинг</th>
+                        <th>Адрес</th>
+                        <th>Категории</th>
+                        <th>Телефоны</th>
+                        <th>Сайт</th>
+                        <th>Карты</th>
+                        <th>Услуг</th>
+                        <th>Мин. цена</th>
+                        <th>Макс. цена</th>
+                        <th>Сред. цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td>1</td>
+                <td><strong>Авеню</strong></td>
+                <td><span class="badge bg-warning">4,8</span></td>
+                <td>10-й Лазоревый пер., 59/45</td>
+                <td>Стоматологическая клиника, Детская стоматология</td>
+                <td>+7 (863) 333-95-96</td>
+                <td><a href="https://avenudent.ru/" target="_blank">Сайт</a></td>
+                <td><a href="https://yandex.ru/maps/org/avenyu/160697557979/" target="_blank">Карты</a></td>
+                <td><span class="badge bg-primary">100</span></td>
+                <td>170 ₽</td>
+                <td>370,000 ₽</td>
+                <td><strong>39,579 ₽</strong></td>
+            </tr>
+            
+            <tr>
+                <td>2</td>
+                <td><strong>Авеню</strong></td>
+                <td><span class="badge bg-warning"></span></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Нет</td>
+                <td><a href="https://yandex.ru/maps/org/avenyu/239369533632/prices/" target="_blank">Карты</a></td>
+                <td><span class="badge bg-primary">100</span></td>
+                <td>210 ₽</td>
+                <td>7,500 ₽</td>
+                <td><strong>1,980 ₽</strong></td>
+            </tr>
+            
+            <tr>
+                <td>3</td>
+                <td><strong>Авторская улыбка</strong></td>
+                <td><span class="badge bg-warning">5,0</span></td>
+                <td>ул. Висаитова, 6/10</td>
+                <td>Стоматологическая клиника</td>
+                <td>+7 (960) 443-36-36</td>
+                <td><a href="https://avtor-smile.ru/" target="_blank">Сайт</a></td>
+                <td><a href="https://yandex.ru/maps/org/avtorskaya_ulybka/146915656133/" target="_blank">Карты</a></td>
+                <td><span class="badge bg-primary">66</span></td>
+                <td>1 ₽</td>
+                <td>205,000 ₽</td>
+                <td><strong>30,011 ₽</strong></td>
+            </tr>
+            
+            <tr>
+                <td>4</td>
+                <td><strong>Стоматологический кабинет</strong></td>
+                <td><span class="badge bg-warning">4,4</span></td>
+                <td>ул. Петренко, 8</td>
+                <td>Стоматологическая клиника, Стоматологическая поликлиника</td>
+                <td>+7 (928) 956-40-45</td>
+                <td>Нет</td>
+                <td><a href="https://yandex.ru/maps/org/stomatologicheskiy_kabinet/116863949405/" target="_blank">Карты</a></td>
+                <td><span class="badge bg-primary">0</span></td>
+                <td>0 ₽</td>
+                <td>0 ₽</td>
+                <td><strong>0 ₽</strong></td>
+            </tr>
+            
+            <tr>
+                <td>5</td>
+                <td><strong>Стоматология Коломакиных</strong></td>
+                <td><span class="badge bg-warning">5,0</span></td>
+                <td>пер. Белоусова, 6</td>
+                <td>Стоматологическая клиника</td>
+                <td>+7 (965) 229-59-50</td>
+                <td><a href="https://stkolomakin.ru/?utm_source=yaBBe" target="_blank">Сайт</a></td>
+                <td><a href="https://yandex.ru/maps/org/stomatologiya_kolomakinykh/48587544963/" target="_blank">Карты</a></td>
+                <td><span class="badge bg-primary">48</span></td>
+                <td>300 ₽</td>
+                <td>65,000 ₽</td>
+                <td><strong>8,029 ₽</strong></td>
+            </tr>
+            
+            <tr>
+                <td>6</td>
+                <td><strong>Стоматология Коломакиных</strong></td>
+                <td><span class="badge bg-warning">5,0</span></td>
+                <td>ул. Петренко, 26А</td>
+                <td>Стоматологическая клиника, Детская стоматология</td>
+                <td>+7 (967) 529-80-25</td>
+                <td><a href="https://stkolomakin.ru/?utm_source=yaBPe" target="_blank">Сайт</a></td>
+                <td><a href="https://yandex.ru/maps/org/stomatologiya_kolomakinykh/63665148745/" target="_blank">Карты</a></td>
+                <td><span class="badge bg-primary">63</span></td>
+                <td>1 ₽</td>
+                <td>500,000 ₽</td>
+                <td><strong>36,562 ₽</strong></td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </div>
+        
+            </div>
+            
+            <!-- Товары/услуги -->
+            <div class="tab-pane fade" id="products" role="tabpanel">
+                <h3>🛍️ Товары и услуги по предприятиям</h3>
+                <p class="text-muted">Всего 377 товаров/услуг от 6 предприятий</p>
+                <div class="alert alert-info" role="alert">
+                    💡 <strong>Совет:</strong> Кликните на предприятие чтобы развернуть список услуг. 
+                    Цветовая схема: 🟢 дешевые услуги, 🔴 дорогие услуги
+                </div>
+                
+        <div class="accordion" id="productsAccordion">
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading_business_0">
+                    <button class="accordion-button " type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#collapse_business_0" 
+                            aria-expanded="true" aria-controls="collapse_business_0">
+                        
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div>
+                    <strong>🏥 Авеню</strong>
+                    <span class="badge bg-warning ms-2">4,8</span>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary me-2">200 услуг</span>
+                    <span class="badge bg-success">20,780 ₽ сред.</span>
+                </div>
+            </div>
+            
+                    </button>
+                </h2>
+                <div id="collapse_business_0" class="accordion-collapse collapse show" 
+                     aria-labelledby="heading_business_0" data-bs-parent="#productsAccordion">
+                    <div class="accordion-body">
+                        
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            📍 10-й Лазоревый пер., 59/45<br>
+                            📞 +7 (863) 333-95-96<br>
+                            🌐 <a href="https://avenudent.ru/" target="_blank">Сайт</a>
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            💰 Цены: 170 - 370,000 ₽<br>
+                            📊 Среднее: 20,780 ₽<br>
+                            🔗 <a href="https://yandex.ru/maps/org/avenyu/160697557979/" target="_blank">Яндекс Карты</a>
+                        </small>
+                    </div>
+                </div>
+                
+                        
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="35%">Название услуги</th>
+                                        <th width="15%">Цена</th>
+                                        <th width="45%">Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                <tr class="table-success">
+                    <td>1</td>
+                    <td><strong>Коллагеновая мембрана Bio-Gide и аналоги 25х25</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>2</td>
+                    <td><strong>Коллагеновая мембрана Bio-Gide и аналоги 25х25</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>3</td>
+                    <td><strong>Внутрикостная дентальная имплантация (установка имплантата Dentium)</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>4</td>
+                    <td><strong>Установка формирователя десны (одномоментная )</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>5</td>
+                    <td><strong>Установка формирователя десны (отсроченная )</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>6</td>
+                    <td><strong>Лечение переимплантита</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>7</td>
+                    <td><strong>Восстановление зуба циркониевой коронкой анатомия</strong></td>
+                    <td class="text-nowrap"><strong>19000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>8</td>
+                    <td><strong>Акриловый протез (на системе ALL-ON-4)</strong></td>
+                    <td class="text-nowrap"><strong>250000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>9</td>
+                    <td><strong>Протезирование коронкой из диоксида циркония на имплантанте с использованием индивидуального абатмента</strong></td>
+                    <td class="text-nowrap"><strong>30000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>10</td>
+                    <td><strong>Акриловый протез (на систетме ALL-ON-6)</strong></td>
+                    <td class="text-nowrap"><strong>280000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>11</td>
+                    <td><strong>Вкладка культевая</strong></td>
+                    <td class="text-nowrap"><strong>4100 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>12</td>
+                    <td><strong>Вкладка культевая разборная</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>13</td>
+                    <td><strong>Восстановление зуба виниром/коронкой/полукоронкой/накладкой Е-max</strong></td>
+                    <td class="text-nowrap"><strong>22000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>14</td>
+                    <td><strong>Изготовление временной коронки из пластмассы клиническим путем</strong></td>
+                    <td class="text-nowrap"><strong>2500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>15</td>
+                    <td><strong>Протезирование коронкой металлокерамической на имплантате с использованием индивидуального абатмента</strong></td>
+                    <td class="text-nowrap"><strong>26900 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>16</td>
+                    <td><strong>Съемный протез на балочной системе фиксации</strong></td>
+                    <td class="text-nowrap"><strong>250000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>17</td>
+                    <td><strong>Коронки из диокида циркония/мк (на системе ALL-ON-4)</strong></td>
+                    <td class="text-nowrap"><strong>330000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>18</td>
+                    <td><strong>Коронки из диокида циркония/мк (на системе ALL-ON-6)</strong></td>
+                    <td class="text-nowrap"><strong>350000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>19</td>
+                    <td><strong>Изготовление временной коронки на имплантате</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>20</td>
+                    <td><strong>Протезирование коронкой металлокерамической на имплантате без абатмента в составе мостовидного протеза</strong></td>
+                    <td class="text-nowrap"><strong>9500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>21</td>
+                    <td><strong>Протезирование коронкой Е-max на имплантате</strong></td>
+                    <td class="text-nowrap"><strong>35000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>22</td>
+                    <td><strong>Изготовление временной коронки на имплантате (лабораторная)</strong></td>
+                    <td class="text-nowrap"><strong>8000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>23</td>
+                    <td><strong>Изготовление ретенционной каппы (1 челюсть)</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>24</td>
+                    <td><strong>Изготовление каппы для бруксизма (1 челюсть)</strong></td>
+                    <td class="text-nowrap"><strong>5500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>25</td>
+                    <td><strong>Протезирование частичными съемными пластиночными протезами</strong></td>
+                    <td class="text-nowrap"><strong>30000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>26</td>
+                    <td><strong>Изготовление бюгельного протеза с кламмерной фиксацией с фрезеровками</strong></td>
+                    <td class="text-nowrap"><strong>50000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>27</td>
+                    <td><strong>Изготовление бюгельного протеза с аттачменами с фрезеровками</strong></td>
+                    <td class="text-nowrap"><strong>45000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>28</td>
+                    <td><strong>Протезирование съемными бюгельными протезами</strong></td>
+                    <td class="text-nowrap"><strong>42000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>29</td>
+                    <td><strong>Перебазировка съемного протеза клиническая</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>30</td>
+                    <td><strong>Починка клиническим методом</strong></td>
+                    <td class="text-nowrap"><strong>1900 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>31</td>
+                    <td><strong>Приварка искусственного зуба из пластмассы (1-3 зуба)</strong></td>
+                    <td class="text-nowrap"><strong>2500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>32</td>
+                    <td><strong>Починка съемного протеза</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>33</td>
+                    <td><strong>Изготовление телескопической коронки</strong></td>
+                    <td class="text-nowrap"><strong>10500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>34</td>
+                    <td><strong>Прием (осмотр,консультация)врача-стоматолога-ортопеда первичный</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>35</td>
+                    <td><strong>Прием (осмотр,консультация) врача-стоматолога-ортопеда повторный</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>36</td>
+                    <td><strong>Система элайнеров Spark 1 категория сложности</strong></td>
+                    <td class="text-nowrap"><strong>250000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>37</td>
+                    <td><strong>Система элайнеров Spark 1 категория сложности</strong></td>
+                    <td class="text-nowrap"><strong>250000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>38</td>
+                    <td><strong>Система элайнеров Spark 2 категория сложности</strong></td>
+                    <td class="text-nowrap"><strong>300000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>39</td>
+                    <td><strong>Система элайнеров Spark 3 категория сложности</strong></td>
+                    <td class="text-nowrap"><strong>340000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>40</td>
+                    <td><strong>Система элайнеров Spark 4 категория сложности</strong></td>
+                    <td class="text-nowrap"><strong>370000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>41</td>
+                    <td><strong>Ортодонтическая коррекция съемным ортодонтическим аппаратом</strong></td>
+                    <td class="text-nowrap"><strong>8000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>42</td>
+                    <td><strong>Изготовление съемной ортодонтической пластины без винта</strong></td>
+                    <td class="text-nowrap"><strong>16000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>43</td>
+                    <td><strong>Изготовление съемной ортодонтической пластины с винтом Бертони</strong></td>
+                    <td class="text-nowrap"><strong>30000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>44</td>
+                    <td><strong>Изготовление съемной ортодонтической пластины с 2-мя винтами</strong></td>
+                    <td class="text-nowrap"><strong>18000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>45</td>
+                    <td><strong>Изготовление съемной ортодонтической пластины с 3-мя винтами</strong></td>
+                    <td class="text-nowrap"><strong>18000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>46</td>
+                    <td><strong>Изготовление аппарата Твин-Блока</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>47</td>
+                    <td><strong>Металлическая самолигирующая система Damon Q (фиксация 1 челюсть )</strong></td>
+                    <td class="text-nowrap"><strong>65000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>48</td>
+                    <td><strong>Фиксация частичной металлической лигатурной брекет-системой, 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>49</td>
+                    <td><strong>Замена дуги во время лечения (1 челюсть )</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>50</td>
+                    <td><strong>Снятие брекет-системы, 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>51</td>
+                    <td><strong>Фиксация ретейнера, 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-155</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>52</td>
+                    <td><strong>Повторная фиксация ретейнера, 1 единица</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>53</td>
+                    <td><strong>Снятие ретейнера, 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>54</td>
+                    <td><strong>Установка брекет-системы Промим( 1 челюсть)</strong></td>
+                    <td class="text-nowrap"><strong>45000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>55</td>
+                    <td><strong>Установка ортодонтического микроимпланта (1 единица )</strong></td>
+                    <td class="text-nowrap"><strong>12000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>56</td>
+                    <td><strong>Установка ортодонтического микроимплантата VectorTas (1 единица )</strong></td>
+                    <td class="text-nowrap"><strong>20000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>57</td>
+                    <td><strong>Наложение девитализирующей пасты</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>58</td>
+                    <td><strong>Наложение девитализирующей пасты</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>59</td>
+                    <td><strong>Наложение постоянной пломбы после эндодонтического лечения</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>60</td>
+                    <td><strong>Наложение временной пломбы</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>61</td>
+                    <td><strong>Лечение среднего кариеса</strong></td>
+                    <td class="text-nowrap"><strong>5100 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>62</td>
+                    <td><strong>Эстетическая реставрация коронковой части зуба (жевательная группа)</strong></td>
+                    <td class="text-nowrap"><strong>8000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>63</td>
+                    <td><strong>Лечение глубокого кариеса</strong></td>
+                    <td class="text-nowrap"><strong>6100 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>64</td>
+                    <td><strong>Эстетическая реставрация коронковой части зуба (фронтальная группа)</strong></td>
+                    <td class="text-nowrap"><strong>9500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>65</td>
+                    <td><strong>Лечение 1-канального пульпита</strong></td>
+                    <td class="text-nowrap"><strong>9400 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>66</td>
+                    <td><strong>Лечение 2-х канального пульпита</strong></td>
+                    <td class="text-nowrap"><strong>11400 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>67</td>
+                    <td><strong>Лечение 3-х канального пульпита</strong></td>
+                    <td class="text-nowrap"><strong>15200 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>68</td>
+                    <td><strong>Лечение 4-х канального пульпита</strong></td>
+                    <td class="text-nowrap"><strong>17000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>69</td>
+                    <td><strong>Лечение 1-канального периодонтита</strong></td>
+                    <td class="text-nowrap"><strong>11000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>70</td>
+                    <td><strong>Лечение 2-х канального периодонтита</strong></td>
+                    <td class="text-nowrap"><strong>13000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>71</td>
+                    <td><strong>Лечение 3-х канального периодонтита</strong></td>
+                    <td class="text-nowrap"><strong>16000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>72</td>
+                    <td><strong>Лечение 4-х канального периодонтита</strong></td>
+                    <td class="text-nowrap"><strong>18400 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>73</td>
+                    <td><strong>Снятие временной пломбы</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>74</td>
+                    <td><strong>Снятие постоянной пломбы</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>75</td>
+                    <td><strong>Извлечение из канала эндодотического инструмента, штифтово-культевой вкладки</strong></td>
+                    <td class="text-nowrap"><strong>2500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>76</td>
+                    <td><strong>Прием (осмотр,консультация) врача-стоматолога-терапевта первичный</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>77</td>
+                    <td><strong>Осмотр (санация,беременность- справка)</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>78</td>
+                    <td><strong>Удаление зуба с сигментированием</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>79</td>
+                    <td><strong>Удаление зуба с сигментированием</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>80</td>
+                    <td><strong>Удаление зуба без сигментирования</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>81</td>
+                    <td><strong>Резекция верхушки корня с цистэктомией</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>82</td>
+                    <td><strong>Кюретаж лунки</strong></td>
+                    <td class="text-nowrap"><strong>1300 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>83</td>
+                    <td><strong>Удаление зуба 3 категория сложности (дистопированный , ретинированный )</strong></td>
+                    <td class="text-nowrap"><strong>6500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>84</td>
+                    <td><strong>Пластика уздечки верхней губы</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>85</td>
+                    <td><strong>Пластика уздечки нижней губы</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>86</td>
+                    <td><strong>Пластика уздечки языка</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="">
+                    <td>87</td>
+                    <td><strong>Синус-лифтинг закрытый</strong></td>
+                    <td class="text-nowrap"><strong>13000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>88</td>
+                    <td><strong>Синус-лифтинг открытый</strong></td>
+                    <td class="text-nowrap"><strong>32000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>89</td>
+                    <td><strong>Лечение перикоронита (промывание, рассечение и/или иссечение капюшона)</strong></td>
+                    <td class="text-nowrap"><strong>1600 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>90</td>
+                    <td><strong>Лечение альвеолита</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>91</td>
+                    <td><strong>Ушивание лунки</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>92</td>
+                    <td><strong>Наложение шовного материала</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>93</td>
+                    <td><strong>Удаление импланта</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>94</td>
+                    <td><strong>Удаление импланта, установленного в другом медицинском учреждении</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>95</td>
+                    <td><strong>Снятие швов (из сторонней клиники)</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>96</td>
+                    <td><strong>Резекция верхушки корня с цистэктомией (фронтальная группа)</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>97</td>
+                    <td><strong>Иссечение ретенционной кисты</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>98</td>
+                    <td><strong>Резекция верхушки корня</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>99</td>
+                    <td><strong>Глубокое фторирование эмали зуба</strong></td>
+                    <td class="text-nowrap"><strong>170 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>100</td>
+                    <td><strong>Глубокое фторирование эмали зуба</strong></td>
+                    <td class="text-nowrap"><strong>170 ₽</strong></td>
+                    <td>Стоматология АВЕНЮ на Суворовском, 10-й Лазоревый переулок, 59 Запись по телефону 8 (928) 120-88-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>101</td>
+                    <td><strong>УЗИ органов малого таза (гинекология) - 2 датчиками</strong></td>
+                    <td class="text-nowrap"><strong>2400 ₽</strong></td>
+                    <td>Исследование проводится через живот (трансабдоминально) и внутриполостным датчиком (трансвагинально). Запись на прием по номеру общего колл-центра 892...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>102</td>
+                    <td><strong>УЗИ органов малого таза (гинекология) - 2 датчиками</strong></td>
+                    <td class="text-nowrap"><strong>2400 ₽</strong></td>
+                    <td>Исследование проводится через живот (трансабдоминально) и внутриполостным датчиком (трансвагинально). Запись на прием по номеру общего колл-центра 892...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>103</td>
+                    <td><strong>УЗИ органов брюшной полости (печень, желчный пузырь, поджелудочная железа, селезёнка)</strong></td>
+                    <td class="text-nowrap"><strong>2400 ₽</strong></td>
+                    <td>Запись на прием по номеру общего колл-центра 89281112211. ИМЕЮТСЯ ПРОТИВОПАКАЗНИЯ, НЕОБХОДИМА КОНСУЛЬТАЦИЯ СПЕЦИАЛИСТА.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>104</td>
+                    <td><strong>УЗИ почек</strong></td>
+                    <td class="text-nowrap"><strong>1400 ₽</strong></td>
+                    <td>УЗИ почек — информативное и безопасное исследование, которое проводится с первых дней жизни всем пациентам как в профилактических целях, так и для диа...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>105</td>
+                    <td><strong>УЗИ щитовидной железы</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>УЗИ щитовидной железы — одно из самых востребованных методов визуализации этого органа.Запись на прием по номеру общего колл-центра 89281112211. ИМЕЮТ...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>106</td>
+                    <td><strong>УЗИ беременность I триместр (до 11 нед)</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td>Исследование ультразвуковым методом беременной матки (в том числе исследование длины шейки матки), придатков, плодного яйца, эмбриона, желточного мешк...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>107</td>
+                    <td><strong>УЗИ молочных желез</strong></td>
+                    <td class="text-nowrap"><strong>1700 ₽</strong></td>
+                    <td>УЗИ молочных желез - метод незаменим в выявлении узловых образований, патологических структур, подозрительных на опухолевый процесс. Запись на прием п...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>108</td>
+                    <td><strong>УЗИ сердца (с 18 лет)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>УЗИ сердца (ЭхоКГ) – метод диагностики и динамической оценки многих нарушений сердечной деятельности. Э Запись на прием по номеру общего колл-центра 8...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>109</td>
+                    <td><strong>УЗИ артерий шеи (БЦА)</strong></td>
+                    <td class="text-nowrap"><strong>2100 ₽</strong></td>
+                    <td>Запись на прием по номеру общего колл-центра 89281112211. ИМЕЮТСЯ ПРОТИВОПАКАЗНИЯ, НЕОБХОДИМА КОНСУЛЬТАЦИЯ СПЕЦИАЛИСТА.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>110</td>
+                    <td><strong>УЗИ вен нижних конечностей</strong></td>
+                    <td class="text-nowrap"><strong>2200 ₽</strong></td>
+                    <td>УЗИ вен верхних конечностей — высокочувствительный и безопасный метод для оценки состояния вен. Запись на прием по номеру общего колл-центра 892811122...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>111</td>
+                    <td><strong>УЗИ плода во II и III триместре</strong></td>
+                    <td class="text-nowrap"><strong>2400 ₽</strong></td>
+                    <td>Узи при беременности (II триместр) в Ростове-на-Дону Абсолютно безопасное исследование ультразвуковым методом беременной матки и плода на сроке 18-21 ...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>112</td>
+                    <td><strong>УЗИ сердца (дети до 18 лет)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>УЗИ сердца (ЭхоКГ) исследование, позволяющее оценить структуру и функцию тканей сердца, его клапанов, сосудов и камер сердца). Запись на прием по номе...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>113</td>
+                    <td><strong>УЗИ мочевого пузыря</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Запись на прием по номеру общего колл-центра 89281112211. ИМЕЮТСЯ ПРОТИВОПАКАЗНИЯ, НЕОБХОДИМА КОНСУЛЬТАЦИЯ СПЕЦИАЛИСТА.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>114</td>
+                    <td><strong>УЗИ фолликулометрия</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Метод УЗИ, благодаря которому можно наблюдать за процессами, происходящими во внутренних половых органах женщины во время ее менструального цикла. Зап...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>115</td>
+                    <td><strong>УЗИ мочевого пузыря с определением остаточной мочи</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Запись на прием по номеру общего колл-центра 89281112211. ИМЕЮТСЯ ПРОТИВОПАКАЗНИЯ, НЕОБХОДИМА КОНСУЛЬТАЦИЯ СПЕЦИАЛИСТА.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>116</td>
+                    <td><strong>УЗИ мягких тканей</strong></td>
+                    <td class="text-nowrap"><strong>950 ₽</strong></td>
+                    <td>УЗИ мягких тканей показано для оценки и дифференциации пальпируемых образований мягких тканей: Запись на прием по номеру общего колл-центра 8928111221...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>117</td>
+                    <td><strong>Пакет УЗИ для женщин (органы малого таза, молочные железы, щитовидная железа) (БЕЗ СКИДКИ)</strong></td>
+                    <td class="text-nowrap"><strong>4160 ₽</strong></td>
+                    <td>Комплексное УЗИ для женщин — быстрое исследование с высокой степенью точности, позволяющее одномоментно диагностировать состояние самых важных органов...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>118</td>
+                    <td><strong>УЗИ органов брюшной полости (печень, желчный пузырь, поджелудочная железа, селезенка)</strong></td>
+                    <td class="text-nowrap"><strong>2400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>119</td>
+                    <td><strong>УЗИ печени и желчного пузыря</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>120</td>
+                    <td><strong>УЗИ желчного пузыря</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>121</td>
+                    <td><strong>УЗИ желчного пузыря с определением его сократимости</strong></td>
+                    <td class="text-nowrap"><strong>1450 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>122</td>
+                    <td><strong>УЗИ печени</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>123</td>
+                    <td><strong>Эластометрия печени</strong></td>
+                    <td class="text-nowrap"><strong>1750 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>124</td>
+                    <td><strong>УЗИ поджелудочной железы</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>125</td>
+                    <td><strong>УЗИ селезенки</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>126</td>
+                    <td><strong>УЗИ забрюшинных лимфоузлов</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>127</td>
+                    <td><strong>УЗИ почек</strong></td>
+                    <td class="text-nowrap"><strong>1400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>128</td>
+                    <td><strong>УЗИ мочевого пузыря</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>129</td>
+                    <td><strong>УЗИ мочевого пузыря с определением остаточной мочи</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>130</td>
+                    <td><strong>УЗИ простаты</strong></td>
+                    <td class="text-nowrap"><strong>1300 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>131</td>
+                    <td><strong>УЗИ простаты трансректальное</strong></td>
+                    <td class="text-nowrap"><strong>2100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>132</td>
+                    <td><strong>Пакет УЗИ для мужчин (почки, простата, мочевой пузырь с определением остаточной мочи)</strong></td>
+                    <td class="text-nowrap"><strong>3040 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>133</td>
+                    <td><strong>УЗИ мошонки</strong></td>
+                    <td class="text-nowrap"><strong>1600 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>134</td>
+                    <td><strong>УЗИ органов малого таза (гинекология) трансвагинальное или трансабдоминальное</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>135</td>
+                    <td><strong>УЗИ органов малого таза (гинекология) 2-мя датчиками</strong></td>
+                    <td class="text-nowrap"><strong>2400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>136</td>
+                    <td><strong>УЗИ органов малого таза (гинекология)+допплер маточных артерий</strong></td>
+                    <td class="text-nowrap"><strong>2700 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>137</td>
+                    <td><strong>УЗИ тазового дна и диагностика генитального пролапса</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>138</td>
+                    <td><strong>Пакет УЗИ для женщин (органы малого таза, молочные железы, щитовидная железа)</strong></td>
+                    <td class="text-nowrap"><strong>4160 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>139</td>
+                    <td><strong>УЗИ фолликулометрия</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>140</td>
+                    <td><strong>Допплер маточных артерий (вне беременности)</strong></td>
+                    <td class="text-nowrap"><strong>1900 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>141</td>
+                    <td><strong>УЗИ до 11 недель беременности</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>142</td>
+                    <td><strong>УЗИ плода во II-III триместре</strong></td>
+                    <td class="text-nowrap"><strong>2400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>143</td>
+                    <td><strong>Допплерометрия при беременности</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>144</td>
+                    <td><strong>УЗИ шейки матки (Цервикометрия)</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>145</td>
+                    <td><strong>УЗИ определение пола плода</strong></td>
+                    <td class="text-nowrap"><strong>950 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>146</td>
+                    <td><strong>УЗИ лонного сочленения</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>147</td>
+                    <td><strong>УЗИ молочных желез</strong></td>
+                    <td class="text-nowrap"><strong>1700 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>148</td>
+                    <td><strong>УЗИ щитовидной железы</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>149</td>
+                    <td><strong>УЗИ надпочечников</strong></td>
+                    <td class="text-nowrap"><strong>950 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>150</td>
+                    <td><strong>УЗИ мягких тканей</strong></td>
+                    <td class="text-nowrap"><strong>950 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>151</td>
+                    <td><strong>УЗИ поверхностных лимфоузлов (1 зона)</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>152</td>
+                    <td><strong>УЗИ плевральной полости</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>153</td>
+                    <td><strong>УЗИ слюнных желез</strong></td>
+                    <td class="text-nowrap"><strong>1300 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>154</td>
+                    <td><strong>УЗИ грыжи</strong></td>
+                    <td class="text-nowrap"><strong>1300 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>155</td>
+                    <td><strong>УЗИ орбиты глаз</strong></td>
+                    <td class="text-nowrap"><strong>1600 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>156</td>
+                    <td><strong>УЗИ сердца (взрослые)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>157</td>
+                    <td><strong>УЗИ сердца (дети до 18 лет)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>158</td>
+                    <td><strong>УЗИ желудка</strong></td>
+                    <td class="text-nowrap"><strong>1600 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>159</td>
+                    <td><strong>УЗИ кишечника</strong></td>
+                    <td class="text-nowrap"><strong>2100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>160</td>
+                    <td><strong>УЗИ артерий шеи (БЦА)</strong></td>
+                    <td class="text-nowrap"><strong>2100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>161</td>
+                    <td><strong>УЗИ артерий головного мозга (ТКДГ)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>162</td>
+                    <td><strong>УЗИ артерий шеи (БЦА) + ВББ (базилярная артерия, внутричерепные позвоночные артерии с ротационными пробами)</strong></td>
+                    <td class="text-nowrap"><strong>2900 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>163</td>
+                    <td><strong>УЗИ артерий верхних/нижних конечностей</strong></td>
+                    <td class="text-nowrap"><strong>2200 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>164</td>
+                    <td><strong>УЗИ брюшной аорты и ее ветви</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>165</td>
+                    <td><strong>УЗИ почечных артерий (вены)</strong></td>
+                    <td class="text-nowrap"><strong>2100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>166</td>
+                    <td><strong>УЗИ тазобедренного сустава (1 сустав)</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>167</td>
+                    <td><strong>УЗИ коленного сустава (1 сустав)</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>168</td>
+                    <td><strong>УЗИ голеностопного сустава (1 сустав)</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>169</td>
+                    <td><strong>УЗИ стопы</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>170</td>
+                    <td><strong>УЗИ плечевого сустава (1 сустав)</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>171</td>
+                    <td><strong>УЗИ локтевого сустава (1 сустав)</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>172</td>
+                    <td><strong>УЗИ лучезапястного сустава (1 сустав)</strong></td>
+                    <td class="text-nowrap"><strong>1400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>173</td>
+                    <td><strong>УЗИ кисти</strong></td>
+                    <td class="text-nowrap"><strong>1400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>174</td>
+                    <td><strong>УЗИ шейного отдела позвоночника</strong></td>
+                    <td class="text-nowrap"><strong>1400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>175</td>
+                    <td><strong>УЗИ ахиллова сухожилия</strong></td>
+                    <td class="text-nowrap"><strong>1200 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>176</td>
+                    <td><strong>УЗИ грудинно-ключичного сочленения</strong></td>
+                    <td class="text-nowrap"><strong>1300 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>177</td>
+                    <td><strong>Нейросонография (дети)</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>178</td>
+                    <td><strong>УЗИ комплекс для детей до года (нейросонограмма, сердце, почки, брюшная полость, тазобедренные суставы)</strong></td>
+                    <td class="text-nowrap"><strong>7500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>179</td>
+                    <td><strong>УЗИ комплекс для детей до 8 лет (брюшная полость, почки, щитовидная железа, сердце, репродуктивные органы)</strong></td>
+                    <td class="text-nowrap"><strong>7500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>180</td>
+                    <td><strong>УЗИ вилочковой железы (дети до года)</strong></td>
+                    <td class="text-nowrap"><strong>950 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>181</td>
+                    <td><strong>УЗИ пазух носа</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>182</td>
+                    <td><strong>УЗИ тазобедренных суставов (дети до года)</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>183</td>
+                    <td><strong>Тонкоигольная аспирационная биопсия (ТАБ) ткани молочной железы + УЗИ (без стоимости цитологии)</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>184</td>
+                    <td><strong>УЗИ одного периферического нерва</strong></td>
+                    <td class="text-nowrap"><strong>1900 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>185</td>
+                    <td><strong>УЗИ периферических нервов одной верхней конечности (срединный, локтевой, лучевой)</strong></td>
+                    <td class="text-nowrap"><strong>3400 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>186</td>
+                    <td><strong>УЗИ периферических нервов одной нижней конечности (седалищный, большеберцовый, малоберцовый)</strong></td>
+                    <td class="text-nowrap"><strong>3200 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>187</td>
+                    <td><strong>УЗИ периферических нервов двух верхних конечностей (срединный, локтевой, лучевой)</strong></td>
+                    <td class="text-nowrap"><strong>4200 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>188</td>
+                    <td><strong>УЗИ периферических нервов двух нижних конечностей (седалищный, большеберцовый, малоберцовый)</strong></td>
+                    <td class="text-nowrap"><strong>4200 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>189</td>
+                    <td><strong>УЗИ периферических нервов двух верхних конечностей (срединный, локтевой, лучевой) и плечевых сплетений</strong></td>
+                    <td class="text-nowrap"><strong>7500 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>190</td>
+                    <td><strong>УЗИ одного плечевого нервного сплетения</strong></td>
+                    <td class="text-nowrap"><strong>3100 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>191</td>
+                    <td><strong>УЗИ двух плечевых нервных сплетений</strong></td>
+                    <td class="text-nowrap"><strong>4200 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>192</td>
+                    <td><strong>УЗИ подошвенно-пальцевых нервов одной стопы (невринома Мортона)</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>193</td>
+                    <td><strong>УЗИ карпального клапана</strong></td>
+                    <td class="text-nowrap"><strong>1800 ₽</strong></td>
+                    <td>Медицинский центр АВЕНЮ Запись на УЗИ по телефону 8-928-111-22-11</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>194</td>
+                    <td><strong>Антимюллеров гормон АМГ</strong></td>
+                    <td class="text-nowrap"><strong>1700 ₽</strong></td>
+                    <td>Срок исполнения: Исследование выполняется 4 дня Эта услуга оказывается без предварительной записи</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>195</td>
+                    <td><strong>Антимюллеров гормон АМГ</strong></td>
+                    <td class="text-nowrap"><strong>1700 ₽</strong></td>
+                    <td>Срок исполнения: Исследование выполняется 4 дня Эта услуга оказывается без предварительной записи</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>196</td>
+                    <td><strong>Кальпротектин (в кале)</strong></td>
+                    <td class="text-nowrap"><strong>3150 ₽</strong></td>
+                    <td>Исследование, направленное на диагностику воспалительных заболеваний кишечника. Исследование выполняется 7 дней Эта услуга оказывается без предварител...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>197</td>
+                    <td><strong>Анализ на гормон ФСГ</strong></td>
+                    <td class="text-nowrap"><strong>590 ₽</strong></td>
+                    <td>Один из базовых тестов в диагностике патологий репродуктивной системы как у женщин, так и у мужчин. Исследование выполняется 2 дня Эта услуга оказывае...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>198</td>
+                    <td><strong>Определение группы крови и резус-фактора</strong></td>
+                    <td class="text-nowrap"><strong>520 ₽</strong></td>
+                    <td>Комплексное лабораторное исследование, которое определяет групповую принадлежность пациента по двум главным системам крови. Исследование выполняется 2...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>199</td>
+                    <td><strong>Общий анализ кала (копрограмма)</strong></td>
+                    <td class="text-nowrap"><strong>550 ₽</strong></td>
+                    <td>Копрограмма, или общий анализ кала, представляет собой специализированное исследование, направленное на анализ различных параметров стула с целью выяв...</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>200</td>
+                    <td><strong>Исследование скорости оседания эритроцитов (СОЭ), количественно</strong></td>
+                    <td class="text-nowrap"><strong>210 ₽</strong></td>
+                    <td>СОЭ (скорость оседания эритроцитов) — показатель, дающий информацию о соотношении белков плазмы крови.</td>
+                </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">
+                                Всего услуг: 200 • 
+                                Цветовая схема: 🟢 дешево, 🔴 дорого
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading_business_1">
+                    <button class="accordion-button collapsed" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#collapse_business_1" 
+                            aria-expanded="false" aria-controls="collapse_business_1">
+                        
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div>
+                    <strong>🏥 Стоматология Коломакиных</strong>
+                    <span class="badge bg-warning ms-2">5,0</span>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary me-2">111 услуг</span>
+                    <span class="badge bg-success">24,223 ₽ сред.</span>
+                </div>
+            </div>
+            
+                    </button>
+                </h2>
+                <div id="collapse_business_1" class="accordion-collapse collapse " 
+                     aria-labelledby="heading_business_1" data-bs-parent="#productsAccordion">
+                    <div class="accordion-body">
+                        
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            📍 пер. Белоусова, 6<br>
+                            📞 +7 (965) 229-59-50<br>
+                            🌐 <a href="https://stkolomakin.ru/?utm_source=yaBBe" target="_blank">Сайт</a>
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            💰 Цены: 1 - 500,000 ₽<br>
+                            📊 Среднее: 24,223 ₽<br>
+                            🔗 <a href="https://yandex.ru/maps/org/stomatologiya_kolomakinykh/48587544963/" target="_blank">Яндекс Карты</a>
+                        </small>
+                    </div>
+                </div>
+                
+                        
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="35%">Название услуги</th>
+                                        <th width="15%">Цена</th>
+                                        <th width="45%">Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                <tr class="table-success">
+                    <td>1</td>
+                    <td><strong>Визиографический снимок зуба</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Визиографический снимок зуба</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>2</td>
+                    <td><strong>Визиографический снимок зуба</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Визиографический снимок зуба</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>3</td>
+                    <td><strong>Фторирование (снятие чувствительности) 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Фторирование (снятие чувствительности) 1 челюсть</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>4</td>
+                    <td><strong>Лечение кариеса (первичный)</strong></td>
+                    <td class="text-nowrap"><strong>4600 ₽</strong></td>
+                    <td>Лечение кариеса (первичный)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>5</td>
+                    <td><strong>Лечение (дефект пломбы + штифт)</strong></td>
+                    <td class="text-nowrap"><strong>5600 ₽</strong></td>
+                    <td>Лечение (дефект пломбы + штифт)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>6</td>
+                    <td><strong>Консультация ортодонта</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td>Консультация ортодонта</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>7</td>
+                    <td><strong>Гигиена полости рта</strong></td>
+                    <td class="text-nowrap"><strong>4300 ₽</strong></td>
+                    <td>Гигиена полости рта</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>8</td>
+                    <td><strong>Фторирование (снятие чувствительности) 1 зуб</strong></td>
+                    <td class="text-nowrap"><strong>300 ₽</strong></td>
+                    <td>Фторирование (снятие чувствительности) 1 зуб</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>9</td>
+                    <td><strong>Пульпит в 2-3 посещения (в зависимости от кол-ва корневых каналов)</strong></td>
+                    <td class="text-nowrap"><strong>9000 ₽</strong></td>
+                    <td>Пульпит в 2-3 посещения (в зависимости от кол-ва корневых каналов)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>10</td>
+                    <td><strong>Консультация ортодонта</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td>Консультация ортодонта</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>11</td>
+                    <td><strong>Консультация ортодонта</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td>Консультация ортодонта</td>
+                </tr>
+                
+                <tr class="">
+                    <td>12</td>
+                    <td><strong>Установка одного имплантата (в зависимости от импланта)</strong></td>
+                    <td class="text-nowrap"><strong>33000 ₽</strong></td>
+                    <td>Установка одного имплантата (в зависимости от импланта)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>13</td>
+                    <td><strong>Костная пластика</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td>Костная пластика</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>14</td>
+                    <td><strong>Мягкотканая пластика</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td>Мягкотканая пластика</td>
+                </tr>
+                
+                <tr class="">
+                    <td>15</td>
+                    <td><strong>Аббатмент, винт + коронка из диоксида циркония</strong></td>
+                    <td class="text-nowrap"><strong>27000 ₽</strong></td>
+                    <td>Аббатмент, винт + коронка из диоксида циркония</td>
+                </tr>
+                
+                <tr class="">
+                    <td>16</td>
+                    <td><strong>Аббатмент, винт + коронка из металлокерамики</strong></td>
+                    <td class="text-nowrap"><strong>23000 ₽</strong></td>
+                    <td>Аббатмент, винт + коронка из металлокерамики</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>17</td>
+                    <td><strong>Временная коронка на имплантат</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Временная коронка на имплантат</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>18</td>
+                    <td><strong>Визиографический снимок зуба</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Визиографический снимок зуба</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>19</td>
+                    <td><strong>Визиографический снимок зуба</strong></td>
+                    <td class="text-nowrap"><strong>500 ₽</strong></td>
+                    <td>Визиографический снимок зуба</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>20</td>
+                    <td><strong>Гигиена полости рта</strong></td>
+                    <td class="text-nowrap"><strong>3200 ₽</strong></td>
+                    <td>Гигиена полости рта</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>21</td>
+                    <td><strong>Лечение кариеса (постоянного зуба)</strong></td>
+                    <td class="text-nowrap"><strong>3700 ₽</strong></td>
+                    <td>Лечение кариеса (постоянного зуба)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>22</td>
+                    <td><strong>Пульпит (в 2-3 посещения)</strong></td>
+                    <td class="text-nowrap"><strong>5600 ₽</strong></td>
+                    <td>Пульпит (в 2-3 посещения)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>23</td>
+                    <td><strong>Консультация ортодонта</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td>Консультация ортодонта</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>24</td>
+                    <td><strong>Лечение кариеса (молочного)</strong></td>
+                    <td class="text-nowrap"><strong>2800 ₽</strong></td>
+                    <td>Лечение кариеса (молочного)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>25</td>
+                    <td><strong>Периодонтит (в 2-3 посещения)</strong></td>
+                    <td class="text-nowrap"><strong>5200 ₽</strong></td>
+                    <td>Периодонтит (в 2-3 посещения)</td>
+                </tr>
+                
+                <tr class="">
+                    <td>26</td>
+                    <td><strong>Коронка - Съемные протезы</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Коронка - Съемные протезы</td>
+                </tr>
+                
+                <tr class="">
+                    <td>27</td>
+                    <td><strong>Коронка - Съемные протезы</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Коронка - Съемные протезы</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>28</td>
+                    <td><strong>Коронка - С напылением (булат), С циркониевым покрытием</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td>Коронка - С напылением (булат), С циркониевым покрытием</td>
+                </tr>
+                
+                <tr class="">
+                    <td>29</td>
+                    <td><strong>Коронка - Металлокерамическая</strong></td>
+                    <td class="text-nowrap"><strong>13000 ₽</strong></td>
+                    <td>Коронка - Металлокерамическая</td>
+                </tr>
+                
+                <tr class="">
+                    <td>30</td>
+                    <td><strong>Коронка - Диоксид циркония</strong></td>
+                    <td class="text-nowrap"><strong>17000 ₽</strong></td>
+                    <td>Коронка - Диоксид циркония</td>
+                </tr>
+                
+                <tr class="">
+                    <td>31</td>
+                    <td><strong>Коронка - Винир керамический</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Коронка - Винир керамический</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>32</td>
+                    <td><strong>Коронка - Временная коронка</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td>Коронка - Временная коронка</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>33</td>
+                    <td><strong>Снятие ретейнера с 1 челюсти</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Снятие ретейнера с 1 челюсти</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>34</td>
+                    <td><strong>Снятие ретейнера с 1 челюсти</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Снятие ретейнера с 1 челюсти</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>35</td>
+                    <td><strong>Консультация - первичный осмотр</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td>Консультация - первичный осмотр</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>36</td>
+                    <td><strong>Ортодонтическое лечение на одной челюсти, на самолигируюшей аппаратуре Damon Q</strong></td>
+                    <td class="text-nowrap"><strong>65000 ₽</strong></td>
+                    <td>Ортодонтическое лечение на одной челюсти, на самолигируюшей аппаратуре Damon Q</td>
+                </tr>
+                
+                <tr class="">
+                    <td>37</td>
+                    <td><strong>Ортодонтическая пластина съемная (детская) на 1 чел</strong></td>
+                    <td class="text-nowrap"><strong>15000 ₽</strong></td>
+                    <td>Ортодонтическая пластина съемная (детская) на 1 чел</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>38</td>
+                    <td><strong>Фиксация несъемного ретейнера на 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Фиксация несъемного ретейнера на 1 челюсть</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>39</td>
+                    <td><strong>Консультация ортодонта</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>40</td>
+                    <td><strong>Консультация ортодонта</strong></td>
+                    <td class="text-nowrap"><strong>700 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>41</td>
+                    <td><strong>Снятие коронки (1ед.)</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>42</td>
+                    <td><strong>Цементировка не гарантийной коронки (1ед.)</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>43</td>
+                    <td><strong>Удаление постоянного зуба (в зависимости от сложности)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>Удаление постоянного зуба (в зависимости от сложности)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>44</td>
+                    <td><strong>Удаление постоянного зуба (в зависимости от сложности)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>Удаление постоянного зуба (в зависимости от сложности)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>45</td>
+                    <td><strong>Удаление зуба мудрости (в зависимости от сложности)</strong></td>
+                    <td class="text-nowrap"><strong>3300 ₽</strong></td>
+                    <td>Удаление зуба мудрости (в зависимости от сложности)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>46</td>
+                    <td><strong>Усечение зубодесневого кармана, перикоронит (уздечка)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td>Усечение зубодесневого кармана, перикоронит (уздечка)</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>47</td>
+                    <td><strong>Удаление молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Удаление молочного зуба</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>48</td>
+                    <td><strong>Удаление молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>1000 ₽</strong></td>
+                    <td>Удаление молочного зуба</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>49</td>
+                    <td><strong>Фиксация коронки 1 единица</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>50</td>
+                    <td><strong>Фиксация коронки 1 единица</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>51</td>
+                    <td><strong>Установка временной коронки</strong></td>
+                    <td class="text-nowrap"><strong>4000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>52</td>
+                    <td><strong>Коронка цельнолитая без напыления/с напылением</strong></td>
+                    <td class="text-nowrap"><strong>14000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>53</td>
+                    <td><strong>Коронка металлокерамическая</strong></td>
+                    <td class="text-nowrap"><strong>16000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>54</td>
+                    <td><strong>Коронка из диоксида циркония без нанесения/с нанесением</strong></td>
+                    <td class="text-nowrap"><strong>20000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>55</td>
+                    <td><strong>Винир композитный</strong></td>
+                    <td class="text-nowrap"><strong>7200 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>56</td>
+                    <td><strong>Винир керамический Emax (+ временный)</strong></td>
+                    <td class="text-nowrap"><strong>29000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>57</td>
+                    <td><strong>Культевая вкладка</strong></td>
+                    <td class="text-nowrap"><strong>8000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>58</td>
+                    <td><strong>Съемный протез полный</strong></td>
+                    <td class="text-nowrap"><strong>25700 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>59</td>
+                    <td><strong>Съемный протез AcryFree частичный (1-3 зуба)</strong></td>
+                    <td class="text-nowrap"><strong>17000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>60</td>
+                    <td><strong>Протез Бабочка (1-3 зуба)</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>61</td>
+                    <td><strong>Перебазировка съемного протеза</strong></td>
+                    <td class="text-nowrap"><strong>6600 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>62</td>
+                    <td><strong>Починка съемного протеза</strong></td>
+                    <td class="text-nowrap"><strong>4400 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>63</td>
+                    <td><strong>Консультация ортопеда</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>64</td>
+                    <td><strong>Снятие коронки (любой) 1 единица</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>65</td>
+                    <td><strong>Консультация</strong></td>
+                    <td class="text-nowrap"><strong>900 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>66</td>
+                    <td><strong>Консультация</strong></td>
+                    <td class="text-nowrap"><strong>900 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>67</td>
+                    <td><strong>Диагностика</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>68</td>
+                    <td><strong>Коррекция брекет-системы</strong></td>
+                    <td class="text-nowrap"><strong>4000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>69</td>
+                    <td><strong>Установка брекет-системы Damon Q (металлические)</strong></td>
+                    <td class="text-nowrap"><strong>75000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>70</td>
+                    <td><strong>Установка брекет-системы Damon Clear (керамические)</strong></td>
+                    <td class="text-nowrap"><strong>85000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>71</td>
+                    <td><strong>Элайнеры Spark (США) 1 челлюсть (неогран.кол-во капп)</strong></td>
+                    <td class="text-nowrap"><strong>200000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>72</td>
+                    <td><strong>Элайнеры Spark (США) 1 челлюсть 10 капп(+1)</strong></td>
+                    <td class="text-nowrap"><strong>180000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>73</td>
+                    <td><strong>Элайнеры Spark (США) 1 челлюсть 20 капп (+1)</strong></td>
+                    <td class="text-nowrap"><strong>245000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>74</td>
+                    <td><strong>Плановый визит при ношении элайнеров</strong></td>
+                    <td class="text-nowrap"><strong>7000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>75</td>
+                    <td><strong>Ортодонтическая пластина</strong></td>
+                    <td class="text-nowrap"><strong>18000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>76</td>
+                    <td><strong>Установка ретейнера</strong></td>
+                    <td class="text-nowrap"><strong>7000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>77</td>
+                    <td><strong>Снятие ретейнера</strong></td>
+                    <td class="text-nowrap"><strong>4000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>78</td>
+                    <td><strong>Повторная фиксация ретейнера 1 зуб (не наша работа)</strong></td>
+                    <td class="text-nowrap"><strong>2000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>79</td>
+                    <td><strong>Ретенционная каппа (при бруксизме) 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>80</td>
+                    <td><strong>Консультация</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>81</td>
+                    <td><strong>Консультация</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>82</td>
+                    <td><strong>Установка импланта NeoBioTech (работа, имплант, повт. осмотр)</strong></td>
+                    <td class="text-nowrap"><strong>37000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>83</td>
+                    <td><strong>Установка импланта AnyOne Internal</strong></td>
+                    <td class="text-nowrap"><strong>46000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>84</td>
+                    <td><strong>Установка импланта Shtraumann Roxolid</strong></td>
+                    <td class="text-nowrap"><strong>63000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>85</td>
+                    <td><strong>Установка импланта Shtraumann SLActive</strong></td>
+                    <td class="text-nowrap"><strong>68000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>86</td>
+                    <td><strong>Формирователь десны</strong></td>
+                    <td class="text-nowrap"><strong>2500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>87</td>
+                    <td><strong>Коронка на имплант металлокерамическая</strong></td>
+                    <td class="text-nowrap"><strong>27000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>88</td>
+                    <td><strong>Коронка на имплант из диоксида циркония</strong></td>
+                    <td class="text-nowrap"><strong>30000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>89</td>
+                    <td><strong>Постоянный протез «All-on-4» акрил/циркон</strong></td>
+                    <td class="text-nowrap"><strong>390000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>90</td>
+                    <td><strong>Постоянный протез «All-on-6» акрил/циркон</strong></td>
+                    <td class="text-nowrap"><strong>500000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>91</td>
+                    <td><strong>Коронка на имплант цельнокерамическая</strong></td>
+                    <td class="text-nowrap"><strong>33500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>92</td>
+                    <td><strong>Лечение кариеса</strong></td>
+                    <td class="text-nowrap"><strong>5400 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>93</td>
+                    <td><strong>Лечение кариеса</strong></td>
+                    <td class="text-nowrap"><strong>5400 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>94</td>
+                    <td><strong>Художественная реставрация зуба (до ½)</strong></td>
+                    <td class="text-nowrap"><strong>12000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>95</td>
+                    <td><strong>Эндодонтическое лечение (проводится в 2-3 этапа)</strong></td>
+                    <td class="text-nowrap"><strong>11000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>96</td>
+                    <td><strong>Консультация терапевта</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>97</td>
+                    <td><strong>Визиографический снимок зуба</strong></td>
+                    <td class="text-nowrap"><strong>600 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>98</td>
+                    <td><strong>Гигиена полости рта</strong></td>
+                    <td class="text-nowrap"><strong>5500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>99</td>
+                    <td><strong>Фторирование (снятие чувствительности) 1 зуб / 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>400 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="">
+                    <td>100</td>
+                    <td><strong>Профессиональное отбеливание зубов Amazing White</strong></td>
+                    <td class="text-nowrap"><strong>35000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>101</td>
+                    <td><strong>Консультация детского терапевта</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>102</td>
+                    <td><strong>Консультация детского терапевта</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>103</td>
+                    <td><strong>Лечение кариеса (постоянного зуба)</strong></td>
+                    <td class="text-nowrap"><strong>5400 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>104</td>
+                    <td><strong>Лечение пульпита (за одно посещение)</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>105</td>
+                    <td><strong>Удаление молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>106</td>
+                    <td><strong>Удаление постоянного зуба (в зависимости от сложности)</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>107</td>
+                    <td><strong>Удаление постоянного зуба (в зависимости от сложности)</strong></td>
+                    <td class="text-nowrap"><strong>3000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>108</td>
+                    <td><strong>Удаление зуба мудрости (в зависимости от сложности)</strong></td>
+                    <td class="text-nowrap"><strong>4000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>109</td>
+                    <td><strong>Усечение зубодесневого кармана, перикоронит (уздечка)</strong></td>
+                    <td class="text-nowrap"><strong>2300 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>110</td>
+                    <td><strong>Удаление молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>111</td>
+                    <td><strong>Удаление молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>1100 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">
+                                Всего услуг: 111 • 
+                                Цветовая схема: 🟢 дешево, 🔴 дорого
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading_business_2">
+                    <button class="accordion-button collapsed" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#collapse_business_2" 
+                            aria-expanded="false" aria-controls="collapse_business_2">
+                        
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div>
+                    <strong>🏥 Авторская улыбка</strong>
+                    <span class="badge bg-warning ms-2">5,0</span>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary me-2">66 услуг</span>
+                    <span class="badge bg-success">30,011 ₽ сред.</span>
+                </div>
+            </div>
+            
+                    </button>
+                </h2>
+                <div id="collapse_business_2" class="accordion-collapse collapse " 
+                     aria-labelledby="heading_business_2" data-bs-parent="#productsAccordion">
+                    <div class="accordion-body">
+                        
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            📍 ул. Висаитова, 6/10<br>
+                            📞 +7 (960) 443-36-36<br>
+                            🌐 <a href="https://avtor-smile.ru/" target="_blank">Сайт</a>
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            💰 Цены: 1 - 205,000 ₽<br>
+                            📊 Среднее: 30,011 ₽<br>
+                            🔗 <a href="https://yandex.ru/maps/org/avtorskaya_ulybka/146915656133/" target="_blank">Яндекс Карты</a>
+                        </small>
+                    </div>
+                </div>
+                
+                        
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="35%">Название услуги</th>
+                                        <th width="15%">Цена</th>
+                                        <th width="45%">Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                <tr class="table-success">
+                    <td>1</td>
+                    <td><strong>Офисное химическое отбеливание зубов Amazing White</strong></td>
+                    <td class="text-nowrap"><strong>15000 ₽</strong></td>
+                    <td>Офисное химическое отбеливание зубов Amazing White в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>2</td>
+                    <td><strong>Офисное химическое отбеливание зубов Amazing White</strong></td>
+                    <td class="text-nowrap"><strong>15000 ₽</strong></td>
+                    <td>Офисное химическое отбеливание зубов Amazing White в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>3</td>
+                    <td><strong>Профосмотр</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td>Профосмотр в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>4</td>
+                    <td><strong>Лечение кариеса</strong></td>
+                    <td class="text-nowrap"><strong>5500 ₽</strong></td>
+                    <td>Лечение кариеса в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>5</td>
+                    <td><strong>Реставрация зуба</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Реставрация зуба в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>6</td>
+                    <td><strong>Удаление зуба</strong></td>
+                    <td class="text-nowrap"><strong>4000 ₽</strong></td>
+                    <td>Удаление зуба в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>7</td>
+                    <td><strong>Брекет-система Damon Q2</strong></td>
+                    <td class="text-nowrap"><strong>80000 ₽</strong></td>
+                    <td>Брекет-система Damon Q2 в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>8</td>
+                    <td><strong>Отбеливание химическое</strong></td>
+                    <td class="text-nowrap"><strong>15000 ₽</strong></td>
+                    <td>Отбеливание химическое в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>9</td>
+                    <td><strong>Внутрикоронковое отбеливание зуба</strong></td>
+                    <td class="text-nowrap"><strong>1500 ₽</strong></td>
+                    <td>Внутрикоронковое отбеливание зуба в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>10</td>
+                    <td><strong>Имплантация Dentium Superline</strong></td>
+                    <td class="text-nowrap"><strong>35000 ₽</strong></td>
+                    <td>Имплантация Dentium Superline в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>11</td>
+                    <td><strong>Коронка металлокерамическая с опорой на зуб</strong></td>
+                    <td class="text-nowrap"><strong>16000 ₽</strong></td>
+                    <td>Коронка металлокерамическая с опорой на зуб</td>
+                </tr>
+                
+                <tr class="">
+                    <td>12</td>
+                    <td><strong>Коронка безметалловая с опорой на зуб</strong></td>
+                    <td class="text-nowrap"><strong>20000 ₽</strong></td>
+                    <td>Коронка безметалловая с опорой на зуб в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>13</td>
+                    <td><strong>Временная лабораторная коронка</strong></td>
+                    <td class="text-nowrap"><strong>4000 ₽</strong></td>
+                    <td>Временная лабораторная коронка в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>14</td>
+                    <td><strong>Удаление молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>1800 ₽</strong></td>
+                    <td>Удаление молочного зуба в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>15</td>
+                    <td><strong>Удаление молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>1800 ₽</strong></td>
+                    <td>Удаление молочного зуба в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>16</td>
+                    <td><strong>Лечение кариеса молочного зуба</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Лечение кариеса молочного зуба в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>17</td>
+                    <td><strong>Открытый синус-лифтинг</strong></td>
+                    <td class="text-nowrap"><strong>35000 ₽</strong></td>
+                    <td>Открытый синус-лифтинг в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>18</td>
+                    <td><strong>Открытый синус-лифтинг</strong></td>
+                    <td class="text-nowrap"><strong>35000 ₽</strong></td>
+                    <td>Открытый синус-лифтинг в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>19</td>
+                    <td><strong>Закрытый синус-лифтинг</strong></td>
+                    <td class="text-nowrap"><strong>15000 ₽</strong></td>
+                    <td>Закрытый синус-лифтинг</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>20</td>
+                    <td><strong>Композитный винир</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td>Композитный винир в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>21</td>
+                    <td><strong>Композитный винир</strong></td>
+                    <td class="text-nowrap"><strong>10000 ₽</strong></td>
+                    <td>Композитный винир в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>22</td>
+                    <td><strong>Консультация стоматолога</strong></td>
+                    <td class="text-nowrap"><strong>1 ₽</strong></td>
+                    <td>Первичная консультация стоматолога в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>23</td>
+                    <td><strong>Имплантация All-on-4</strong></td>
+                    <td class="text-nowrap"><strong>205000 ₽</strong></td>
+                    <td>«Все на четырёх» (All-on-4) в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>24</td>
+                    <td><strong>Имплантация All-on-4</strong></td>
+                    <td class="text-nowrap"><strong>205000 ₽</strong></td>
+                    <td>«Все на четырёх» (All-on-4) в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>25</td>
+                    <td><strong>Имплантация Impro</strong></td>
+                    <td class="text-nowrap"><strong>37000 ₽</strong></td>
+                    <td>Имплантационная система Impro в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>26</td>
+                    <td><strong>Удаление зуба мудрости</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Удаление зуба мудрости в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>27</td>
+                    <td><strong>Удаление зуба мудрости</strong></td>
+                    <td class="text-nowrap"><strong>5000 ₽</strong></td>
+                    <td>Удаление зуба мудрости в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>28</td>
+                    <td><strong>удаление зуба мудрости с глубокой остеотомией</strong></td>
+                    <td class="text-nowrap"><strong>9000 ₽</strong></td>
+                    <td>Удаление с глубокой остеотомией в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>29</td>
+                    <td><strong>металлическая лигатурная брекет-система Ormсo</strong></td>
+                    <td class="text-nowrap"><strong>55000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>30</td>
+                    <td><strong>металлическая лигатурная брекет-система Ormсo</strong></td>
+                    <td class="text-nowrap"><strong>55000 ₽</strong></td>
+                    <td></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>31</td>
+                    <td><strong>Керамическая лигатурная брекет-система Ormco</strong></td>
+                    <td class="text-nowrap"><strong>60000 ₽</strong></td>
+                    <td>Керамические брекеты Ormco в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>32</td>
+                    <td><strong>Керамическая лигатурная брекет-система Ormco</strong></td>
+                    <td class="text-nowrap"><strong>60000 ₽</strong></td>
+                    <td>Керамические брекеты Ormco в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>33</td>
+                    <td><strong>Брекет-система Damon Q</strong></td>
+                    <td class="text-nowrap"><strong>70000 ₽</strong></td>
+                    <td>Брекет-система Damon Q в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>34</td>
+                    <td><strong>Брекет-система Damon Q</strong></td>
+                    <td class="text-nowrap"><strong>70000 ₽</strong></td>
+                    <td>Брекет-система Damon Q в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>35</td>
+                    <td><strong>Керамический винир E-max</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Керамический винир E-max в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>36</td>
+                    <td><strong>Керамический винир E-max</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Керамический винир E-max в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>37</td>
+                    <td><strong>Профессиональная гигиена</strong></td>
+                    <td class="text-nowrap"><strong>5100 ₽</strong></td>
+                    <td>Профессиональная гигиена полости рта в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>38</td>
+                    <td><strong>Профессиональная гигиена</strong></td>
+                    <td class="text-nowrap"><strong>5100 ₽</strong></td>
+                    <td>Профессиональная гигиена полости рта в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>39</td>
+                    <td><strong>Ортодонтический аппарат для исправления прикуса Марко-Росса</strong></td>
+                    <td class="text-nowrap"><strong>32000 ₽</strong></td>
+                    <td>Аппарат Марко Росса в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>40</td>
+                    <td><strong>Ортодонтический аппарат для исправления прикуса Марко-Росса</strong></td>
+                    <td class="text-nowrap"><strong>32000 ₽</strong></td>
+                    <td>Аппарат Марко Росса в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>41</td>
+                    <td><strong>Коронка безметалловая с опорой на имплантат</strong></td>
+                    <td class="text-nowrap"><strong>39000 ₽</strong></td>
+                    <td>Коронка безметалловая с опорой на имплантат в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>42</td>
+                    <td><strong>Коронка безметалловая с опорой на имплантат</strong></td>
+                    <td class="text-nowrap"><strong>39000 ₽</strong></td>
+                    <td>Коронка безметалловая с опорой на имплантат в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>43</td>
+                    <td><strong>Имплантация Dentium Implantium (Корея)</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Имплантация Dentium Implantium (Корея) в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>44</td>
+                    <td><strong>Имплантация Dentium Implantium (Корея)</strong></td>
+                    <td class="text-nowrap"><strong>25000 ₽</strong></td>
+                    <td>Имплантация Dentium Implantium (Корея) в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>45</td>
+                    <td><strong>Коррекция уздечки лазером</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Коррекция уздечки лазером в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>46</td>
+                    <td><strong>Коррекция уздечки лазером</strong></td>
+                    <td class="text-nowrap"><strong>6000 ₽</strong></td>
+                    <td>Коррекция уздечки лазером в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>47</td>
+                    <td><strong>Пародонтологическая гигиена полости рта</strong></td>
+                    <td class="text-nowrap"><strong>6500 ₽</strong></td>
+                    <td>Пародонтологическая гигиена в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>48</td>
+                    <td><strong>Пародонтологическая гигиена полости рта</strong></td>
+                    <td class="text-nowrap"><strong>6500 ₽</strong></td>
+                    <td>Пародонтологическая гигиена в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>49</td>
+                    <td><strong>Плазмолифтинг дёсен</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Здоровье десен в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>50</td>
+                    <td><strong>Плазмолифтинг дёсен</strong></td>
+                    <td class="text-nowrap"><strong>3500 ₽</strong></td>
+                    <td>Здоровье десен в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>51</td>
+                    <td><strong>Коронка металлокерамика с опорой на имплантат</strong></td>
+                    <td class="text-nowrap"><strong>34000 ₽</strong></td>
+                    <td>Коронка металлокерамика с опорой на имплантат в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>52</td>
+                    <td><strong>Коронка металлокерамика с опорой на имплантат</strong></td>
+                    <td class="text-nowrap"><strong>34000 ₽</strong></td>
+                    <td>Коронка металлокерамика с опорой на имплантат в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>53</td>
+                    <td><strong>ортодонтическая пластинка</strong></td>
+                    <td class="text-nowrap"><strong>20000 ₽</strong></td>
+                    <td>Ортодонтические пластинки в Ростове</td>
+                </tr>
+                
+                <tr class="">
+                    <td>54</td>
+                    <td><strong>ортодонтическая пластинка</strong></td>
+                    <td class="text-nowrap"><strong>20000 ₽</strong></td>
+                    <td>Ортодонтические пластинки в Ростове</td>
+                </tr>
+                
+                <tr class="">
+                    <td>55</td>
+                    <td><strong>Офисное отбеливание Opalescence</strong></td>
+                    <td class="text-nowrap"><strong>18000 ₽</strong></td>
+                    <td>Офисное отбеливание Opalescence в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>56</td>
+                    <td><strong>Офисное отбеливание Opalescence</strong></td>
+                    <td class="text-nowrap"><strong>18000 ₽</strong></td>
+                    <td>Офисное отбеливание Opalescence в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>57</td>
+                    <td><strong>Полный съемный протез на 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>35000 ₽</strong></td>
+                    <td>Полный съемный протез на 1 челюсть в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>58</td>
+                    <td><strong>Полный съемный протез на 1 челюсть</strong></td>
+                    <td class="text-nowrap"><strong>35000 ₽</strong></td>
+                    <td>Полный съемный протез на 1 челюсть в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>59</td>
+                    <td><strong>Профессиональная гигиена полости рта детей до 12 лет</strong></td>
+                    <td class="text-nowrap"><strong>3200 ₽</strong></td>
+                    <td>Профессиональная гигиена полости рта детей в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>60</td>
+                    <td><strong>Профессиональная гигиена полости рта детей до 12 лет</strong></td>
+                    <td class="text-nowrap"><strong>3200 ₽</strong></td>
+                    <td>Профессиональная гигиена полости рта детей в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>61</td>
+                    <td><strong>Лечение десны лазером</strong></td>
+                    <td class="text-nowrap"><strong>2500 ₽</strong></td>
+                    <td>Лечение десны лазером в Ростове.</td>
+                </tr>
+                
+                <tr class="table-success">
+                    <td>62</td>
+                    <td><strong>Лечение десны лазером</strong></td>
+                    <td class="text-nowrap"><strong>2500 ₽</strong></td>
+                    <td>Лечение десны лазером в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>63</td>
+                    <td><strong>Элайнеры Eurokappa</strong></td>
+                    <td class="text-nowrap"><strong>125000 ₽</strong></td>
+                    <td>Элайнеры Eurokappa в Ростове.</td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>64</td>
+                    <td><strong>Элайнеры Eurokappa</strong></td>
+                    <td class="text-nowrap"><strong>125000 ₽</strong></td>
+                    <td>Элайнеры Eurokappa в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>65</td>
+                    <td><strong>Отбеливание ZOOM 4</strong></td>
+                    <td class="text-nowrap"><strong>28000 ₽</strong></td>
+                    <td>Отбеливание ZOOM 4 в Ростове.</td>
+                </tr>
+                
+                <tr class="">
+                    <td>66</td>
+                    <td><strong>Отбеливание ZOOM 4</strong></td>
+                    <td class="text-nowrap"><strong>28000 ₽</strong></td>
+                    <td>Отбеливание ZOOM 4 в Ростове.</td>
+                </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">
+                                Всего услуг: 66 • 
+                                Цветовая схема: 🟢 дешево, 🔴 дорого
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+            </div>
+        </div>
+        
+        <!-- Футер -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <hr>
+                <p class="text-muted">
+                    Дашборд сгенерирован автоматически • 
+                    <a href="https://yandex.ru/maps/39/rostov-na-donu/search/Ростов%20на%20дону%20суворовский%20стоматология/?ll=39.682860%2C47.325943&sctx=ZAAAAAgCEAAaKAoSCbnEkQci10NAESl4CrlSn0dAEhIJ98ySADW1zj8R1lJA2v8Aqz8iBgABAgMEBSgKOABA0YgGSAFqAnJ1nQHNzMw9oAEAqAEAvQHFGEBwwgEYg7OsgLUByab0le0BxYPspqME3bSJrbMDggJK0KDQvtGB0YLQvtCyINC90LAg0LTQvtC90YMg0YHRg9Cy0L7RgNC%2B0LLRgdC60LjQuSDRgdGC0L7QvNCw0YLQvtC70L7Qs9C40Y%2BKAgCSAgIzOZoCDGRlc2t0b3AtbWFwc9oCKAoSCVa9%2FE6T10NAEYi0VvjBqUdAEhIJAHaopiTrsD8RAOiVsgxxnD%2FgAgE%3D&sll=39.682860%2C47.325943&sspn=0.050086%2C0.021049&z=14.8" target="_blank">Исходный поиск</a> • 
+                    Данные актуальны на 04.09.2025 23:05
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Инициализация поиска по таблицам
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Дашборд загружен: 6 предприятий, 377 услуг');
+        });
+    </script>
+</body>
+</html>

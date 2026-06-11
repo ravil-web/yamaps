@@ -1,0 +1,2574 @@
+
+            <!DOCTYPE html>
+            <html lang="ru">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Аналитический дашборд стоматологических услуг</title>
+                <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+                
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+                color: #ffffff;
+                overflow-x: hidden;
+            }
+            
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: 
+                    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+                pointer-events: none;
+                z-index: -1;
+            }
+            
+            .header {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 30px 0;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                animation: shimmer 3s infinite;
+            }
+            
+            @keyframes shimmer {
+                0% { left: -100%; }
+                100% { left: 100%; }
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+                font-weight: 800;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-align: center;
+                margin-bottom: 10px;
+                text-shadow: 
+                    0 0 30px rgba(102, 126, 234, 0.5),
+                    -0.5px -0.5px 0 rgba(255, 255, 255, 0.6),
+                    0.5px -0.5px 0 rgba(255, 255, 255, 0.6),
+                    -0.5px 0.5px 0 rgba(255, 255, 255, 0.6),
+                    0.5px 0.5px 0 rgba(255, 255, 255, 0.6);
+            }
+            
+            .page {
+                display: none;
+                padding: 30px 0;
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            
+            .page.active {
+                display: block;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .back-btn {
+                margin-bottom: 30px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+                color: white;
+                padding: 15px 30px;
+                border-radius: 50px;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .back-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .back-btn:hover::before {
+                left: 100%;
+            }
+            
+            .back-btn:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            }
+            
+            .chart-container {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 20px;
+                padding: 40px;
+                box-shadow: 
+                    0 20px 40px rgba(0,0,0,0.3),
+                    inset 0 1px 0 rgba(255,255,255,0.1);
+                margin-bottom: 30px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .chart-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            }
+            
+            .chart-container:hover {
+                transform: translateY(-5px);
+                box-shadow: 
+                    0 25px 50px rgba(0,0,0,0.4),
+                    inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+            
+            .card {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 20px;
+                box-shadow: 
+                    0 15px 35px rgba(0,0,0,0.2),
+                    inset 0 1px 0 rgba(255,255,255,0.1);
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .card:hover::before {
+                opacity: 1;
+            }
+            
+            .card:hover {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: 
+                    0 25px 50px rgba(0,0,0,0.3),
+                    inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+            
+            .card-title {
+                font-size: 2.5rem;
+                font-weight: 800;
+                background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-shadow: 0 0 20px rgba(255,255,255,0.3);
+            }
+            
+            .stats-card {
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .stats-card::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                transition: all 0.6s ease;
+                transform: translate(-50%, -50%);
+                border-radius: 50%;
+            }
+            
+            .stats-card:hover::after {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .btn {
+                border-radius: 50px;
+                font-weight: 600;
+                padding: 12px 24px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                border: none;
+                white-space: nowrap;
+            }
+            
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .btn:hover::before {
+                left: 100%;
+            }
+            
+            .btn-outline-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: 2px solid transparent;
+                background-clip: padding-box;
+            }
+            
+            .btn-outline-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            }
+            
+            .btn-outline-info {
+                background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+                color: white;
+                border: 2px solid transparent;
+            }
+            
+            .btn-outline-info:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(23, 162, 184, 0.4);
+            }
+            
+            .btn-outline-success {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                border: 2px solid transparent;
+            }
+            
+            .btn-outline-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+            }
+            
+            .table {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+            
+            .table thead th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 20px 15px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.9rem;
+                text-align: left;
+            }
+            
+            .table tbody tr {
+                background: rgba(255, 255, 255, 0.05);
+                transition: all 0.3s ease;
+                border: none;
+            }
+            
+            .table tbody tr:hover {
+                background: rgba(255, 255, 255, 0.1);
+                transform: scale(1.01);
+            }
+            
+            .table tbody td {
+                border: none;
+                padding: 15px;
+                color: #ffffff;
+                vertical-align: middle;
+            }
+            
+            .table tbody td.price-cell,
+            .table thead th.price-cell {
+                width: auto;
+                min-width: 120px;
+                white-space: nowrap;
+                text-align: right;
+            }
+            
+            .accordion {
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            }
+            
+            .accordion-item {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                margin-bottom: 10px;
+                border-radius: 15px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .accordion-item:hover {
+                background: rgba(255, 255, 255, 0.15);
+                transform: translateY(-2px);
+            }
+            
+            .accordion-button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 20px 25px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .accordion-button::after {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+            }
+            
+            .accordion-button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .accordion-button:hover::before {
+                left: 100%;
+            }
+            
+            .accordion-button:not(.collapsed) {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                box-shadow: inset 0 -1px 0 rgba(255,255,255,0.1);
+                color: white;
+            }
+            
+            .accordion-button:not(.collapsed)::after {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+            }
+            
+            .accordion-button:focus {
+                box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+            }
+            
+            .accordion-body {
+                background: rgba(255, 255, 255, 0.05);
+                color: #ffffff;
+                padding: 25px;
+            }
+            
+            .alert {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                color: #ffffff;
+                backdrop-filter: blur(20px);
+            }
+            
+            .alert-info {
+                background: linear-gradient(135deg, rgba(23, 162, 184, 0.2) 0%, rgba(19, 132, 150, 0.2) 100%);
+                border-color: rgba(23, 162, 184, 0.3);
+            }
+            
+            /* Анимации для загрузки */
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .loading {
+                animation: pulse 2s infinite;
+            }
+            
+            /* Стили для мобильных устройств */
+            @media (max-width: 768px) {
+                .header h1 {
+                    font-size: 2rem;
+                }
+                
+                .chart-container {
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+                
+                .card-title {
+                    font-size: 2rem;
+                }
+                
+                .table tbody td.price-cell,
+                .table thead th.price-cell {
+                    min-width: 100px;
+                    font-size: 0.9rem;
+                }
+            }
+        </style>
+        
+            </head>
+            <body>
+                <div class="header">
+                    <div class="container">
+                        <h1 class="text-center mb-0">Аналитический дашборд стоматологических услуг</h1>
+                        <p class="text-center mb-0 mt-2">Сгенерировано: 2025-09-06 23:05:06</p>
+                    </div>
+                </div>
+
+                <!-- Главная страница -->
+                <div id="main-page" class="page active">
+                    <div class="container">
+                        <!-- Статистические карточки -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card stats-card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="showPage('businesses-page')">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title">5</h4>
+                                        <p class="card-text">Предприятий</p>
+                                        <small>Нажмите для просмотра списка</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);" onclick="showPage('products-page')">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title">63</h4>
+                                        <p class="card-text">Услуг всего</p>
+                                        <small>Нажмите для просмотра по предприятиям</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="showPage('comparison-page')">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title">15</h4>
+                                        <p class="card-text">Групп для сравнения</p>
+                                        <small>Нажмите для просмотра сравнения</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Список предприятий на главной странице -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h3 class="mb-3">Список предприятий</h3>
+                                <div class="chart-container">
+                                    
+        <div class="row">
+        
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">БагетFurshet</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 4,8<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('БагетFurshet'); return false;" class="btn btn-sm btn-outline-primary">10</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79604627770" class="btn btn-sm btn-outline-info"> +7 (960) 462-77-70</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            
+                            <a href="https://yandex.ru/maps/org/bagetfurshet/156431555124/?ll=39.716191%2C47.279600&z=15" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Момент Вкуса Кейтеринг</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 5,0<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Момент Вкуса Кейтеринг'); return false;" class="btn btn-sm btn-outline-primary">7</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79612786818" class="btn btn-sm btn-outline-info"> +7 (961) 278-68-18</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="https://momentvkusa.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a>
+                            <a href="https://yandex.ru/maps/org/moment_vkusa_keytering/17372011580/?ll=39.722945%2C47.243683&z=14" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Рататуй</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 5,0<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Рататуй'); return false;" class="btn btn-sm btn-outline-primary">20</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79525869434" class="btn btn-sm btn-outline-info"> +7 (952) 586-94-34</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="http://xn--80aay3albh.xn--p1ai/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a>
+                            <a href="https://yandex.ru/maps/org/ratatuy/49798037542/?ll=39.741675%2C47.274671&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">ЧоПокурим</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 4,6<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('ЧоПокурим'); return false;" class="btn btn-sm btn-outline-primary">11</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79685553331" class="btn btn-sm btn-outline-info"> +7 (968) 555-33-31</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            
+                            <a href="https://yandex.ru/maps/org/chopokurim/219000843438/?ll=39.707530%2C47.281188&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Cupcatering-premium</h5>
+                        <p class="card-text">
+                            <strong>Рейтинг:</strong> 4,7<br>
+                            <strong>Товаров/услуг:</strong> <a href="#" onclick="showBusinessProducts('Cupcatering-premium'); return false;" class="btn btn-sm btn-outline-primary">15</a><br>
+                            <strong>Телефоны:</strong> <a href="tel:+79185172513" class="btn btn-sm btn-outline-info"> +7 (918) 517-25-13</a>
+                        </p>
+                        <div class="d-flex gap-2">
+                            <a href="http://www.cupcatering-premium.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a>
+                            <a href="https://yandex.ru/maps/org/cupcatering_premium/194315210210/?ll=39.787435%2C47.266527&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница предприятий -->
+                <div id="businesses-page" class="page">
+                    <div class="container">
+                        <button class="btn btn-secondary back-btn" onclick="showPage('main-page')">
+Назад к главной странице
+                        </button>
+                        <h2>Список всех предприятий</h2>
+                        <div class="chart-container">
+                            
+        <table border="1" class="dataframe table table-striped table-bordered table-hover">
+        <thead>
+            <tr style="text-align: right;">
+                <th>Название</th>
+                <th>Рейтинг</th>
+                <th>Адрес</th>
+                <th>Телефоны</th>
+                <th>Категории</th>
+                <th>Товары/услуги</th>
+                <th>Отзывы</th>
+                <th>Ссылки</th>
+            </tr>
+        </thead>
+        <tbody>
+        
+            <tr>
+                <td>БагетFurshet</td>
+                <td>4,8</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+79604627770" class="btn btn-sm btn-outline-info"> +7 (960) 462-77-70</a></td>
+                <td>Кейтеринг, Доставка еды и обедов</td>
+                <td>10</td>
+                <td></td>
+                <td>Не указан <a href="https://yandex.ru/maps/org/bagetfurshet/156431555124/?ll=39.716191%2C47.279600&z=15" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>Момент Вкуса Кейтеринг</td>
+                <td>5,0</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+79612786818" class="btn btn-sm btn-outline-info"> +7 (961) 278-68-18</a></td>
+                <td>Кейтеринг, Доставка еды и обедов</td>
+                <td>7</td>
+                <td></td>
+                <td><a href="https://momentvkusa.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a> <a href="https://yandex.ru/maps/org/moment_vkusa_keytering/17372011580/?ll=39.722945%2C47.243683&z=14" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>Рататуй</td>
+                <td>5,0</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+79525869434" class="btn btn-sm btn-outline-info"> +7 (952) 586-94-34</a></td>
+                <td>Кейтеринг, Организация мероприятий, Доставка еды и обедов</td>
+                <td>20</td>
+                <td></td>
+                <td><a href="http://xn--80aay3albh.xn--p1ai/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a> <a href="https://yandex.ru/maps/org/ratatuy/49798037542/?ll=39.741675%2C47.274671&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>ЧоПокурим</td>
+                <td>4,6</td>
+                <td>Круглосуточно</td>
+                <td><a href="tel:+79685553331" class="btn btn-sm btn-outline-info"> +7 (968) 555-33-31</a></td>
+                <td>Кейтеринг, Организация мероприятий</td>
+                <td>11</td>
+                <td></td>
+                <td>Не указан <a href="https://yandex.ru/maps/org/chopokurim/219000843438/?ll=39.707530%2C47.281188&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            
+            <tr>
+                <td>Cupcatering-premium</td>
+                <td>4,7</td>
+                <td>Закрыто до завтра</td>
+                <td><a href="tel:+79185172513" class="btn btn-sm btn-outline-info"> +7 (918) 517-25-13</a></td>
+                <td>Кейтеринг, Организация мероприятий, Доставка еды и обедов</td>
+                <td>15</td>
+                <td></td>
+                <td><a href="http://www.cupcatering-premium.ru/" target="_blank" class="btn btn-sm btn-outline-primary">Сайт</a> <a href="https://yandex.ru/maps/org/cupcatering_premium/194315210210/?ll=39.787435%2C47.266527&z=16" target="_blank" class="btn btn-sm btn-outline-success">🗺️ Карты</a></td>
+            </tr>
+            </tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница товаров -->
+                <div id="products-page" class="page">
+                    <div class="container">
+                        <button class="btn btn-secondary back-btn" onclick="showPage('main-page')">
+Назад к главной странице
+                        </button>
+                        <h2>Товары и услуги</h2>
+                        <div class="chart-container">
+                            
+        <div class="accordion" id="productsAccordion">
+        
+            <div class="accordion-item" style="border: 2px solid #28a745; margin-bottom: 20px; border-radius: 15px;">
+                <h2 class="accordion-header" id="heading-comparison">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse-comparison" aria-expanded="false" aria-controls="collapse-comparison" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <strong>Сравнение товаров и услуг</strong> - 15 групп для сравнения
+                    </button>
+                </h2>
+                <div id="collapse-comparison" class="accordion-collapse collapse" aria-labelledby="heading-comparison">
+                    <div class="accordion-body" style="background: rgba(40, 167, 69, 0.05);">
+                        <div class="alert alert-success mb-3" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border: 1px solid rgba(40, 167, 69, 0.3);">
+                            <strong>Товары и услуги, которые предлагают несколько предприятий:</strong>
+                        </div>
+            
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Курник</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">БагетFurshet</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Вкуснейший курник 1100/кг</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">1 100 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">БагетFurshet</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Вкуснейший курник 1100/кг</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">1 100 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Хит Ассорти</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Момент Вкуса Кейтеринг</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Брускетта с манго и креветкой Канапе маасдам с фисташкой и виноградом Брускетта с авокадо и фетой Канапе с лососем Брускетта с бужениной</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">4 950 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Момент Вкуса Кейтеринг</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Брускетта с манго и креветкой Канапе маасдам с фисташкой и виноградом Брускетта с авокадо и фетой Канапе с лососем Брускетта с бужениной</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">4 950 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">"Сет Канапе №1"</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Рататуй</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">- Канапе греческий салат - Канапе блинный ролл с семгой и огурцом - Канапе мясной деликатес с корнишоном - Канапе с беконом и перепелиным яйцом - Канапе с моцареллой и черри Для любого события и количества человек.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">2 700 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Рататуй</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">- Канапе греческий салат - Канапе блинный ролл с семгой и огурцом - Канапе мясной деликатес с корнишоном - Канапе с беконом и перепелиным яйцом - Канапе с моцареллой и черри Для любого события и количества человек.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">2 700 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Организация Банкета</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Рататуй</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Банкет – это не просто праздничный ужин, а особенное событие, где важно все: от изысканного меню до профессионального обслуживания. Кейтеринг «Рататуй» предлагает полный комплекс услуг по организации банкетов, создавая атмосферу комфорта, элегантн...</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">2 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Рататуй</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Банкет – это не просто праздничный ужин, а особенное событие, где важно все: от изысканного меню до профессионального обслуживания. Кейтеринг «Рататуй» предлагает полный комплекс услуг по организации банкетов, создавая атмосферу комфорта, элегантн...</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">2 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Аренда Кальяна На 24 Часа</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Составим композицию из кальянных смесей по вашему желанию, будь то классические - фруктовые , ягодные кальяны, так и редкие гастрономические вкусы, которых вы нигде не найдете!</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">2 149 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Составим композицию из кальянных смесей по вашему желанию, будь то классические - фруктовые , ягодные кальяны, так и редкие гастрономические вкусы, которых вы нигде не найдете!</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">2 149 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Стикерпак "Khan Burley"</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Стикеры того самого, неповторимого "Khan Burley" Редкий мерч, который вы нигде не найдёте!</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">99 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Стикеры того самого, неповторимого "Khan Burley" Редкий мерч, который вы нигде не найдёте!</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">99 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Уголь Oasis (1Кг)</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Уголь Oasis (1кг)
+535 ₽
+1 кг</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">535 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Уголь Oasis (1кг)
+535 ₽
+1 кг</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">535 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Уголь Cocos (1Кг)</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Уголь Cocos (1кг)
+470 ₽
+1 кг</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">470 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">ЧоПокурим</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Уголь Cocos (1кг)
+470 ₽
+1 кг</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">470 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Кофе-Брейк</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Выездной кофе-брейк является востребованной услугой для проведения конференций, выставок, семинаров, презентаций, совещаний и других деловых мероприятий. Он не только обеспечивает питание участников, но и способствует лучшему усвоению информации.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">87 500 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Выездной кофе-брейк является востребованной услугой для проведения конференций, выставок, семинаров, презентаций, совещаний и других деловых мероприятий. Он не только обеспечивает питание участников, но и способствует лучшему усвоению информации.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">87 500 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Семейный Обед</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">В каждой семье ежегодно наступают долгожданные праздники, повод может быть любой - День Рождения, свадьба, венчание, крещение и т.д. И каждый год вы оказываетесь у плиты, готовя праздничные блюда, и придумываете новые рецепты.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">100 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">В каждой семье ежегодно наступают долгожданные праздники, повод может быть любой - День Рождения, свадьба, венчание, крещение и т.д. И каждый год вы оказываетесь у плиты, готовя праздничные блюда, и придумываете новые рецепты.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">100 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Фуршет В Офис</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">В последнее время фуршеты в офисе становятся все более популярными. Это отличное решение для любой компании. Такой вид мероприятия может быть организован по любому поводу: день рождения сотрудника, юбилей руководителя, корпоративное событие</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">50 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">В последнее время фуршеты в офисе становятся все более популярными. Это отличное решение для любой компании. Такой вид мероприятия может быть организован по любому поводу: день рождения сотрудника, юбилей руководителя, корпоративное событие</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">50 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Детский Праздник</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Устраиваете детскую вечеринку в лофте? На даче или в коттедже? А может на базе отдыха или на природе? Мы приедем со всем необходимым оборудованием, все установим и приготовим. Для детей есть специальное разнообразное меню, интересные и забавные блюда</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">35 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Устраиваете детскую вечеринку в лофте? На даче или в коттедже? А может на базе отдыха или на природе? Мы приедем со всем необходимым оборудованием, все установим и приготовим. Для детей есть специальное разнообразное меню, интересные и забавные блюда</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">35 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Юбилей</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Полностью берём на себя организацию вашего мероприятия, от идеи до её воплощения. Для вас работает слаженная команда: кейтеринг, шеф-повара, организатор, декоратор. Приезжаем на место праздника со своим оборудованием, мебелью, посудой.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">120 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Полностью берём на себя организацию вашего мероприятия, от идеи до её воплощения. Для вас работает слаженная команда: кейтеринг, шеф-повара, организатор, декоратор. Приезжаем на место праздника со своим оборудованием, мебелью, посудой.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">120 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Обслуживание На Мероприятии</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Ключевой фактор успеха в банкете — это сервис. Мы гарантируем деликатное и оперативное обслуживание в ходе всего мероприятия.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">4 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Ключевой фактор успеха в банкете — это сервис. Мы гарантируем деликатное и оперативное обслуживание в ходе всего мероприятия.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">4 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                        <div class="card mb-4" style="border: 2px solid #28a745; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
+                            <div class="card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%); border-radius: 13px 13px 0 0;">
+                                <h5 class="mb-0" style="color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(40, 167, 69, 0.5);">Барбекю Пати</h5>
+                                <small style="color: rgba(255, 255, 255, 0.8);">2 предложений</small>
+                            </div>
+                            <div class="card-body" style="background: rgba(40, 167, 69, 0.05);">
+                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Барбекю пати (BBQ) – вид отдыха, весёлая вечеринка с семьёй или друзьями на открытом воздухе. Барбекю-вечеринка – прекрасный способ вкусно, душевно и необычно отметить день рождения и любой другой праздник в кругу друзей и семьи или среди коллег.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">75 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; border: 1px solid rgba(40, 167, 69, 0.3);">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1" style="color: #ffffff; font-weight: 600;">Cupcatering-premium</h6>
+                                                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">Барбекю пати (BBQ) – вид отдыха, весёлая вечеринка с семьёй или друзьями на открытом воздухе. Барбекю-вечеринка – прекрасный способ вкусно, душевно и необычно отметить день рождения и любой другой праздник в кругу друзей и семьи или среди коллег.</p>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 1rem; padding: 8px 16px;">75 000 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center my-4">
+                <hr style="border: 2px solid #667eea; border-radius: 2px;">
+                <h4 style="color: #667eea; font-weight: 600;">Товары и услуги по предприятиям</h4>
+                <hr style="border: 2px solid #667eea; border-radius: 2px;">
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading0">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse0" aria-expanded="false" aria-controls="collapse0">
+                        <strong>БагетFurshet</strong> - 10 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse0" class="accordion-collapse collapse" aria-labelledby="heading0">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Курник</strong></td>
+                                        <td class="price-cell">1 100 ₽</td>
+                                        <td>Вкуснейший курник 1100/кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Курник</strong></td>
+                                        <td class="price-cell">1 100 ₽</td>
+                                        <td>Вкуснейший курник 1100/кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бокс эклеров (16шт)</strong></td>
+                                        <td class="price-cell">4 250 ₽</td>
+                                        <td>Вкуснейшие нежные мини эклерчики с красной рыбой и икрой С шейкой и рукколой</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бенто салаты в ассортименте</strong></td>
+                                        <td class="price-cell">Цена не указана</td>
+                                        <td>Бенто салаты в ассортименте на любой вкус</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Утка запечённая с апельсинами 3,5кг</strong></td>
+                                        <td class="price-cell">7 300 ₽</td>
+                                        <td>Вкусная, сочная не жирная уточка украсит Ваш праздничный стол</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бокс корпоративный (70шт)</strong></td>
+                                        <td class="price-cell">6 900 ₽</td>
+                                        <td>Всеми полюбившейся бокс "Корпоративный " с большим разнообразием закусок</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бокс "Застолье"</strong></td>
+                                        <td class="price-cell">5 600 ₽</td>
+                                        <td>Бокс "Застолье"
+5600 ₽</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бокс "Запеченный "</strong></td>
+                                        <td class="price-cell">4 900 ₽</td>
+                                        <td>Бокс "Запеченный "
+4900 ₽</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Бокс блинных рулетиков</strong></td>
+                                        <td class="price-cell">5 300 ₽</td>
+                                        <td>Бокс блинных рулетиков
+5300 ₽</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Ассорти тарталеток</strong></td>
+                                        <td class="price-cell">5 850 ₽</td>
+                                        <td>Ассорти тарталеток
+5850 ₽</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading1">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                        <strong>Момент Вкуса Кейтеринг</strong> - 7 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="heading1">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Хит ассорти</strong></td>
+                                        <td class="price-cell">4 950 ₽</td>
+                                        <td>Брускетта с манго и креветкой Канапе маасдам с фисташкой и виноградом Брускетта с авокадо и фетой Канапе с лососем Брускетта с бужениной</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Хит ассорти</strong></td>
+                                        <td class="price-cell">4 950 ₽</td>
+                                        <td>Брускетта с манго и креветкой Канапе маасдам с фисташкой и виноградом Брускетта с авокадо и фетой Канапе с лососем Брускетта с бужениной</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Микс брускетт</strong></td>
+                                        <td class="price-cell">3 500 ₽</td>
+                                        <td>Брускетта с перцем на гриле Брускетта с лососем и рикоттой Брускетта с копченой грудкой Брускетта с моцареллой и вяленым томатом</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Профитроли</strong></td>
+                                        <td class="price-cell">3 900 ₽</td>
+                                        <td>Профитроли с муссом из авокадо и семги Профитроли со сливочным сыром и креветкой Профитроль с ветчинным муссом Профитроль с грибным муссом и фисташкой Профитроль Том Ям и креветкой Профитроль с сырным муссом</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Сет 15-20 персон</strong></td>
+                                        <td class="price-cell">21 600 ₽</td>
+                                        <td>150 закусок</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Микс салатов</strong></td>
+                                        <td class="price-cell">3 500 ₽</td>
+                                        <td>Салат "Цезарь" с курицей Салат "Греческий" Салат с коктельной креветкой и апельсином Салат с печеным перцем Фетой и цыпленком</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Сет на 10 -15 персон</strong></td>
+                                        <td class="price-cell">16 800 ₽</td>
+                                        <td>Сет на 10 -15 персон
+16800 ₽</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading2">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                        <strong>Рататуй</strong> - 20 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>"Сет канапе №1"</strong></td>
+                                        <td class="price-cell">2 700 ₽</td>
+                                        <td>- Канапе греческий салат - Канапе блинный ролл с семгой и огурцом - Канапе мясной деликатес с корнишоном - Канапе с беконом и перепелиным яйцом - Канапе с моцареллой и черри Для любого события и количества человек.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет канапе №1"</strong></td>
+                                        <td class="price-cell">2 700 ₽</td>
+                                        <td>- Канапе греческий салат - Канапе блинный ролл с семгой и огурцом - Канапе мясной деликатес с корнишоном - Канапе с беконом и перепелиным яйцом - Канапе с моцареллой и черри Для любого события и количества человек.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет канапе №2"</strong></td>
+                                        <td class="price-cell">2 700 ₽</td>
+                                        <td>- Канапе цезарь с креветкой - Канапе крабовый салат перепелиным яйцом - Канапе охотничья колбаса с корнишоном - Канапе с сыром камамбер, персиком и виноградом - Канапе с домашней колбасой, черным хлебом и черри - Канапе сыр маасдам, салями и патиссон</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет канапе №3"</strong></td>
+                                        <td class="price-cell">2 700 ₽</td>
+                                        <td>. Канапе "Летний" . Канапе "Тунец с брюссельской капустой" . Канапе "Королевская креветка" . Канапе "Салями, сыр" . Канапе "Семга с авокадо" . Канапе "Крабовая палочка в кокосовой стружке"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет тарталеток №4"</strong></td>
+                                        <td class="price-cell">3 700 ₽</td>
+                                        <td>. Тарталетка "Сырный болл с креветкой" . Тарталетка "Мидии с грибами в сливочном соусе" . Тарталетка "Куриный паштет с луковым джемом" . Тарталетка "Семга с апельсином и салат чука" . Тарталетка "Тунец"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет тарталеток №5"</strong></td>
+                                        <td class="price-cell">3 700 ₽</td>
+                                        <td>. Тарталетка "Бекон с жареным перепелиным яйцом" . Тарталетка "Салат чука с слабосоленой семгой" . Тарталетка "Нежность" . Тарталетка "Куриный жульен" . Тарталетка "Цезарь с креветкой"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет тарталеток №6"</strong></td>
+                                        <td class="price-cell">3 700 ₽</td>
+                                        <td>. Тарталетка "Гуакамоле с креветкой и фисташковой крошкой" . Тарталетка "Дорблю, хамон и груша" . Тарталетка "Гуакамоле с перепелиным яйцом" . Тарталетка "Утиная грудка с апельсином под брусничным соусом" . Тарталетка "Четыре сыра"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет брускетта №7"</strong></td>
+                                        <td class="price-cell">2 400 ₽</td>
+                                        <td>- Брускетта запеченный перец с беконом - Брускетта семга с творожным сыром - Брускетта вяленый томат с моцареллой - Брускетта мясной деликатес с редисом</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет брускетт № 8"</strong></td>
+                                        <td class="price-cell">2 400 ₽</td>
+                                        <td>- Брускетта "Запеченный перец с семгой" - Брускетта "Запеченные овощи" - Брускетта "Говяжий язык с вяленым томатом" - Брускетта "Мусс из авокадо с креветкой</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>"Сет брускетт № 9"</strong></td>
+                                        <td class="price-cell">2 400 ₽</td>
+                                        <td>- Брускетта "Грибы и пармезан" - Брускетта "Креветка и авокадо" - Брускетта "Сыр дорблю с карамелизированной грушей" - Брускетта "Семга и руккола"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет № 10 "</strong></td>
+                                        <td class="price-cell">3 200 ₽</td>
+                                        <td>- Брускетта "Паштет из куриной печени с луковым джемом" - Эклер "С куриным паштетом и кунжутом"" - Канапе "Блинный ролл с курицей" - Канапе "Овощная фритата" - Брускетта "Хамон, виноград"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет № 11 "</strong></td>
+                                        <td class="price-cell">3 200 ₽</td>
+                                        <td>- Брускетта "Вяленый томат с творожным сыром" - Профитроль "Куриный паштет" - Канапе "Блинный ролл с курицей" - Канапе "Овощное с крабовым мясом" - Канапе "Мясной деликатес с фета" - Брускетта "Семга с маслинами и пармезаном"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет № 12 "</strong></td>
+                                        <td class="price-cell">3 200 ₽</td>
+                                        <td>- Брускетта "Вяленый томат с творожным сыром" - Профитроль "Куриный паштет" - Канапе "Жареная курица, ананас, сыргауда" - Канапе "Рулет из кабачка с овощами" - Канапе "Мясной деликатес с фета" - Эклер "Ростбиф с луковым джемом"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет № 13 "</strong></td>
+                                        <td class="price-cell">3 000 ₽</td>
+                                        <td>- Брускетта "Гуакомоле с креветкой" - Профитроль "Креветка" - Канапе "Свежий тунец, персик,мини кукуруза" - Канапе "Копченый тунец, брюссельская капуста" - Тарталетка "Тунец,соус гамадари"</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет Круассанов "</strong></td>
+                                        <td class="price-cell">2 500 ₽</td>
+                                        <td>- Круассан куриная грудка с овощами - Круассан семга с творожным сыром - Круассан капрезе - Круассан запеченный перец с беконом</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет десертный "</strong></td>
+                                        <td class="price-cell">3 600 ₽</td>
+                                        <td>- Канапе шоколадный торт с клубникой - Канапе киви, ананас, виноград - Канапе камамбер, виноград - Тарталетка заварной крем с ягодами - Французский макарон ассорти</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет к пиву "</strong></td>
+                                        <td class="price-cell">3 300 ₽</td>
+                                        <td>- Куриный шашлычок на шпажке - Куриные нагетсы - Сырные палочки - Картофель фри - Канапе бекон с вяленым томатом - Хлебные палочки - Соус в ассортименте ( 2 шт )</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>" Сет к вину "</strong></td>
+                                        <td class="price-cell">3 800 ₽</td>
+                                        <td>- Канапе сырный изыск с креветкой - Мясное ассорти - Ассорти европейских сыров - Оливки, виноград, хлебные палочки, грецкий орех - Физалис, мед</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Организация банкета</strong></td>
+                                        <td class="price-cell">2 000 ₽</td>
+                                        <td>Банкет – это не просто праздничный ужин, а особенное событие, где важно все: от изысканного меню до профессионального обслуживания. Кейтеринг «Рататуй» предлагает полный комплекс услуг по организации банкетов, создавая атмосферу комфорта, элегантн...</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Организация банкета</strong></td>
+                                        <td class="price-cell">2 000 ₽</td>
+                                        <td>Банкет – это не просто праздничный ужин, а особенное событие, где важно все: от изысканного меню до профессионального обслуживания. Кейтеринг «Рататуй» предлагает полный комплекс услуг по организации банкетов, создавая атмосферу комфорта, элегантн...</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading3">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                        <strong>ЧоПокурим</strong> - 11 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Аренда Кальяна на 24 часа</strong></td>
+                                        <td class="price-cell">2 149 ₽</td>
+                                        <td>Составим композицию из кальянных смесей по вашему желанию, будь то классические - фруктовые , ягодные кальяны, так и редкие гастрономические вкусы, которых вы нигде не найдете!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Аренда Кальяна на 24 часа</strong></td>
+                                        <td class="price-cell">2 149 ₽</td>
+                                        <td>Составим композицию из кальянных смесей по вашему желанию, будь то классические - фруктовые , ягодные кальяны, так и редкие гастрономические вкусы, которых вы нигде не найдете!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Кальянный Мастер</strong></td>
+                                        <td class="price-cell">1 699 ₽</td>
+                                        <td>Выезд профессионального Кальянного Мастера на ваше маленькое мероприятие или домой! Мастер класс и обслуживание со своим оборудованием. Все цены обговариваются индивидуально!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Обслуживание Мероприятий</strong></td>
+                                        <td class="price-cell">699 ₽</td>
+                                        <td>Выезжаем на ваше мероприятия и оставляем незабываемые впечатления. Скрасим мероприятие любого типа. Цены обговариваются индивидуально!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>СтикерПак "Khan Burley"</strong></td>
+                                        <td class="price-cell">99 ₽</td>
+                                        <td>Стикеры того самого, неповторимого "Khan Burley" Редкий мерч, который вы нигде не найдёте!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>СтикерПак "Khan Burley"</strong></td>
+                                        <td class="price-cell">99 ₽</td>
+                                        <td>Стикеры того самого, неповторимого "Khan Burley" Редкий мерч, который вы нигде не найдёте!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>СтикерПак "Soak"</strong></td>
+                                        <td class="price-cell">99 ₽</td>
+                                        <td>Стикеры от легендарного производителя "Soak" Тот самый редкий мерч, который, ты, нигде не найдешь!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уголь Oasis (1кг)</strong></td>
+                                        <td class="price-cell">535 ₽</td>
+                                        <td>Уголь Oasis (1кг)
+535 ₽
+1 кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уголь Oasis (1кг)</strong></td>
+                                        <td class="price-cell">535 ₽</td>
+                                        <td>Уголь Oasis (1кг)
+535 ₽
+1 кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уголь Cocos (1кг)</strong></td>
+                                        <td class="price-cell">470 ₽</td>
+                                        <td>Уголь Cocos (1кг)
+470 ₽
+1 кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Уголь Cocos (1кг)</strong></td>
+                                        <td class="price-cell">470 ₽</td>
+                                        <td>Уголь Cocos (1кг)
+470 ₽
+1 кг</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading4">
+                    <button class="accordion-button collapsed" type="button" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                        <strong>Cupcatering-premium</strong> - 15 товаров/услуг
+                    </button>
+                </h2>
+                <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Название товара</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Кофе-брейк</strong></td>
+                                        <td class="price-cell">87 500 ₽</td>
+                                        <td>Выездной кофе-брейк является востребованной услугой для проведения конференций, выставок, семинаров, презентаций, совещаний и других деловых мероприятий. Он не только обеспечивает питание участников, но и способствует лучшему усвоению информации.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Кофе-брейк</strong></td>
+                                        <td class="price-cell">87 500 ₽</td>
+                                        <td>Выездной кофе-брейк является востребованной услугой для проведения конференций, выставок, семинаров, презентаций, совещаний и других деловых мероприятий. Он не только обеспечивает питание участников, но и способствует лучшему усвоению информации.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Новогодний корпоратив</strong></td>
+                                        <td class="price-cell">50 000 ₽</td>
+                                        <td>Новогодний корпоратив 2023 — это лучший повод собраться всем рабочим коллективом, и отметить наступление Нового Года. Кейтеринг на новогоднем корпоративе становится все популярнее с каждым годом.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Семейный обед</strong></td>
+                                        <td class="price-cell">100 000 ₽</td>
+                                        <td>В каждой семье ежегодно наступают долгожданные праздники, повод может быть любой - День Рождения, свадьба, венчание, крещение и т.д. И каждый год вы оказываетесь у плиты, готовя праздничные блюда, и придумываете новые рецепты.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Семейный обед</strong></td>
+                                        <td class="price-cell">100 000 ₽</td>
+                                        <td>В каждой семье ежегодно наступают долгожданные праздники, повод может быть любой - День Рождения, свадьба, венчание, крещение и т.д. И каждый год вы оказываетесь у плиты, готовя праздничные блюда, и придумываете новые рецепты.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Фуршет в офис</strong></td>
+                                        <td class="price-cell">50 000 ₽</td>
+                                        <td>В последнее время фуршеты в офисе становятся все более популярными. Это отличное решение для любой компании. Такой вид мероприятия может быть организован по любому поводу: день рождения сотрудника, юбилей руководителя, корпоративное событие</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Фуршет в офис</strong></td>
+                                        <td class="price-cell">50 000 ₽</td>
+                                        <td>В последнее время фуршеты в офисе становятся все более популярными. Это отличное решение для любой компании. Такой вид мероприятия может быть организован по любому поводу: день рождения сотрудника, юбилей руководителя, корпоративное событие</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Детский праздник</strong></td>
+                                        <td class="price-cell">35 000 ₽</td>
+                                        <td>Устраиваете детскую вечеринку в лофте? На даче или в коттедже? А может на базе отдыха или на природе? Мы приедем со всем необходимым оборудованием, все установим и приготовим. Для детей есть специальное разнообразное меню, интересные и забавные блюда</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Детский праздник</strong></td>
+                                        <td class="price-cell">35 000 ₽</td>
+                                        <td>Устраиваете детскую вечеринку в лофте? На даче или в коттедже? А может на базе отдыха или на природе? Мы приедем со всем необходимым оборудованием, все установим и приготовим. Для детей есть специальное разнообразное меню, интересные и забавные блюда</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Юбилей</strong></td>
+                                        <td class="price-cell">120 000 ₽</td>
+                                        <td>Полностью берём на себя организацию вашего мероприятия, от идеи до её воплощения. Для вас работает слаженная команда: кейтеринг, шеф-повара, организатор, декоратор. Приезжаем на место праздника со своим оборудованием, мебелью, посудой.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Юбилей</strong></td>
+                                        <td class="price-cell">120 000 ₽</td>
+                                        <td>Полностью берём на себя организацию вашего мероприятия, от идеи до её воплощения. Для вас работает слаженная команда: кейтеринг, шеф-повара, организатор, декоратор. Приезжаем на место праздника со своим оборудованием, мебелью, посудой.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Обслуживание на мероприятии</strong></td>
+                                        <td class="price-cell">4 000 ₽</td>
+                                        <td>Ключевой фактор успеха в банкете — это сервис. Мы гарантируем деликатное и оперативное обслуживание в ходе всего мероприятия.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Обслуживание на мероприятии</strong></td>
+                                        <td class="price-cell">4 000 ₽</td>
+                                        <td>Ключевой фактор успеха в банкете — это сервис. Мы гарантируем деликатное и оперативное обслуживание в ходе всего мероприятия.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Барбекю пати</strong></td>
+                                        <td class="price-cell">75 000 ₽</td>
+                                        <td>Барбекю пати (BBQ) – вид отдыха, весёлая вечеринка с семьёй или друзьями на открытом воздухе. Барбекю-вечеринка – прекрасный способ вкусно, душевно и необычно отметить день рождения и любой другой праздник в кругу друзей и семьи или среди коллег.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Барбекю пати</strong></td>
+                                        <td class="price-cell">75 000 ₽</td>
+                                        <td>Барбекю пати (BBQ) – вид отдыха, весёлая вечеринка с семьёй или друзьями на открытом воздухе. Барбекю-вечеринка – прекрасный способ вкусно, душевно и необычно отметить день рождения и любой другой праздник в кругу друзей и семьи или среди коллег.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница сравнения товаров -->
+                <div id="comparison-page" class="page">
+                    <div class="container">
+                        <button class="btn btn-secondary back-btn" onclick="showPage('main-page')">
+Назад к главной странице
+                        </button>
+                        <h2>🔄 Сравнение товаров и услуг</h2>
+                        <div class="chart-container">
+                            
+        <div class="accordion" id="comparisonAccordion">
+        
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading0">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse0" aria-expanded="false" aria-controls="comparison-collapse0">
+                        <strong>Курник</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse0" class="accordion-collapse collapse" aria-labelledby="comparison-heading0">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>БагетFurshet</strong></td>
+                                        <td class="price-cell">1 100 ₽</td>
+                                        <td>Вкуснейший курник 1100/кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>БагетFurshet</strong></td>
+                                        <td class="price-cell">1 100 ₽</td>
+                                        <td>Вкуснейший курник 1100/кг</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading1">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse1" aria-expanded="false" aria-controls="comparison-collapse1">
+                        <strong>Хит Ассорти</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse1" class="accordion-collapse collapse" aria-labelledby="comparison-heading1">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Момент Вкуса Кейтеринг</strong></td>
+                                        <td class="price-cell">4 950 ₽</td>
+                                        <td>Брускетта с манго и креветкой Канапе маасдам с фисташкой и виноградом Брускетта с авокадо и фетой Канапе с лососем Брускетта с бужениной</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Момент Вкуса Кейтеринг</strong></td>
+                                        <td class="price-cell">4 950 ₽</td>
+                                        <td>Брускетта с манго и креветкой Канапе маасдам с фисташкой и виноградом Брускетта с авокадо и фетой Канапе с лососем Брускетта с бужениной</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading2">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse2" aria-expanded="false" aria-controls="comparison-collapse2">
+                        <strong>"Сет Канапе №1"</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse2" class="accordion-collapse collapse" aria-labelledby="comparison-heading2">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Рататуй</strong></td>
+                                        <td class="price-cell">2 700 ₽</td>
+                                        <td>- Канапе греческий салат - Канапе блинный ролл с семгой и огурцом - Канапе мясной деликатес с корнишоном - Канапе с беконом и перепелиным яйцом - Канапе с моцареллой и черри Для любого события и количества человек.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Рататуй</strong></td>
+                                        <td class="price-cell">2 700 ₽</td>
+                                        <td>- Канапе греческий салат - Канапе блинный ролл с семгой и огурцом - Канапе мясной деликатес с корнишоном - Канапе с беконом и перепелиным яйцом - Канапе с моцареллой и черри Для любого события и количества человек.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading3">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse3" aria-expanded="false" aria-controls="comparison-collapse3">
+                        <strong>Организация Банкета</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse3" class="accordion-collapse collapse" aria-labelledby="comparison-heading3">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Рататуй</strong></td>
+                                        <td class="price-cell">2 000 ₽</td>
+                                        <td>Банкет – это не просто праздничный ужин, а особенное событие, где важно все: от изысканного меню до профессионального обслуживания. Кейтеринг «Рататуй» предлагает полный комплекс услуг по организации банкетов, создавая атмосферу комфорта, элегантн...</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Рататуй</strong></td>
+                                        <td class="price-cell">2 000 ₽</td>
+                                        <td>Банкет – это не просто праздничный ужин, а особенное событие, где важно все: от изысканного меню до профессионального обслуживания. Кейтеринг «Рататуй» предлагает полный комплекс услуг по организации банкетов, создавая атмосферу комфорта, элегантн...</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading4">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse4" aria-expanded="false" aria-controls="comparison-collapse4">
+                        <strong>Аренда Кальяна На 24 Часа</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse4" class="accordion-collapse collapse" aria-labelledby="comparison-heading4">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">2 149 ₽</td>
+                                        <td>Составим композицию из кальянных смесей по вашему желанию, будь то классические - фруктовые , ягодные кальяны, так и редкие гастрономические вкусы, которых вы нигде не найдете!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">2 149 ₽</td>
+                                        <td>Составим композицию из кальянных смесей по вашему желанию, будь то классические - фруктовые , ягодные кальяны, так и редкие гастрономические вкусы, которых вы нигде не найдете!</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading5">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse5" aria-expanded="false" aria-controls="comparison-collapse5">
+                        <strong>Стикерпак "Khan Burley"</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse5" class="accordion-collapse collapse" aria-labelledby="comparison-heading5">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">99 ₽</td>
+                                        <td>Стикеры того самого, неповторимого "Khan Burley" Редкий мерч, который вы нигде не найдёте!</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">99 ₽</td>
+                                        <td>Стикеры того самого, неповторимого "Khan Burley" Редкий мерч, который вы нигде не найдёте!</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading6">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse6" aria-expanded="false" aria-controls="comparison-collapse6">
+                        <strong>Уголь Oasis (1Кг)</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse6" class="accordion-collapse collapse" aria-labelledby="comparison-heading6">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">535 ₽</td>
+                                        <td>Уголь Oasis (1кг)
+535 ₽
+1 кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">535 ₽</td>
+                                        <td>Уголь Oasis (1кг)
+535 ₽
+1 кг</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading7">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse7" aria-expanded="false" aria-controls="comparison-collapse7">
+                        <strong>Уголь Cocos (1Кг)</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse7" class="accordion-collapse collapse" aria-labelledby="comparison-heading7">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">470 ₽</td>
+                                        <td>Уголь Cocos (1кг)
+470 ₽
+1 кг</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>ЧоПокурим</strong></td>
+                                        <td class="price-cell">470 ₽</td>
+                                        <td>Уголь Cocos (1кг)
+470 ₽
+1 кг</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading8">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse8" aria-expanded="false" aria-controls="comparison-collapse8">
+                        <strong>Кофе-Брейк</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse8" class="accordion-collapse collapse" aria-labelledby="comparison-heading8">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">87 500 ₽</td>
+                                        <td>Выездной кофе-брейк является востребованной услугой для проведения конференций, выставок, семинаров, презентаций, совещаний и других деловых мероприятий. Он не только обеспечивает питание участников, но и способствует лучшему усвоению информации.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">87 500 ₽</td>
+                                        <td>Выездной кофе-брейк является востребованной услугой для проведения конференций, выставок, семинаров, презентаций, совещаний и других деловых мероприятий. Он не только обеспечивает питание участников, но и способствует лучшему усвоению информации.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading9">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse9" aria-expanded="false" aria-controls="comparison-collapse9">
+                        <strong>Семейный Обед</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse9" class="accordion-collapse collapse" aria-labelledby="comparison-heading9">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">100 000 ₽</td>
+                                        <td>В каждой семье ежегодно наступают долгожданные праздники, повод может быть любой - День Рождения, свадьба, венчание, крещение и т.д. И каждый год вы оказываетесь у плиты, готовя праздничные блюда, и придумываете новые рецепты.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">100 000 ₽</td>
+                                        <td>В каждой семье ежегодно наступают долгожданные праздники, повод может быть любой - День Рождения, свадьба, венчание, крещение и т.д. И каждый год вы оказываетесь у плиты, готовя праздничные блюда, и придумываете новые рецепты.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading10">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse10" aria-expanded="false" aria-controls="comparison-collapse10">
+                        <strong>Фуршет В Офис</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse10" class="accordion-collapse collapse" aria-labelledby="comparison-heading10">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">50 000 ₽</td>
+                                        <td>В последнее время фуршеты в офисе становятся все более популярными. Это отличное решение для любой компании. Такой вид мероприятия может быть организован по любому поводу: день рождения сотрудника, юбилей руководителя, корпоративное событие</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">50 000 ₽</td>
+                                        <td>В последнее время фуршеты в офисе становятся все более популярными. Это отличное решение для любой компании. Такой вид мероприятия может быть организован по любому поводу: день рождения сотрудника, юбилей руководителя, корпоративное событие</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading11">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse11" aria-expanded="false" aria-controls="comparison-collapse11">
+                        <strong>Детский Праздник</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse11" class="accordion-collapse collapse" aria-labelledby="comparison-heading11">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">35 000 ₽</td>
+                                        <td>Устраиваете детскую вечеринку в лофте? На даче или в коттедже? А может на базе отдыха или на природе? Мы приедем со всем необходимым оборудованием, все установим и приготовим. Для детей есть специальное разнообразное меню, интересные и забавные блюда</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">35 000 ₽</td>
+                                        <td>Устраиваете детскую вечеринку в лофте? На даче или в коттедже? А может на базе отдыха или на природе? Мы приедем со всем необходимым оборудованием, все установим и приготовим. Для детей есть специальное разнообразное меню, интересные и забавные блюда</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading12">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse12" aria-expanded="false" aria-controls="comparison-collapse12">
+                        <strong>Юбилей</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse12" class="accordion-collapse collapse" aria-labelledby="comparison-heading12">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">120 000 ₽</td>
+                                        <td>Полностью берём на себя организацию вашего мероприятия, от идеи до её воплощения. Для вас работает слаженная команда: кейтеринг, шеф-повара, организатор, декоратор. Приезжаем на место праздника со своим оборудованием, мебелью, посудой.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">120 000 ₽</td>
+                                        <td>Полностью берём на себя организацию вашего мероприятия, от идеи до её воплощения. Для вас работает слаженная команда: кейтеринг, шеф-повара, организатор, декоратор. Приезжаем на место праздника со своим оборудованием, мебелью, посудой.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading13">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse13" aria-expanded="false" aria-controls="comparison-collapse13">
+                        <strong>Обслуживание На Мероприятии</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse13" class="accordion-collapse collapse" aria-labelledby="comparison-heading13">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">4 000 ₽</td>
+                                        <td>Ключевой фактор успеха в банкете — это сервис. Мы гарантируем деликатное и оперативное обслуживание в ходе всего мероприятия.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">4 000 ₽</td>
+                                        <td>Ключевой фактор успеха в банкете — это сервис. Мы гарантируем деликатное и оперативное обслуживание в ходе всего мероприятия.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="comparison-heading14">
+                    <button class="accordion-button collapsed" type="button" data-target="#comparison-collapse14" aria-expanded="false" aria-controls="comparison-collapse14">
+                        <strong>Барбекю Пати</strong> - 2 предложений
+                    </button>
+                </h2>
+                <div id="comparison-collapse14" class="accordion-collapse collapse" aria-labelledby="comparison-heading14">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предприятие</th>
+                                        <th class="price-cell">Цена</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">75 000 ₽</td>
+                                        <td>Барбекю пати (BBQ) – вид отдыха, весёлая вечеринка с семьёй или друзьями на открытом воздухе. Барбекю-вечеринка – прекрасный способ вкусно, душевно и необычно отметить день рождения и любой другой праздник в кругу друзей и семьи или среди коллег.</td>
+                                    </tr>
+                
+                                    <tr>
+                                        <td><strong>Cupcatering-premium</strong></td>
+                                        <td class="price-cell">75 000 ₽</td>
+                                        <td>Барбекю пати (BBQ) – вид отдыха, весёлая вечеринка с семьёй или друзьями на открытом воздухе. Барбекю-вечеринка – прекрасный способ вкусно, душевно и необычно отметить день рождения и любой другой праздник в кругу друзей и семьи или среди коллег.</td>
+                                    </tr>
+                
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+                
+        <script>
+            function showPage(pageId) {
+                // Скрываем все страницы
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Показываем выбранную страницу
+                document.getElementById(pageId).classList.add('active');
+            }
+            
+            function showBusinessProducts(businessName) {
+                // Скрываем все страницы
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Показываем страницу товаров
+                document.getElementById('products-page').classList.add('active');
+                
+                // Прокручиваем к нужному предприятию
+                const targetElement = document.querySelector(`[data-business="${businessName}"]`);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            // Функция для работы с аккордеонами
+            function toggleAccordion(button) {
+                const target = button.getAttribute('data-target');
+                const collapse = document.querySelector(target);
+                
+                if (!collapse) return;
+                
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                
+                if (isExpanded) {
+                    // Закрываем
+                    collapse.classList.remove('show');
+                    button.classList.add('collapsed');
+                    button.setAttribute('aria-expanded', 'false');
+                } else {
+                    // Открываем
+                    collapse.classList.add('show');
+                    button.classList.remove('collapsed');
+                    button.setAttribute('aria-expanded', 'true');
+                }
+            }
+            
+            // Обработчики событий для аккордеонов
+            document.addEventListener('DOMContentLoaded', function() {
+                // Добавляем обработчики для всех кнопок аккордеонов
+                document.querySelectorAll('.accordion-button').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        toggleAccordion(this);
+                    });
+                });
+                
+                // Добавляем класс loading при загрузке страницы
+                document.body.classList.add('loading');
+                
+                // Убираем класс loading через 1 секунду
+                setTimeout(() => {
+                    document.body.classList.remove('loading');
+                }, 1000);
+                
+                // Добавляем эффекты при наведении на карточки
+                document.querySelectorAll('.card').forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-5px) scale(1.02)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0) scale(1)';
+                    });
+                });
+                
+                // Добавляем эффекты при наведении на кнопки
+                document.querySelectorAll('.btn').forEach(btn => {
+                    btn.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-2px)';
+                    });
+                    
+                    btn.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                    });
+                });
+            });
+        </script>
+        
+            </body>
+            </html>
+            
