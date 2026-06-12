@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from parser_core import ParserCore
+from dotenv import load_dotenv
 
 from .exporters import export_csv, export_json, export_xlsx
 from .demo import DemoParserCore
@@ -17,6 +18,7 @@ from .schemas import JobCreate, ResultPage
 from .storage import SQLiteStore
 
 ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / ".env")
 DATA_DIR = Path(os.getenv("APP_DATA_DIR", ROOT / "data"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 

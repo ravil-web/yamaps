@@ -64,7 +64,13 @@ async function initializeMap() {
   }
   const script = document.createElement("script");
   script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(config.yandex_maps_api_key)}&lang=ru_RU`;
-  script.onload = () => ymaps.ready(createMap);
+  script.onload = () => {
+    if (typeof ymaps === "undefined") {
+      showMapPlaceholder("Yandex Maps API не инициализирован. Проверьте, что ключ создан для JavaScript API и разрешает localhost.");
+      return;
+    }
+    ymaps.ready(createMap, () => showMapPlaceholder("Yandex Maps отклонил API-ключ. Проверьте тип ключа, ограничения доменов и активацию API."));
+  };
   script.onerror = () => showMapPlaceholder("Не удалось загрузить Yandex Maps API. Проверьте ключ и подключение.");
   document.head.append(script);
 }
