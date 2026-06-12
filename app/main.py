@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
+from fastapi.staticfiles import StaticFiles
 
 from .exporters import export_csv, export_json, export_xlsx
 from .jobs import JobManager
@@ -22,6 +23,12 @@ store.initialize()
 manager = JobManager(store)
 
 app = FastAPI(title="Yandex Maps Parser", version="1.0.0")
+app.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def index() -> FileResponse:
+    return FileResponse(ROOT / "app" / "static" / "index.html")
 
 
 @app.get("/api/health")
@@ -97,4 +104,3 @@ def export_job(job_id: str, format: Literal["csv", "xlsx", "json"]) -> Response:
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{job_id}.{suffix}"'},
     )
-

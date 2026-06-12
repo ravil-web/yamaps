@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Парсер Яндекс Карт — этап 5</title>
+  <link rel="stylesheet" href="/static/styles.css?v=1">
+  <script src="/static/app.js?v=1" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Панель управления парсером">
+      <header class="panel-header">
+        <div>
+          <p class="eyebrow">Этап 5</p>
+          <h1>Парсер Яндекс Карт</h1>
+        </div>
+        <p class="panel-subtitle">Поиск, область, параметры, запуск и экспорт результатов.</p>
+      </header>
+
+      <section class="card">
+        <h2>Поиск</h2>
+        <label class="field" for="query">
+          <span class="field-label">Запрос</span>
+          <input id="query" name="query" type="text" placeholder="Например: кофейни" autocomplete="off" spellcheck="false">
+        </label>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Параметры</h2>
+          <p class="section-note">Поля будут заполнены из схемы API.</p>
+        </div>
+        <form id="params-form" class="params-form" aria-label="Параметры парсинга">
+          <p class="form-placeholder">Настройки появятся здесь после загрузки схемы.</p>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Область поиска</h2>
+        <div class="area-actions" role="group" aria-label="Выбор типа области">
+          <button id="rectangle-button" class="button button-secondary" type="button">Прямоугольник</button>
+          <button id="polygon-button" class="button button-secondary" type="button">Полигон</button>
+          <button id="clear-area-button" class="button button-secondary" type="button">Очистить область</button>
+        </div>
+        <p class="helper-text">Выберите режим, затем отметьте область на карте справа.</p>
+      </section>
+
+      <section class="card">
+        <div class="controls">
+          <button id="start-button" class="button button-primary" type="button">Запустить</button>
+          <button id="stop-button" class="button button-danger" type="button">Остановить</button>
+        </div>
+
+        <div class="progress-block" aria-label="Прогресс выполнения">
+          <div class="progress-track" aria-hidden="true">
+            <div id="progress" class="progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="progress-meta">
+            <span id="progress-text">Ожидание запуска</span>
+            <span id="found-count">Найдено: 0</span>
+          </div>
+        </div>
+
+        <p id="status-message" class="status-message" role="status" aria-live="polite">Готово к запуску.</p>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Экспорт</h2>
+          <p class="section-note">Файлы формируются по текущему набору результатов.</p>
+        </div>
+        <div class="export-actions">
+          <a id="export-json" class="button button-ghost" href="#" download>JSON</a>
+          <a id="export-csv" class="button button-ghost" href="#" download>CSV</a>
+          <a id="export-xlsx" class="button button-ghost" href="#" download>XLSX</a>
+        </div>
+      </section>
+
+      <section class="card results-card" aria-labelledby="results-title">
+        <div class="section-head">
+          <h2 id="results-title">Результаты</h2>
+          <p class="section-note">Список найденных организаций.</p>
+        </div>
+        <div class="table-wrap" role="region" aria-label="Таблица результатов" tabindex="0">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th scope="col">Название</th>
+                <th scope="col">Адрес</th>
+                <th scope="col">Телефон</th>
+                <th scope="col">Рейтинг</th>
+              </tr>
+            </thead>
+            <tbody id="results-body">
+              <tr class="empty-row">
+                <td colspan="4">Пока ничего не найдено.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+
+    <main class="map-panel" aria-label="Карта">
+      <div id="map" class="map" role="application" aria-label="Интерактивная карта">
+        <div id="map-placeholder" class="map-placeholder">
+          <div class="map-placeholder-card">
+            <p class="eyebrow">Карта</p>
+            <h2>Область поиска и навигация</h2>
+            <p id="map-placeholder-message">Здесь будет отображаться карта, выбранная область и результаты парсинга.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

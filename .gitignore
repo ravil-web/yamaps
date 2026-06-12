@@ -44,3 +44,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Runtime data and secrets
+data/
+.env

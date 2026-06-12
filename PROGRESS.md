@@ -1,6 +1,6 @@
 ---
-stage: 5
-done: [0, 1, 2, 3, 4]
+stage: 6
+done: [0, 1, 2, 3, 4, 5]
 core_frozen: true
 legacy_immutable: true
 params_file: docs/parser_params.md
@@ -55,6 +55,18 @@ open_bugs: []
 - Added deterministic API integration tests and fixed a stop-status race found
   by those tests.
 
+## Stage 5 - Frontend And Map
+
+- Added a responsive single-screen SPA served by FastAPI.
+- Parameter controls are generated from `/api/params/schema`.
+- Added Yandex Maps API 2.1 loading, missing-key setup placeholder, rectangle
+  drag, polygon clicks/double-click completion, clear-area control, result
+  markers and clustering.
+- Connected job start/stop, polling progress/results, result table, map
+  markers, and CSV/XLSX/JSON exports.
+- Browser-verified desktop layout, generated parameter controls, missing-key
+  guidance, and area-required validation.
+
 ## Artifacts
 
 - `legacy/`
@@ -72,6 +84,7 @@ open_bugs: []
 - `tests/test_parser_core.py`
 - `app/`
 - `tests/test_api.py`
+- `app/static/`
 
 ## Validation
 
@@ -81,3 +94,4 @@ open_bugs: []
   records; no Ozon/dashboard DROP parameters.
 - Parser core unit tests pass without network or Selenium.
 - Parser core and backend API suite: 8 tests pass.
+- Local browser smoke test passes without a Yandex Maps API key.
