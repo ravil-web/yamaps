@@ -1,7 +1,7 @@
 ---
-stage: 3
-done: [0, 1, 2]
-core_frozen: false
+stage: 4
+done: [0, 1, 2, 3]
+core_frozen: true
 legacy_immutable: true
 params_file: docs/parser_params.md
 api_contract: docs/api.md
@@ -33,6 +33,16 @@ open_bugs: []
   strategy.
 - Defined API contract and bbox/polygon-to-Yandex-tile translation.
 
+## Stage 3 - Parser Core
+
+- Added `parser_core/` boundary with area models, tiling, URL generation,
+  normalization, polygon filtering, deduplication, callbacks, and cooperative
+  stopping.
+- The adapter imports and invokes the immutable selected classes directly from
+  `legacy/`; selectors, waits, scrolling, extraction, and anti-detection logic
+  are not copied or rewritten.
+- Added deterministic unit tests with a fake adapter.
+
 ## Artifacts
 
 - `legacy/`
@@ -46,6 +56,8 @@ open_bugs: []
 - `docs/audit.md`
 - `docs/architecture.md`
 - `docs/api.md`
+- `parser_core/`
+- `tests/test_parser_core.py`
 
 ## Validation
 
@@ -53,3 +65,4 @@ open_bugs: []
 - Audit JSON files parse successfully.
 - UI schema: 30 parameters, 10 selector metadata records, 7 field metadata
   records; no Ozon/dashboard DROP parameters.
+- Parser core unit tests pass without network or Selenium.

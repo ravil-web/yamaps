@@ -1,0 +1,66 @@
+from __future__ import annotations
+
+import importlib
+import sys
+from pathlib import Path
+from typing import Any
+
+from .models import ParserParams
+
+LEGACY_ROOT = Path(__file__).resolve().parents[1] / "legacy"
+
+
+class LegacyAdapter:
+    """Thin adapter over the immutable selected legacy parser implementation."""
+
+    def __init__(self, params: ParserParams, session_name: str) -> None:
+        legacy_path = str(LEGACY_ROOT)
+        if legacy_path not in sys.path:
+            sys.path.insert(0, legacy_path)
+        self.config = importlib.import_module("src.config")
+        self.yandex_module = importlib.import_module("src.parsers.yandex_parser")
+        self.single_module = importlib.import_module("src.parsers.single_parser")
+        self.params = params
+        self._apply_params(params)
+        self.parser = self.yandex_module.MainParser(session_name=session_name)
+
+    def collect_urls(self, search_url: str) -> list[str]:
+        self.config.SEARCH_URL = search_url
+        self.yandex_module.SEARCH_URL = search_url
+        return self.parser.extract_business_urls()
+
+    def parse_business(self, url: str) -> dict[str, Any] | None:
+        single = self.single_module.SingleBusinessParser(
+            session_folder=f"{self.parser.session_folder}/businesses"
+        )
+        single.max_products = int(self.params.get("single.max_products", self.config.TARGET_PRODUCTS_COUNT))
+        try:
+            return single.parse_single_business(url)
+        finally:
+            single.close()
+
+    def close(self) -> None:
+        self.parser.close()
+
+    def _apply_params(self, params: ParserParams) -> None:
+        target = int(params.get("target_businesses_count", self.config.TARGET_BUSINESSES_COUNT))
+        products = int(params.get("target_products_count", self.config.TARGET_PRODUCTS_COUNT))
+        delays = dict(self.config.DELAYS)
+        for name in delays:
+            delays[name] = params.get(f"delays.{name}", delays[name])
+        self.config.TARGET_BUSINESSES_COUNT = target
+        self.config.TARGET_PRODUCTS_COUNT = products
+        self.config.DELAYS = delays
+        browser_options = dict(self.config.BROWSER_OPTIONS)
+        for name in browser_options:
+            browser_options[name] = params.get(f"browser.{name}", browser_options[name])
+        error_handling = dict(self.config.ERROR_HANDLING)
+        for name in error_handling:
+            error_handling[name] = params.get(f"error.{name}", error_handling[name])
+        self.config.BROWSER_OPTIONS = browser_options
+        self.config.ERROR_HANDLING = error_handling
+        self.yandex_module.TARGET_BUSINESSES_COUNT = target
+        self.yandex_module.TARGET_PRODUCTS_COUNT = products
+        self.yandex_module.DELAYS = delays
+        self.yandex_module.BROWSER_OPTIONS = browser_options
+        self.yandex_module.ERROR_HANDLING = error_handling
