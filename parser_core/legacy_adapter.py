@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import sys
+import types
 from pathlib import Path
 from typing import Any
 
@@ -33,7 +34,16 @@ class LegacyAdapter:
         single = self.single_module.SingleBusinessParser(
             session_folder=f"{self.parser.session_folder}/businesses"
         )
-        single.max_products = int(self.params.get("single.max_products", self.config.TARGET_PRODUCTS_COUNT))
+        single.max_products = int(self.params.get("target_products_count", self.config.TARGET_PRODUCTS_COUNT))
+        original_timed_find = single.find_element_by_selectors_with_timeout
+        address_timeout = int(self.params.get("single.address_timeout", 5))
+        selector_timeout = int(self.params.get("single.find_element_by_selectors_with_timeout.timeout", 10))
+
+        def configured_timed_find(instance: Any, selectors: list[str], timeout: int = 10) -> Any:
+            configured_timeout = address_timeout if timeout == 5 else selector_timeout if timeout == 10 else timeout
+            return original_timed_find(selectors, timeout=configured_timeout)
+
+        single.find_element_by_selectors_with_timeout = types.MethodType(configured_timed_find, single)
         try:
             return single.parse_single_business(url)
         finally:
@@ -59,6 +69,16 @@ class LegacyAdapter:
             error_handling[name] = params.get(f"error.{name}", error_handling[name])
         self.config.BROWSER_OPTIONS = browser_options
         self.config.ERROR_HANDLING = error_handling
+        for config_name, prefix in (
+            ("FOLDER_STRUCTURE", "folder"),
+            ("LOGGING", "logging"),
+            ("SAVE_OPTIONS", "save"),
+        ):
+            configured = dict(getattr(self.config, config_name))
+            for name in configured:
+                configured[name] = params.get(f"{prefix}.{name}", configured[name])
+            setattr(self.config, config_name, configured)
+            setattr(self.yandex_module, config_name, configured)
         self.yandex_module.TARGET_BUSINESSES_COUNT = target
         self.yandex_module.TARGET_PRODUCTS_COUNT = products
         self.yandex_module.DELAYS = delays

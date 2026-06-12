@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_HOST: 0.0.0.0
+      OPEN_BROWSER: "0"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data

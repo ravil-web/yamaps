@@ -7,8 +7,10 @@ from typing import Literal
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
+from parser_core import ParserCore
 
 from .exporters import export_csv, export_json, export_xlsx
+from .demo import DemoParserCore
 from .jobs import JobManager
 from .params import load_schema, validate_params
 from .schemas import JobCreate, ResultPage
@@ -20,7 +22,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 store = SQLiteStore(DATA_DIR / "app.db")
 store.initialize()
-manager = JobManager(store)
+manager = JobManager(store, core_factory=DemoParserCore if os.getenv("PARSER_DEMO_MODE") == "1" else ParserCore)
 
 app = FastAPI(title="Yandex Maps Parser", version="1.0.0")
 app.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")

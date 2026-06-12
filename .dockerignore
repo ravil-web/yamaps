@@ -1,0 +1,11 @@
+.git
+.env
+.cache
+data
+__pycache__
+*.pyc
+legacy/output
+legacy/parsing_results
+legacy/dashboard
+legacy/dashboards
+legacy/_trash

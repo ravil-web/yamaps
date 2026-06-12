@@ -1,6 +1,6 @@
 ---
-stage: 7
-done: [0, 1, 2, 3, 4, 5, 6]
+stage: complete
+done: [0, 1, 2, 3, 4, 5, 6, 7]
 core_frozen: true
 legacy_immutable: true
 params_file: docs/parser_params.md
@@ -77,6 +77,17 @@ open_bugs: []
   empty results, and graceful parser/blocking failure.
 - Fixed cross-tile global target limit and the earlier stop-status race.
 
+## Stage 7 - Finalization
+
+- Added one-command local startup, `.env.example`, runtime requirements,
+  Dockerfile, Docker Compose, `.dockerignore`, pytest configuration, and
+  Russian README.
+- Completed parameter wiring for the selected Yandex baseline, including
+  browser, delay, save, logging, error, limit, and selector timeout controls.
+- Final validation covers product tests, JavaScript syntax, Python compilation,
+  Docker Compose configuration, local `python run.py` startup, missing map key
+  behavior, and browser UI smoke.
+
 ## Artifacts
 
 - `legacy/`
@@ -97,6 +108,13 @@ open_bugs: []
 - `app/static/`
 - `app/demo.py`
 - `tests/test_e2e_scenarios.py`
+- `README.md`
+- `.env.example`
+- `requirements.txt`
+- `run.py`
+- `Dockerfile`
+- `docker-compose.yml`
+- `pytest.ini`
 
 ## Validation
 
@@ -107,3 +125,29 @@ open_bugs: []
 - Parser core unit tests pass without network or Selenium.
 - Parser core, backend API, and E2E suite pass.
 - Local browser smoke test passes without a Yandex Maps API key.
+- `python run.py` health/root smoke test passes in demo mode.
+- `docker compose config` passes.
+
+## Final Summary
+
+### Preserved
+
+- Immutable selected legacy Selenium URL collection and business-card
+  extraction behavior, including selectors, scrolling, waits, and
+  anti-detection setup.
+- Original Yandex parser defaults exposed through the UI schema.
+- JSON/CSV persistence behavior, with XLSX export added from existing legacy
+  patterns.
+
+### Removed From New Runtime
+
+- Terminal menus/input, Ozon, historical dashboard generators, kids-English
+  application, debug variants, generated output, archives, and duplicate
+  experimental parsers. These remain only in immutable `legacy/`.
+
+### Known Limitations
+
+- Live Yandex DOM/captcha behavior and live Yandex map rendering require
+  external availability, Chrome/Chromium, and a user-supplied API key.
+- Stop is cooperative and may wait for an active Selenium wait to finish.
+- Background threads and SQLite target a local single-user deployment.
