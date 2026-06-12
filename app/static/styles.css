@@ -150,6 +150,44 @@ textarea {
   width: 100%;
 }
 
+.address-search .field {
+  position: relative;
+}
+
+.address-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  z-index: 1000;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.address-suggestion {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.address-suggestion:last-child {
+  border-bottom: 0;
+}
+
+.address-suggestion:hover,
+.address-suggestion:focus-visible {
+  background: #eff6ff;
+}
+
 input,
 button,
 a {

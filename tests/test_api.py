@@ -120,6 +120,17 @@ def test_api_validation_config_and_not_found(tmp_path: Path, monkeypatch) -> Non
     assert 'id="move-map-button"' in client.get("/").text
     assert client.get("/static/app.js").status_code == 200
     assert client.get("/api/jobs/missing").status_code == 404
+    monkeypatch.setattr(
+        "app.main.geocode_address",
+        lambda address: {"latitude": 55.75, "longitude": 37.61, "address": address},
+    )
+    assert client.get("/api/geocode", params={"address": "Москва"}).json()["latitude"] == 55.75
+    monkeypatch.setattr(
+        "app.main.suggest_addresses",
+        lambda address, limit=5: [{"latitude": 55.75, "longitude": 37.61, "address": address}],
+    )
+    suggestions = client.get("/api/geocode/suggest", params={"address": "Москва"}).json()
+    assert suggestions[0]["address"] == "Москва"
     invalid = _request()
     invalid["params"] = {"unknown": True}
     assert client.post("/api/jobs", json=invalid).status_code == 422

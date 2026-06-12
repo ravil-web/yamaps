@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from parser_core import ParserCore
 from dotenv import load_dotenv
@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from .exporters import export_csv, export_json, export_xlsx
 from .demo import DemoParserCore
 from .jobs import JobManager
+from .geocode import geocode_address, suggest_addresses
 from .params import load_schema, validate_params
 from .schemas import JobCreate, ResultPage
 from .storage import SQLiteStore
@@ -41,14 +42,36 @@ def health() -> dict[str, str]:
 
 
 @app.get("/api/config")
-def config() -> dict[str, str | bool]:
+def config() -> JSONResponse:
     key = os.getenv("YANDEX_MAPS_API_KEY", "")
-    return {"yandex_maps_api_key": key, "map_enabled": bool(key)}
+    return JSONResponse(
+        {"yandex_maps_api_key": key, "map_enabled": bool(key)},
+        headers={"Cache-Control": "no-store, max-age=0"},
+    )
 
 
 @app.get("/api/params/schema")
 def params_schema() -> dict:
     return load_schema()
+
+
+@app.get("/api/geocode")
+def geocode(address: str = Query(min_length=1, max_length=500)) -> dict:
+    try:
+        result = geocode_address(address.strip())
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"geocoding service unavailable: {exc}") from exc
+    if not result:
+        raise HTTPException(status_code=404, detail="address not found")
+    return result
+
+
+@app.get("/api/geocode/suggest")
+def geocode_suggest(address: str = Query(min_length=3, max_length=500)) -> list[dict]:
+    try:
+        return suggest_addresses(address.strip(), limit=5)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"geocoding service unavailable: {exc}") from exc
 
 
 @app.post("/api/jobs", status_code=202)

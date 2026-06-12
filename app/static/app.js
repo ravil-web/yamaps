@@ -11,6 +11,8 @@ const state = {
   rectangleStart: null,
   jobId: null,
   pollTimer: null,
+  addressSuggestTimer: null,
+  addressSuggestRequest: 0,
   resultIds: new Set(),
 };
 
@@ -28,6 +30,18 @@ function bindControls() {
   byId("rectangle-button").addEventListener("click", () => setDrawMode("rectangle"));
   byId("polygon-button").addEventListener("click", () => setDrawMode("polygon"));
   byId("clear-area-button").addEventListener("click", clearArea);
+  byId("address-search-button").addEventListener("click", searchAddress);
+  byId("address").addEventListener("input", scheduleAddressSuggestions);
+  byId("address").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchAddress();
+    } else if (event.key === "Escape") {
+      hideAddressSuggestions();
+    }
+  });
+  byId("address").addEventListener("blur", () => setTimeout(hideAddressSuggestions, 150));
+  byId("move-map-button").addEventListener("click", enableMapMovement);
   for (const format of ["json", "csv", "xlsx"]) {
     byId(`export-${format}`).addEventListener("click", () => exportResults(format));
   }
@@ -60,7 +74,7 @@ async function loadParameterForm() {
 }
 
 async function initializeMap() {
-  const config = await fetchJson("/api/config");
+  const config = await fetchJson(`/api/config?t=${Date.now()}`, { cache: "no-store" });
   if (!config.map_enabled) {
     await initializeFallbackMap("Yandex API-ключ не настроен. Включена резервная OpenStreetMap.");
     return;
@@ -291,11 +305,9 @@ async function searchAddress() {
     let coordinates;
     let addressLine;
     if (state.mapProvider === "leaflet") {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`, { headers: { "Accept-Language": "ru" } });
-      const items = await response.json();
-      if (!items.length) return showStatus("Адрес не найден.", true);
-      coordinates = [Number(items[0].lat), Number(items[0].lon)];
-      addressLine = items[0].display_name;
+      const item = await fetchJson(`/api/geocode?address=${encodeURIComponent(address)}`);
+      coordinates = [item.latitude, item.longitude];
+      addressLine = item.address;
       state.map.setView(coordinates, 16);
       if (state.addressMarker) state.map.removeLayer(state.addressMarker);
       state.addressMarker = L.marker(coordinates).bindPopup(escapeHtml(addressLine)).addTo(state.map).openPopup();
@@ -311,10 +323,56 @@ async function searchAddress() {
       state.map.geoObjects.add(state.addressMarker);
     }
     enableMapMovement();
+    hideAddressSuggestions();
     showStatus(`Адрес найден: ${addressLine}`);
   } catch (error) {
     showStatus(`Не удалось найти адрес: ${error.message || error}`, true);
   }
+}
+
+function scheduleAddressSuggestions() {
+  clearTimeout(state.addressSuggestTimer);
+  const address = byId("address").value.trim();
+  if (address.length < 3) return hideAddressSuggestions();
+  state.addressSuggestTimer = setTimeout(() => loadAddressSuggestions(address), 300);
+}
+
+async function loadAddressSuggestions(address) {
+  const requestId = ++state.addressSuggestRequest;
+  try {
+    const items = await fetchJson(`/api/geocode/suggest?address=${encodeURIComponent(address)}`);
+    if (requestId !== state.addressSuggestRequest || byId("address").value.trim() !== address) return;
+    renderAddressSuggestions(items);
+  } catch {
+    if (requestId === state.addressSuggestRequest) hideAddressSuggestions();
+  }
+}
+
+function renderAddressSuggestions(items) {
+  const list = byId("address-suggestions");
+  list.textContent = "";
+  for (const item of items) {
+    const option = document.createElement("button");
+    option.type = "button";
+    option.className = "address-suggestion";
+    option.setAttribute("role", "option");
+    option.textContent = item.address;
+    option.addEventListener("click", () => {
+      byId("address").value = item.address;
+      hideAddressSuggestions();
+      searchAddress();
+    });
+    list.append(option);
+  }
+  list.hidden = items.length === 0;
+  byId("address").setAttribute("aria-expanded", String(items.length > 0));
+}
+
+function hideAddressSuggestions() {
+  const list = byId("address-suggestions");
+  list.hidden = true;
+  list.textContent = "";
+  byId("address").setAttribute("aria-expanded", "false");
 }
 
 async function startJob() {
@@ -450,11 +508,3 @@ async function fetchJson(url, options) {
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
 }
-  byId("address-search-button").addEventListener("click", searchAddress);
-  byId("address").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      searchAddress();
-    }
-  });
-  byId("move-map-button").addEventListener("click", enableMapMovement);
