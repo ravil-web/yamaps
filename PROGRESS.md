@@ -1,6 +1,6 @@
 ---
-stage: 2
-done: [0, 1]
+stage: 3
+done: [0, 1, 2]
 core_frozen: false
 legacy_immutable: true
 params_file: docs/parser_params.md
@@ -26,6 +26,13 @@ open_bugs: []
   `legacy/`.
 - Behavioral baseline and CORE / KEEP / DROP classification documented.
 
+## Stage 2 - Architecture
+
+- Selected FastAPI + managed background threads + SQLite + dependency-free SPA.
+- Defined parser boundary, job lifecycle, persistence, failures, and test
+  strategy.
+- Defined API contract and bbox/polygon-to-Yandex-tile translation.
+
 ## Artifacts
 
 - `legacy/`
@@ -37,6 +44,8 @@ open_bugs: []
 - `docs/dead_code.txt`
 - `docs/unused.txt`
 - `docs/audit.md`
+- `docs/architecture.md`
+- `docs/api.md`
 
 ## Validation
 

@@ -23,3 +23,12 @@
 - Ozon and dashboard-generation parameters remain documented in the exhaustive
   audit draft but are excluded from the new UI because their subsystems are
   classified as DROP.
+- FastAPI managed background threads are used instead of Celery. They are
+  sufficient for a local single-user Selenium application, support cooperative
+  stopping, and avoid an external broker.
+- SQLite uses one short-lived connection per operation. Results are persisted
+  on every item callback so progress markers and partial exports survive a
+  stopped or failed task.
+- The frontend is dependency-free HTML/CSS/JavaScript and uses Yandex Maps API
+  2.1 because its drawing controls and clustering API directly satisfy the
+  rectangle, polygon, and marker requirements without a frontend build step.
