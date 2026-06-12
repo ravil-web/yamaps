@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 import sys
 import types
 from pathlib import Path
@@ -24,6 +25,8 @@ class LegacyAdapter:
         self.single_module = importlib.import_module("src.parsers.single_parser")
         self.params = params
         self._apply_params(params)
+        if os.getenv("PARSER_HEADLESS", "1") != "0":
+            self._enable_headless_browser()
         self.parser = self.yandex_module.MainParser(session_name=session_name)
 
     def collect_urls(self, search_url: str) -> list[str]:
@@ -85,6 +88,21 @@ class LegacyAdapter:
         self.yandex_module.DELAYS = delays
         self.yandex_module.BROWSER_OPTIONS = browser_options
         self.yandex_module.ERROR_HANDLING = error_handling
+
+    def _enable_headless_browser(self) -> None:
+        for module in (self.yandex_module, self.single_module):
+            if getattr(module.Options, "_web_headless_factory", False):
+                continue
+            base_options = module.Options
+
+            def headless_options(base: Any = base_options) -> Any:
+                options = base()
+                options.add_argument("--headless=new")
+                options.add_argument("--disable-gpu")
+                return options
+
+            headless_options._web_headless_factory = True
+            module.Options = headless_options
 
 
 def _ensure_utf8_console() -> None:

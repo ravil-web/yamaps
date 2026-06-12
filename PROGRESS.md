@@ -79,6 +79,10 @@ open_bugs: []
 
 ## Stage 7 - Finalization
 
+- Web-triggered Selenium parsing now runs headless by default, keeping parser
+  control, progress, results, and export inside the application without opening
+  a separate Chrome window.
+
 - Added one-command local startup, `.env.example`, runtime requirements,
   Dockerfile, Docker Compose, `.dockerignore`, pytest configuration, and
   Russian README.

@@ -315,3 +315,23 @@ def test_legacy_adapter_applies_runtime_parameter_groups() -> None:
     assert adapter.yandex_module.FOLDER_STRUCTURE["base_folder"] == "data"
     assert adapter.yandex_module.LOGGING["level"] == "DEBUG"
     assert adapter.yandex_module.SAVE_OPTIONS["save_json"] is False
+
+
+def test_legacy_adapter_enables_headless_for_both_legacy_parsers() -> None:
+    class FakeOptions:
+        def __init__(self) -> None:
+            self.arguments = []
+
+        def add_argument(self, argument: str) -> None:
+            self.arguments.append(argument)
+
+    class Namespace:
+        Options = FakeOptions
+
+    adapter = LegacyAdapter.__new__(LegacyAdapter)
+    adapter.yandex_module = Namespace()
+    adapter.single_module = Namespace()
+    adapter._enable_headless_browser()
+
+    assert "--headless=new" in adapter.yandex_module.Options().arguments
+    assert "--headless=new" in adapter.single_module.Options().arguments

@@ -35,3 +35,6 @@
 - Product `pytest` discovery is intentionally limited to `tests/`. Historical
   tests inside immutable `legacy/` target removed experiments, contain broken
   imports/encodings, and are classified as DROP rather than product gates.
+## 2026-06-12: Selenium runs headless by default
+
+The web application keeps the immutable legacy Selenium parser as its parsing engine, but wraps both legacy Chrome option factories with `--headless=new`. This prevents separate browser windows from opening while parsing is controlled and observed through the application UI. Set `PARSER_HEADLESS=0` only for local parser debugging.
