@@ -51,8 +51,12 @@ class ParserCore:
                 for url in adapter.collect_urls(build_search_url(query, tile)):
                     urls.setdefault(url, None)
 
-            total = len(urls)
-            for index, url in enumerate(urls, 1):
+            selected_urls = list(urls)
+            target_count = int(params.get("target_businesses_count", 0))
+            if target_count > 0:
+                selected_urls = selected_urls[:target_count]
+            total = len(selected_urls)
+            for index, url in enumerate(selected_urls, 1):
                 if stop_flag.is_set():
                     break
                 raw = adapter.parse_business(url)
@@ -80,4 +84,3 @@ class ParserCore:
             return list(companies.values())
         finally:
             adapter.close()
-

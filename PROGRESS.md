@@ -1,6 +1,6 @@
 ---
-stage: 6
-done: [0, 1, 2, 3, 4, 5]
+stage: 7
+done: [0, 1, 2, 3, 4, 5, 6]
 core_frozen: true
 legacy_immutable: true
 params_file: docs/parser_params.md
@@ -67,6 +67,16 @@ open_bugs: []
 - Browser-verified desktop layout, generated parameter controls, missing-key
   guidance, and area-required validation.
 
+## Stage 6 - End-To-End Debugging
+
+- Added deterministic demo core for reproducible offline E2E runs.
+- Passed three required scenarios: small bbox/narrow query, medium
+  bbox/popular category with repeat run, and complex polygon with mid-run stop
+  plus partial export.
+- Verified result deduplication, marker coordinates, CSV/XLSX/JSON exports,
+  empty results, and graceful parser/blocking failure.
+- Fixed cross-tile global target limit and the earlier stop-status race.
+
 ## Artifacts
 
 - `legacy/`
@@ -85,6 +95,8 @@ open_bugs: []
 - `app/`
 - `tests/test_api.py`
 - `app/static/`
+- `app/demo.py`
+- `tests/test_e2e_scenarios.py`
 
 ## Validation
 
@@ -93,5 +105,5 @@ open_bugs: []
 - UI schema: 30 parameters, 10 selector metadata records, 7 field metadata
   records; no Ozon/dashboard DROP parameters.
 - Parser core unit tests pass without network or Selenium.
-- Parser core and backend API suite: 8 tests pass.
+- Parser core, backend API, and E2E suite pass.
 - Local browser smoke test passes without a Yandex Maps API key.

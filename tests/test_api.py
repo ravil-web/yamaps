@@ -42,6 +42,17 @@ class BlockingCore:
         return []
 
 
+class EmptyCore:
+    def run(self, query, area, params, on_progress, on_item, stop_flag):
+        on_progress(Progress(100, 0, 0, "Ничего не найдено"))
+        return []
+
+
+class FailingCore:
+    def run(self, query, area, params, on_progress, on_item, stop_flag):
+        raise RuntimeError("captcha or blocking detected")
+
+
 def _configure(tmp_path: Path, core_factory=FakeCore) -> TestClient:
     import app.main as main
 
@@ -110,3 +121,17 @@ def test_api_validation_config_and_not_found(tmp_path: Path, monkeypatch) -> Non
     invalid = _request()
     invalid["params"] = {"unknown": True}
     assert client.post("/api/jobs", json=invalid).status_code == 422
+
+
+def test_api_empty_and_blocked_fail_gracefully(tmp_path: Path) -> None:
+    empty_client = _configure(tmp_path / "empty", EmptyCore)
+    empty_id = empty_client.post("/api/jobs", json=_request()).json()["id"]
+    empty = _wait(empty_client, empty_id, {"completed"})
+    assert empty["found"] == 0
+    assert empty_client.get(f"/api/jobs/{empty_id}/results").json()["total"] == 0
+
+    failed_client = _configure(tmp_path / "failed", FailingCore)
+    failed_id = failed_client.post("/api/jobs", json=_request()).json()["id"]
+    failed = _wait(failed_client, failed_id, {"failed"})
+    assert "captcha or blocking" in failed["error"]
+    assert failed_client.get(f"/api/jobs/{failed_id}/export?format=json").content == b"[]"
