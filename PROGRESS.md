@@ -1,6 +1,6 @@
 ---
-stage: 4
-done: [0, 1, 2, 3]
+stage: 5
+done: [0, 1, 2, 3, 4]
 core_frozen: true
 legacy_immutable: true
 params_file: docs/parser_params.md
@@ -43,6 +43,18 @@ open_bugs: []
   are not copied or rewritten.
 - Added deterministic unit tests with a fake adapter.
 
+## Stage 4 - Backend
+
+- Added FastAPI endpoints for jobs, status, results, stop, parameter schema,
+  export, public map configuration, and health.
+- Added managed background job lifecycle with immediate result persistence and
+  cooperative stopping.
+- Added SQLite storage with per-operation connections, WAL, job state, and
+  deduplicated results.
+- Added CSV/XLSX/JSON exports, including partial results.
+- Added deterministic API integration tests and fixed a stop-status race found
+  by those tests.
+
 ## Artifacts
 
 - `legacy/`
@@ -58,6 +70,8 @@ open_bugs: []
 - `docs/api.md`
 - `parser_core/`
 - `tests/test_parser_core.py`
+- `app/`
+- `tests/test_api.py`
 
 ## Validation
 
@@ -66,3 +80,4 @@ open_bugs: []
 - UI schema: 30 parameters, 10 selector metadata records, 7 field metadata
   records; no Ozon/dashboard DROP parameters.
 - Parser core unit tests pass without network or Selenium.
+- Parser core and backend API suite: 8 tests pass.
