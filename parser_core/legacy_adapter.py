@@ -25,6 +25,7 @@ class LegacyAdapter:
         self.single_module = importlib.import_module("src.parsers.single_parser")
         self.params = params
         self._apply_params(params)
+        self._disable_worker_signal_handlers()
         if os.getenv("PARSER_HEADLESS", "1") != "0":
             self._enable_headless_browser()
         self.parser = self.yandex_module.MainParser(session_name=session_name)
@@ -103,6 +104,12 @@ class LegacyAdapter:
 
             headless_options._web_headless_factory = True
             module.Options = headless_options
+
+    def _disable_worker_signal_handlers(self) -> None:
+        def setup_signal_handlers(instance: Any) -> None:
+            instance.logger.info("Signal handlers are managed by the web application")
+
+        self.single_module.SingleBusinessParser.setup_signal_handlers = setup_signal_handlers
 
 
 def _ensure_utf8_console() -> None:

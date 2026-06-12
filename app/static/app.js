@@ -378,8 +378,14 @@ function hideAddressSuggestions() {
 async function startJob() {
   const query = byId("query").value.trim();
   if (!query) return showStatus("Введите поисковый запрос.", true);
-  if (!state.area) return showStatus("Выберите область поиска на карте.", true);
+  if (!state.area) {
+    const visibleArea = currentMapArea();
+    if (!visibleArea) return showStatus("Карта ещё не готова. Дождитесь загрузки и повторите запуск.", true);
+    setArea(visibleArea);
+  }
   resetResults();
+  byId("start-button").disabled = true;
+  showStatus("Создаю задачу и запускаю фоновый парсер...");
   try {
     const job = await fetchJson("/api/jobs", {
       method: "POST",
@@ -387,12 +393,29 @@ async function startJob() {
       body: JSON.stringify({ query, area: state.area, params: collectParams() }),
     });
     state.jobId = job.id;
-    byId("start-button").disabled = true;
     byId("stop-button").disabled = false;
+    renderJob(job);
     pollJob();
   } catch (error) {
+    byId("start-button").disabled = false;
     showStatus(error.message, true);
   }
+}
+
+function currentMapArea() {
+  if (!state.map) return null;
+  if (state.mapProvider === "leaflet") {
+    const bounds = state.map.getBounds();
+    return {
+      type: "bbox",
+      coordinates: [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+    };
+  }
+  const bounds = state.map.getBounds();
+  return {
+    type: "bbox",
+    coordinates: [bounds[0][1], bounds[0][0], bounds[1][1], bounds[1][0]],
+  };
 }
 
 function collectParams() {
@@ -426,9 +449,11 @@ async function pollJob() {
 }
 
 function renderJob(job) {
-  byId("progress").value = job.progress;
+  const progress = byId("progress");
+  progress.style.width = `${job.progress}%`;
+  progress.classList.toggle("indeterminate", job.status === "running" && job.progress === 0);
   byId("progress-text").textContent = `${job.progress}% · ${job.message || job.status}`;
-  byId("found-count").textContent = String(job.found);
+  byId("found-count").textContent = `Найдено: ${job.found}`;
   showStatus(job.error || job.message, job.status === "failed");
 }
 
@@ -463,8 +488,9 @@ function addMarker(company) {
 function resetResults() {
   state.resultIds.clear();
   byId("results-body").textContent = "";
-  byId("found-count").textContent = "0";
-  byId("progress").value = 0;
+  byId("found-count").textContent = "Найдено: 0";
+  byId("progress").style.width = "0%";
+  byId("progress").classList.remove("indeterminate");
   if (state.clusterer) {
     if (state.mapProvider === "leaflet") state.clusterer.clearLayers();
     else state.clusterer.removeAll();

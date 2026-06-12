@@ -82,6 +82,12 @@ open_bugs: []
 - Web-triggered Selenium parsing now runs headless by default, keeping parser
   control, progress, results, and export inside the application without opening
   a separate Chrome window.
+- Fixed the legacy single-business parser crash in managed worker threads by
+  keeping signal ownership in `JobManager`. A live real-parser smoke run
+  completed with one processed and one persisted result.
+- Start now uses the visible map bounds when no area was drawn, shows an
+  indeterminate search indicator and elapsed-time heartbeat, and recovers stale
+  active jobs after an application restart.
 
 - Added one-command local startup, `.env.example`, runtime requirements,
   Dockerfile, Docker Compose, `.dockerignore`, pytest configuration, and

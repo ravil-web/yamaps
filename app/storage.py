@@ -97,6 +97,23 @@ class SQLiteStore:
                 """
             )
 
+    def recover_interrupted_jobs(self) -> int:
+        recovered = 0
+        with self._connect() as conn:
+            rows = conn.execute("SELECT id, data FROM jobs").fetchall()
+            for row in rows:
+                job = _loads(row["data"])
+                if job.get("status") not in {"queued", "running", "stopping"}:
+                    continue
+                job.update(
+                    status="failed",
+                    message="Задача прервана перезапуском приложения",
+                    error="Application restarted while parser job was active",
+                )
+                conn.execute("UPDATE jobs SET data=? WHERE id=?", (_dumps(job), row["id"]))
+                recovered += 1
+        return recovered
+
     def create_job(self, job: dict[str, Any]) -> dict[str, Any]:
         payload = dict(job)
         payload.setdefault("id", str(uuid.uuid4()))

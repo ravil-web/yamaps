@@ -335,3 +335,21 @@ def test_legacy_adapter_enables_headless_for_both_legacy_parsers() -> None:
 
     assert "--headless=new" in adapter.yandex_module.Options().arguments
     assert "--headless=new" in adapter.single_module.Options().arguments
+
+
+def test_legacy_adapter_disables_signal_registration_in_worker() -> None:
+    class SingleBusinessParser:
+        def setup_signal_handlers(self) -> None:
+            raise AssertionError("legacy signal registration must be replaced")
+
+    class Namespace:
+        pass
+
+    Namespace.SingleBusinessParser = SingleBusinessParser
+    adapter = LegacyAdapter.__new__(LegacyAdapter)
+    adapter.single_module = Namespace()
+    adapter._disable_worker_signal_handlers()
+
+    instance = SingleBusinessParser.__new__(SingleBusinessParser)
+    instance.logger = type("Logger", (), {"info": lambda self, message: None})()
+    instance.setup_signal_handlers()

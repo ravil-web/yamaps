@@ -136,6 +136,17 @@ def test_api_validation_config_and_not_found(tmp_path: Path, monkeypatch) -> Non
     assert client.post("/api/jobs", json=invalid).status_code == 422
 
 
+def test_store_recovers_jobs_interrupted_by_restart(tmp_path: Path) -> None:
+    store = SQLiteStore(tmp_path / "recover.db")
+    store.initialize()
+    store.create_job({"id": "active", "status": "running", "message": "working"})
+    store.create_job({"id": "done", "status": "completed", "message": "done"})
+
+    assert store.recover_interrupted_jobs() == 1
+    assert store.get_job("active")["status"] == "failed"
+    assert store.get_job("done")["status"] == "completed"
+
+
 def test_api_empty_and_blocked_fail_gracefully(tmp_path: Path) -> None:
     empty_client = _configure(tmp_path / "empty", EmptyCore)
     empty_id = empty_client.post("/api/jobs", json=_request()).json()["id"]

@@ -303,6 +303,16 @@ input:focus,
   transition: width 0.2s ease;
 }
 
+.progress-fill.indeterminate {
+  width: 35% !important;
+  animation: progress-searching 1.4s ease-in-out infinite;
+}
+
+@keyframes progress-searching {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(310%); }
+}
+
 .progress-meta {
   display: flex;
   flex-wrap: wrap;

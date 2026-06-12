@@ -25,6 +25,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 store = SQLiteStore(DATA_DIR / "app.db")
 store.initialize()
+store.recover_interrupted_jobs()
 manager = JobManager(store, core_factory=DemoParserCore if os.getenv("PARSER_DEMO_MODE") == "1" else ParserCore)
 
 app = FastAPI(title="Yandex Maps Parser", version="1.0.0")

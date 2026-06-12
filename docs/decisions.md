@@ -38,3 +38,8 @@
 ## 2026-06-12: Selenium runs headless by default
 
 The web application keeps the immutable legacy Selenium parser as its parsing engine, but wraps both legacy Chrome option factories with `--headless=new`. This prevents separate browser windows from opening while parsing is controlled and observed through the application UI. Set `PARSER_HEADLESS=0` only for local parser debugging.
+
+The adapter also replaces `SingleBusinessParser.setup_signal_handlers` because
+Python only permits `signal.signal` in the main interpreter thread, while web
+jobs intentionally run in managed worker threads. Stop handling remains owned
+by `JobManager` through its cooperative stop event.

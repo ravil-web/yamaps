@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+import time
 import traceback
 import uuid
 from datetime import UTC, datetime
@@ -70,7 +71,22 @@ class JobManager:
         return self.store.get_job(job_id)
 
     def _run(self, job_id: str, query: str, area: Any, params: dict[str, Any], stop: threading.Event) -> None:
-        self.store.update_job(job_id, status="running", started_at=utc_now(), message="Парсинг запущен")
+        started = time.monotonic()
+        heartbeat_done = threading.Event()
+        self.store.update_job(job_id, status="running", started_at=utc_now(), message="Запуск фонового браузера")
+
+        def heartbeat() -> None:
+            while not heartbeat_done.wait(5):
+                job = self.store.get_job(job_id)
+                if not job or job["status"] != "running" or job["progress"] != 0:
+                    continue
+                elapsed = int(time.monotonic() - started)
+                self.store.update_job(
+                    job_id,
+                    message=f"Поиск организаций на Яндекс Картах, прошло {elapsed} сек.",
+                )
+
+        threading.Thread(target=heartbeat, daemon=True, name=f"parser-heartbeat-{job_id[:8]}").start()
 
         def on_progress(progress: Progress) -> None:
             self.store.update_job(
@@ -112,5 +128,6 @@ class JobManager:
             )
             traceback.print_exc()
         finally:
+            heartbeat_done.set()
             with self._lock:
                 self._stops.pop(job_id, None)
