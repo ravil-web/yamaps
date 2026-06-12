@@ -12,6 +12,7 @@ from parser_core.normalize import (
     filter_and_deduplicate,
     normalize_company,
 )
+from parser_core.legacy_adapter import LegacyAdapter
 
 
 def test_area_validation_contains_and_bbox() -> None:
@@ -276,3 +277,41 @@ def test_parser_core_stops_between_urls_and_tiles() -> None:
     assert result == []
     assert [update.processed for update in progress_updates] == [0]
     assert [update.found for update in progress_updates] == [0]
+
+
+def test_legacy_adapter_applies_runtime_parameter_groups() -> None:
+    class Namespace:
+        TARGET_BUSINESSES_COUNT = 0
+        TARGET_PRODUCTS_COUNT = 50
+        DELAYS = {"scroll": 1}
+        BROWSER_OPTIONS = {"window_size": "1920,1080"}
+        ERROR_HANDLING = {"max_retries": 3}
+        FOLDER_STRUCTURE = {"base_folder": "parsing_results"}
+        LOGGING = {"level": "INFO"}
+        SAVE_OPTIONS = {"save_json": True}
+
+    adapter = LegacyAdapter.__new__(LegacyAdapter)
+    adapter.config = Namespace()
+    adapter.yandex_module = Namespace()
+    adapter._apply_params(
+        ParserParams(
+            {
+                "target_businesses_count": 7,
+                "target_products_count": 8,
+                "delays.scroll": 0.5,
+                "browser.window_size": "1280,720",
+                "error.max_retries": 1,
+                "folder.base_folder": "data",
+                "logging.level": "DEBUG",
+                "save.save_json": False,
+            }
+        )
+    )
+    assert adapter.yandex_module.TARGET_BUSINESSES_COUNT == 7
+    assert adapter.yandex_module.TARGET_PRODUCTS_COUNT == 8
+    assert adapter.yandex_module.DELAYS["scroll"] == 0.5
+    assert adapter.yandex_module.BROWSER_OPTIONS["window_size"] == "1280,720"
+    assert adapter.yandex_module.ERROR_HANDLING["max_retries"] == 1
+    assert adapter.yandex_module.FOLDER_STRUCTURE["base_folder"] == "data"
+    assert adapter.yandex_module.LOGGING["level"] == "DEBUG"
+    assert adapter.yandex_module.SAVE_OPTIONS["save_json"] is False

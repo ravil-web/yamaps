@@ -32,3 +32,6 @@
 - The frontend is dependency-free HTML/CSS/JavaScript and uses Yandex Maps API
   2.1 because its drawing controls and clustering API directly satisfy the
   rectangle, polygon, and marker requirements without a frontend build step.
+- Product `pytest` discovery is intentionally limited to `tests/`. Historical
+  tests inside immutable `legacy/` target removed experiments, contain broken
+  imports/encodings, and are classified as DROP rather than product gates.

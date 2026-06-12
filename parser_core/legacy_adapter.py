@@ -15,6 +15,7 @@ class LegacyAdapter:
     """Thin adapter over the immutable selected legacy parser implementation."""
 
     def __init__(self, params: ParserParams, session_name: str) -> None:
+        _ensure_utf8_console()
         legacy_path = str(LEGACY_ROOT)
         if legacy_path not in sys.path:
             sys.path.insert(0, legacy_path)
@@ -84,3 +85,13 @@ class LegacyAdapter:
         self.yandex_module.DELAYS = delays
         self.yandex_module.BROWSER_OPTIONS = browser_options
         self.yandex_module.ERROR_HANDLING = error_handling
+
+
+def _ensure_utf8_console() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure:
+            try:
+                reconfigure(encoding="utf-8", errors="replace")
+            except (AttributeError, OSError):
+                pass

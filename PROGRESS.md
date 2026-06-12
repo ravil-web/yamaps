@@ -127,6 +127,10 @@ open_bugs: []
 - Local browser smoke test passes without a Yandex Maps API key.
 - `python run.py` health/root smoke test passes in demo mode.
 - `docker compose config` passes.
+- A bounded live Selenium smoke initialized WebDriver and reached Yandex Maps;
+  the external Chrome session terminated during legacy scrolling and returned
+  no results. Reproducible product/E2E validation therefore remains offline
+  demo-based; live availability is a known external limitation.
 
 ## Final Summary
 
