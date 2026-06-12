@@ -1,8 +1,10 @@
 const state = {
   map: null,
+  mapProvider: null,
   clusterer: null,
   areaObject: null,
   addressMarker: null,
+  resultMarkers: [],
   area: null,
   mode: null,
   polygonPoints: [],
@@ -60,25 +62,40 @@ async function loadParameterForm() {
 async function initializeMap() {
   const config = await fetchJson("/api/config");
   if (!config.map_enabled) {
-    showMapPlaceholder("Добавьте YANDEX_MAPS_API_KEY в .env и перезапустите приложение. Ключ JavaScript API получают на developer.tech.yandex.ru.");
+    await initializeFallbackMap("Yandex API-ключ не настроен. Включена резервная OpenStreetMap.");
     return;
   }
   const script = document.createElement("script");
+  const fallbackTimer = setTimeout(() => {
+    const hasMapTiles = byId("map").querySelectorAll("img").length > 0;
+    if (!hasMapTiles) initializeFallbackMap("Yandex Maps не загрузил карту. Включена резервная OpenStreetMap.");
+  }, 4500);
   script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(config.yandex_maps_api_key)}&lang=ru_RU`;
   script.onload = () => {
     if (typeof ymaps === "undefined") {
-      showMapPlaceholder("Yandex Maps API не инициализирован. Проверьте, что ключ создан для JavaScript API и разрешает localhost.");
+      clearTimeout(fallbackTimer);
+      initializeFallbackMap("Yandex Maps отклонил ключ. Включена резервная OpenStreetMap.");
       return;
     }
-    ymaps.ready(createMap, () => showMapPlaceholder("Yandex Maps отклонил API-ключ. Проверьте тип ключа, ограничения доменов и активацию API."));
+    ymaps.ready(() => {
+      clearTimeout(fallbackTimer);
+      createMap();
+    }, () => {
+      clearTimeout(fallbackTimer);
+      initializeFallbackMap("Yandex Maps отклонил ключ. Включена резервная OpenStreetMap.");
+    });
   };
-  script.onerror = () => showMapPlaceholder("Не удалось загрузить Yandex Maps API. Проверьте ключ и подключение.");
+  script.onerror = () => {
+    clearTimeout(fallbackTimer);
+    initializeFallbackMap("Yandex Maps недоступен. Включена резервная OpenStreetMap.");
+  };
   document.head.append(script);
 }
 
 function createMap() {
   byId("map-placeholder").hidden = true;
   state.map = new ymaps.Map("map", { center: [55.751244, 37.618423], zoom: 10, controls: ["zoomControl", "geolocationControl"] });
+  state.mapProvider = "yandex";
   state.map.behaviors.enable(["drag", "scrollZoom", "dblClickZoom", "multiTouch"]);
   state.clusterer = new ymaps.Clusterer({ preset: "islands#blueClusterIcons", groupByCoordinates: false });
   state.map.geoObjects.add(state.clusterer);
@@ -86,14 +103,62 @@ function createMap() {
   state.map.events.add("mouseup", onMapMouseUp);
   state.map.events.add("click", onMapClick);
   state.map.events.add("dblclick", finishPolygon);
+  setTimeout(() => {
+    if (state.mapProvider === "yandex" && byId("map").querySelectorAll("img").length === 0) {
+      initializeFallbackMap("Yandex Maps отклонил ключ. Включена резервная OpenStreetMap.");
+    }
+  }, 2500);
+}
+
+async function initializeFallbackMap(message) {
+  try {
+    if (state.mapProvider === "leaflet") return;
+    if (state.mapProvider === "yandex" && state.map?.destroy) state.map.destroy();
+    if (!document.querySelector('link[data-leaflet]')) {
+      const style = document.createElement("link");
+      style.rel = "stylesheet";
+      style.href = "/static/vendor/leaflet/leaflet.css";
+      style.dataset.leaflet = "true";
+      document.head.append(style);
+    }
+    if (typeof L === "undefined") {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "/static/vendor/leaflet/leaflet.js";
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.append(script);
+      });
+    }
+    byId("map-placeholder").hidden = true;
+    byId("map").textContent = "";
+    state.mapProvider = "leaflet";
+    state.map = L.map("map", { doubleClickZoom: false }).setView([55.751244, 37.618423], 10);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap",
+    }).addTo(state.map);
+    state.clusterer = L.layerGroup().addTo(state.map);
+    state.map.on("mousedown", onMapMouseDown);
+    state.map.on("mouseup", onMapMouseUp);
+    state.map.on("click", onMapClick);
+    state.map.on("dblclick", finishPolygon);
+    showStatus(message);
+  } catch {
+    showMapPlaceholder("Не удалось загрузить ни Yandex Maps, ни резервную OpenStreetMap. Проверьте подключение.");
+  }
+}
+
+function eventCoordinates(event) {
+  if (state.mapProvider === "leaflet") return [event.latlng.lat, event.latlng.lng];
+  return event.get("coords");
 }
 
 function setDrawMode(mode) {
   if (!state.map) return showStatus("Для выбора области требуется настроенная карта.", true);
   clearArea();
   state.mode = mode;
-  if (mode === "rectangle") state.map.behaviors.disable("drag");
-  else state.map.behaviors.enable("drag");
+  setMapDragging(mode !== "rectangle");
   byId("move-map-button").classList.remove("active");
   byId("rectangle-button").classList.toggle("active", mode === "rectangle");
   byId("polygon-button").classList.toggle("active", mode === "polygon");
@@ -101,12 +166,12 @@ function setDrawMode(mode) {
 }
 
 function onMapMouseDown(event) {
-  if (state.mode === "rectangle") state.rectangleStart = event.get("coords");
+  if (state.mode === "rectangle") state.rectangleStart = eventCoordinates(event);
 }
 
 function onMapMouseUp(event) {
   if (state.mode !== "rectangle" || !state.rectangleStart) return;
-  const finish = event.get("coords");
+  const finish = eventCoordinates(event);
   const south = Math.min(state.rectangleStart[0], finish[0]);
   const north = Math.max(state.rectangleStart[0], finish[0]);
   const west = Math.min(state.rectangleStart[1], finish[1]);
@@ -117,14 +182,15 @@ function onMapMouseUp(event) {
 
 function onMapClick(event) {
   if (state.mode !== "polygon") return;
-  const [lat, lon] = event.get("coords");
+  const [lat, lon] = eventCoordinates(event);
   state.polygonPoints.push([lon, lat]);
   drawPolygonPreview();
 }
 
 function finishPolygon(event) {
   if (state.mode !== "polygon" || state.polygonPoints.length < 3) return;
-  event.preventDefault();
+  if (event.preventDefault) event.preventDefault();
+  if (event.originalEvent?.preventDefault) event.originalEvent.preventDefault();
   const coordinates = [...state.polygonPoints, state.polygonPoints[0]];
   setArea({ type: "polygon", coordinates });
 }
@@ -138,28 +204,46 @@ function setArea(area) {
   byId("move-map-button").classList.add("active");
   if (area.type === "bbox") {
     const [west, south, east, north] = area.coordinates;
-    state.areaObject = new ymaps.Rectangle([[south, west], [north, east]], {}, areaStyle());
+    state.areaObject = state.mapProvider === "leaflet"
+      ? L.rectangle([[south, west], [north, east]], leafletAreaStyle())
+      : new ymaps.Rectangle([[south, west], [north, east]], {}, areaStyle());
   } else {
-    state.areaObject = new ymaps.Polygon([area.coordinates.map(([lon, lat]) => [lat, lon])], {}, areaStyle());
+    state.areaObject = state.mapProvider === "leaflet"
+      ? L.polygon(area.coordinates.map(([lon, lat]) => [lat, lon]), leafletAreaStyle())
+      : new ymaps.Polygon([area.coordinates.map(([lon, lat]) => [lat, lon])], {}, areaStyle());
   }
-  state.map.geoObjects.add(state.areaObject);
-  state.map.behaviors.enable("drag");
+  addMapObject(state.areaObject);
+  setMapDragging(true);
   showStatus("Область поиска выбрана.");
 }
 
 function drawPolygonPreview() {
   clearAreaObject();
   if (state.polygonPoints.length < 2) return;
-  state.areaObject = new ymaps.Polyline(state.polygonPoints.map(([lon, lat]) => [lat, lon]), {}, areaStyle());
-  state.map.geoObjects.add(state.areaObject);
+  state.areaObject = state.mapProvider === "leaflet"
+    ? L.polyline(state.polygonPoints.map(([lon, lat]) => [lat, lon]), leafletAreaStyle())
+    : new ymaps.Polyline(state.polygonPoints.map(([lon, lat]) => [lat, lon]), {}, areaStyle());
+  addMapObject(state.areaObject);
 }
 
 function areaStyle() {
   return { strokeColor: "#2563eb", strokeWidth: 3, fillColor: "#2563eb22" };
 }
 
+function leafletAreaStyle() {
+  return { color: "#2563eb", weight: 3, fillColor: "#2563eb", fillOpacity: 0.15 };
+}
+
+function addMapObject(object) {
+  if (state.mapProvider === "leaflet") object.addTo(state.map);
+  else state.map.geoObjects.add(object);
+}
+
 function clearAreaObject() {
-  if (state.map && state.areaObject) state.map.geoObjects.remove(state.areaObject);
+  if (state.map && state.areaObject) {
+    if (state.mapProvider === "leaflet") state.map.removeLayer(state.areaObject);
+    else state.map.geoObjects.remove(state.areaObject);
+  }
   state.areaObject = null;
 }
 
@@ -169,7 +253,7 @@ function clearArea() {
   state.mode = null;
   state.polygonPoints = [];
   state.rectangleStart = null;
-  if (state.map) state.map.behaviors.enable("drag");
+  setMapDragging(true);
   byId("move-map-button").classList.add("active");
   byId("rectangle-button").classList.remove("active");
   byId("polygon-button").classList.remove("active");
@@ -180,35 +264,54 @@ function enableMapMovement() {
   state.mode = null;
   state.polygonPoints = [];
   state.rectangleStart = null;
-  state.map.behaviors.enable(["drag", "scrollZoom", "dblClickZoom", "multiTouch"]);
+  setMapDragging(true);
   byId("move-map-button").classList.add("active");
   byId("rectangle-button").classList.remove("active");
   byId("polygon-button").classList.remove("active");
   showStatus("Режим перемещения карты включён.");
 }
 
+function setMapDragging(enabled) {
+  if (!state.map) return;
+  if (state.mapProvider === "leaflet") {
+    state.map.dragging[enabled ? "enable" : "disable"]();
+    state.map.scrollWheelZoom.enable();
+  } else {
+    state.map.behaviors[enabled ? "enable" : "disable"]("drag");
+    if (enabled) state.map.behaviors.enable(["scrollZoom", "dblClickZoom", "multiTouch"]);
+  }
+}
+
 async function searchAddress() {
   const address = byId("address").value.trim();
   if (!address) return showStatus("Введите адрес для поиска на карте.", true);
-  if (!state.map || typeof ymaps === "undefined") {
-    return showStatus("Для поиска адреса требуется работающая Yandex-карта.", true);
-  }
+  if (!state.map) return showStatus("Для поиска адреса требуется работающая карта.", true);
   showStatus("Ищу адрес...");
   try {
-    const result = await ymaps.geocode(address, { results: 1 });
-    const object = result.geoObjects.get(0);
-    if (!object) return showStatus("Адрес не найден.", true);
-    const coordinates = object.geometry.getCoordinates();
-    state.map.setCenter(coordinates, 16, { duration: 300 });
-    if (state.addressMarker) state.map.geoObjects.remove(state.addressMarker);
-    state.addressMarker = new ymaps.Placemark(
-      coordinates,
-      { balloonContentHeader: escapeHtml(object.getAddressLine() || address) },
-      { preset: "islands#redIcon" },
-    );
-    state.map.geoObjects.add(state.addressMarker);
+    let coordinates;
+    let addressLine;
+    if (state.mapProvider === "leaflet") {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`, { headers: { "Accept-Language": "ru" } });
+      const items = await response.json();
+      if (!items.length) return showStatus("Адрес не найден.", true);
+      coordinates = [Number(items[0].lat), Number(items[0].lon)];
+      addressLine = items[0].display_name;
+      state.map.setView(coordinates, 16);
+      if (state.addressMarker) state.map.removeLayer(state.addressMarker);
+      state.addressMarker = L.marker(coordinates).bindPopup(escapeHtml(addressLine)).addTo(state.map).openPopup();
+    } else {
+      const result = await ymaps.geocode(address, { results: 1 });
+      const object = result.geoObjects.get(0);
+      if (!object) return showStatus("Адрес не найден.", true);
+      coordinates = object.geometry.getCoordinates();
+      addressLine = object.getAddressLine() || address;
+      state.map.setCenter(coordinates, 16, { duration: 300 });
+      if (state.addressMarker) state.map.geoObjects.remove(state.addressMarker);
+      state.addressMarker = new ymaps.Placemark(coordinates, { balloonContentHeader: escapeHtml(addressLine) }, { preset: "islands#redIcon" });
+      state.map.geoObjects.add(state.addressMarker);
+    }
     enableMapMovement();
-    showStatus(`Адрес найден: ${object.getAddressLine() || address}`);
+    showStatus(`Адрес найден: ${addressLine}`);
   } catch (error) {
     showStatus(`Не удалось найти адрес: ${error.message || error}`, true);
   }
@@ -285,6 +388,13 @@ function renderResults(items) {
 
 function addMarker(company) {
   if (!state.clusterer || company.latitude == null || company.longitude == null) return;
+  if (state.mapProvider === "leaflet") {
+    const marker = L.marker([company.latitude, company.longitude])
+      .bindPopup(`<strong>${escapeHtml(company.name || "")}</strong><br>${escapeHtml(company.address || "")}<br>${escapeHtml(formatPhones(company.phones))}`);
+    state.clusterer.addLayer(marker);
+    state.resultMarkers.push(marker);
+    return;
+  }
   const marker = new ymaps.Placemark([company.latitude, company.longitude], {
     balloonContentHeader: escapeHtml(company.name || ""),
     balloonContentBody: `${escapeHtml(company.address || "")}<br>${escapeHtml(formatPhones(company.phones))}`,
@@ -297,7 +407,10 @@ function resetResults() {
   byId("results-body").textContent = "";
   byId("found-count").textContent = "0";
   byId("progress").value = 0;
-  if (state.clusterer) state.clusterer.removeAll();
+  if (state.clusterer) {
+    if (state.mapProvider === "leaflet") state.clusterer.clearLayers();
+    else state.clusterer.removeAll();
+  }
 }
 
 async function stopJob() {
