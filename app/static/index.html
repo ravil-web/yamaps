@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Парсер Яндекс Карт — этап 5</title>
-  <link rel="stylesheet" href="/static/styles.css?v=1">
-  <script src="/static/app.js?v=1" defer></script>
+  <link rel="stylesheet" href="/static/styles.css?v=2">
+  <script src="/static/app.js?v=2" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -25,6 +25,13 @@
           <span class="field-label">Запрос</span>
           <input id="query" name="query" type="text" placeholder="Например: кофейни" autocomplete="off" spellcheck="false">
         </label>
+        <div class="address-search">
+          <label class="field" for="address">
+            <span class="field-label">Адрес на карте</span>
+            <input id="address" name="address" type="text" placeholder="Например: Москва, Тверская, 1" autocomplete="street-address">
+          </label>
+          <button id="address-search-button" class="button button-secondary" type="button">Найти адрес</button>
+        </div>
       </section>
 
       <section class="card">
@@ -40,11 +47,12 @@
       <section class="card">
         <h2>Область поиска</h2>
         <div class="area-actions" role="group" aria-label="Выбор типа области">
+          <button id="move-map-button" class="button button-secondary active" type="button">Перемещать карту</button>
           <button id="rectangle-button" class="button button-secondary" type="button">Прямоугольник</button>
           <button id="polygon-button" class="button button-secondary" type="button">Полигон</button>
           <button id="clear-area-button" class="button button-secondary" type="button">Очистить область</button>
         </div>
-        <p class="helper-text">Выберите режим, затем отметьте область на карте справа.</p>
+        <p class="helper-text">По умолчанию карту можно двигать. Для выделения области включите прямоугольник или полигон.</p>
       </section>
 
       <section class="card">

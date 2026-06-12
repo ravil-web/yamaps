@@ -116,6 +116,8 @@ def test_api_validation_config_and_not_found(tmp_path: Path, monkeypatch) -> Non
     assert client.get("/api/config").json()["map_enabled"] is False
     assert client.get("/api/params/schema").json()["parameters"]
     assert "Парсер Яндекс Карт" in client.get("/").text
+    assert 'id="address"' in client.get("/").text
+    assert 'id="move-map-button"' in client.get("/").text
     assert client.get("/static/app.js").status_code == 200
     assert client.get("/api/jobs/missing").status_code == 404
     invalid = _request()

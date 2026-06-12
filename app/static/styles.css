@@ -140,6 +140,16 @@ textarea {
   font-weight: 600;
 }
 
+.address-search {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.address-search .button {
+  width: 100%;
+}
+
 input,
 button,
 a {

@@ -2,6 +2,7 @@ const state = {
   map: null,
   clusterer: null,
   areaObject: null,
+  addressMarker: null,
   area: null,
   mode: null,
   polygonPoints: [],
@@ -78,6 +79,7 @@ async function initializeMap() {
 function createMap() {
   byId("map-placeholder").hidden = true;
   state.map = new ymaps.Map("map", { center: [55.751244, 37.618423], zoom: 10, controls: ["zoomControl", "geolocationControl"] });
+  state.map.behaviors.enable(["drag", "scrollZoom", "dblClickZoom", "multiTouch"]);
   state.clusterer = new ymaps.Clusterer({ preset: "islands#blueClusterIcons", groupByCoordinates: false });
   state.map.geoObjects.add(state.clusterer);
   state.map.events.add("mousedown", onMapMouseDown);
@@ -90,7 +92,9 @@ function setDrawMode(mode) {
   if (!state.map) return showStatus("Для выбора области требуется настроенная карта.", true);
   clearArea();
   state.mode = mode;
-  state.map.behaviors[mode === "rectangle" ? "disable" : "enable"]("drag");
+  if (mode === "rectangle") state.map.behaviors.disable("drag");
+  else state.map.behaviors.enable("drag");
+  byId("move-map-button").classList.remove("active");
   byId("rectangle-button").classList.toggle("active", mode === "rectangle");
   byId("polygon-button").classList.toggle("active", mode === "polygon");
   showStatus(mode === "rectangle" ? "Зажмите мышь и протяните прямоугольник." : "Кликайте вершины полигона; двойной клик завершает.");
@@ -131,6 +135,7 @@ function setArea(area) {
   state.mode = null;
   byId("rectangle-button").classList.remove("active");
   byId("polygon-button").classList.remove("active");
+  byId("move-map-button").classList.add("active");
   if (area.type === "bbox") {
     const [west, south, east, north] = area.coordinates;
     state.areaObject = new ymaps.Rectangle([[south, west], [north, east]], {}, areaStyle());
@@ -165,8 +170,48 @@ function clearArea() {
   state.polygonPoints = [];
   state.rectangleStart = null;
   if (state.map) state.map.behaviors.enable("drag");
+  byId("move-map-button").classList.add("active");
   byId("rectangle-button").classList.remove("active");
   byId("polygon-button").classList.remove("active");
+}
+
+function enableMapMovement() {
+  if (!state.map) return showStatus("Карта ещё не загружена.", true);
+  state.mode = null;
+  state.polygonPoints = [];
+  state.rectangleStart = null;
+  state.map.behaviors.enable(["drag", "scrollZoom", "dblClickZoom", "multiTouch"]);
+  byId("move-map-button").classList.add("active");
+  byId("rectangle-button").classList.remove("active");
+  byId("polygon-button").classList.remove("active");
+  showStatus("Режим перемещения карты включён.");
+}
+
+async function searchAddress() {
+  const address = byId("address").value.trim();
+  if (!address) return showStatus("Введите адрес для поиска на карте.", true);
+  if (!state.map || typeof ymaps === "undefined") {
+    return showStatus("Для поиска адреса требуется работающая Yandex-карта.", true);
+  }
+  showStatus("Ищу адрес...");
+  try {
+    const result = await ymaps.geocode(address, { results: 1 });
+    const object = result.geoObjects.get(0);
+    if (!object) return showStatus("Адрес не найден.", true);
+    const coordinates = object.geometry.getCoordinates();
+    state.map.setCenter(coordinates, 16, { duration: 300 });
+    if (state.addressMarker) state.map.geoObjects.remove(state.addressMarker);
+    state.addressMarker = new ymaps.Placemark(
+      coordinates,
+      { balloonContentHeader: escapeHtml(object.getAddressLine() || address) },
+      { preset: "islands#redIcon" },
+    );
+    state.map.geoObjects.add(state.addressMarker);
+    enableMapMovement();
+    showStatus(`Адрес найден: ${object.getAddressLine() || address}`);
+  } catch (error) {
+    showStatus(`Не удалось найти адрес: ${error.message || error}`, true);
+  }
 }
 
 async function startJob() {
@@ -292,3 +337,11 @@ async function fetchJson(url, options) {
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
 }
+  byId("address-search-button").addEventListener("click", searchAddress);
+  byId("address").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchAddress();
+    }
+  });
+  byId("move-map-button").addEventListener("click", enableMapMovement);
