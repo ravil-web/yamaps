@@ -3,10 +3,13 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import os
 import sqlite3
 import uuid
 from pathlib import Path
 from typing import Any, Iterator
+
+MAX_JOB_AGE_DAYS = int(os.getenv("MAX_JOB_AGE_DAYS", "30"))
 
 
 def _json_default(value: Any) -> Any:
@@ -113,6 +116,28 @@ class SQLiteStore:
                 conn.execute("UPDATE jobs SET data=? WHERE id=?", (_dumps(job), row["id"]))
                 recovered += 1
         return recovered
+
+    def cleanup_old_jobs(self, max_age_days: int | None = None) -> int:
+        if max_age_days is None:
+            max_age_days = MAX_JOB_AGE_DAYS
+        if max_age_days <= 0:
+            return 0
+        deleted = 0
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT id, data FROM jobs WHERE json_extract(data, '$.finished_at') IS NOT NULL"
+            ).fetchall()
+            from datetime import UTC, datetime, timedelta
+
+            cutoff = (datetime.now(UTC) - timedelta(days=max_age_days)).isoformat()
+            for row in rows:
+                job = _loads(row["data"])
+                finished = job.get("finished_at", "")
+                if finished and finished < cutoff:
+                    conn.execute("DELETE FROM results WHERE job_id=?", (row["id"],))
+                    conn.execute("DELETE FROM jobs WHERE id=?", (row["id"],))
+                    deleted += 1
+        return deleted
 
     def create_job(self, job: dict[str, Any]) -> dict[str, Any]:
         payload = dict(job)

@@ -24,7 +24,11 @@ def validate_params(values: dict[str, Any]) -> dict[str, Any]:
     result = defaults()
     result.update(values)
     for name in ("area.tile_rows", "area.tile_columns"):
-        result[name] = int(values.get(name, 1))
+        raw = values.get(name, 1)
+        try:
+            result[name] = int(raw)
+        except (TypeError, ValueError):
+            raise ValueError(f"{name} must be an integer, got {type(raw).__name__}: {raw!r}") from None
         if not 1 <= result[name] <= 20:
             raise ValueError(f"{name} must be between 1 and 20")
     return result

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 import os
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -10,7 +12,11 @@ from fastapi.staticfiles import StaticFiles
 from parser_core import ParserCore
 from dotenv import load_dotenv
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+
 from .exporters import export_csv, export_json, export_xlsx
+from .dashboard import generate_dashboard_pdf
+from .dashboard_html import generate_dashboard_html
 from .demo import DemoParserCore
 from .jobs import JobManager
 from .geocode import geocode_address, suggest_addresses
@@ -19,7 +25,7 @@ from .schemas import JobCreate, ResultPage
 from .storage import SQLiteStore
 
 ROOT = Path(__file__).resolve().parents[1]
-load_dotenv(ROOT / ".env")
+load_dotenv(ROOT / ".env", override=True)
 DATA_DIR = Path(os.getenv("APP_DATA_DIR", ROOT / "data"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -80,9 +86,9 @@ def create_job(request: JobCreate) -> dict:
     try:
         params = validate_params(request.params)
         request.area.to_core()
+        return manager.create(request.query, request.area, params)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    return manager.create(request.query, request.area, params)
 
 
 @app.get("/api/jobs/{job_id}")
@@ -132,3 +138,71 @@ def export_job(job_id: str, format: Literal["csv", "xlsx", "json"]) -> Response:
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{job_id}.{suffix}"'},
     )
+
+
+@app.get("/api/jobs/{job_id}/dashboard")
+def dashboard_pdf(job_id: str) -> Response:
+    job = store.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    results = store.all_results(job_id)
+    return Response(generate_dashboard_pdf(job, results), media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="dashboard_{job_id}.pdf"'})
+
+
+@app.get("/api/jobs/{job_id}/dashboard.html")
+def dashboard_html(job_id: str) -> Response:
+    job = store.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    results = store.all_results(job_id)
+    return Response(generate_dashboard_html(job, results).encode("utf-8"), media_type="text/html; charset=utf-8")
+
+
+@app.get("/api/dashboards")
+def list_dashboards() -> list[dict[str, str]]:
+    from .jobs import DASHBOARDS_DIR
+    DASHBOARDS_DIR.mkdir(parents=True, exist_ok=True)
+    dashboards = []
+    for f in sorted(DASHBOARDS_DIR.glob("*.html"), reverse=True):
+        name = f.stem
+        parts = name.rsplit("_", 2)
+        query = parts[0].replace("_", " ") if len(parts) >= 3 else name
+        ts = f"{parts[-2]}_{parts[-1]}" if len(parts) >= 3 else ""
+        dashboards.append({"name": name, "query": query, "created": ts,
+                           "html": f"/api/dashboards/{f.name}", "pdf": f"/api/dashboards/{f.stem}.pdf"})
+    return dashboards
+
+
+@app.get("/api/dashboards/{filename}")
+def serve_dashboard(filename: str) -> Response:
+    from .jobs import DASHBOARDS_DIR
+    safe = re.sub(r'[^a-zA-Z0-9_\-]', '', filename)
+    for ext, ct in [(".html", "text/html; charset=utf-8"), (".pdf", "application/pdf")]:
+        path = DASHBOARDS_DIR / f"{safe}{ext}"
+        if path.exists():
+            return Response(path.read_bytes(), media_type=ct)
+    raise HTTPException(status_code=404, detail="dashboard not found")
+
+
+@app.get("/api/jobs/{job_id}/business/{index}")
+def get_business(job_id: str, index: int) -> dict:
+    if not store.get_job(job_id):
+        raise HTTPException(status_code=404, detail="job not found")
+    results = store.all_results(job_id)
+    if index < 0 or index >= len(results):
+        raise HTTPException(status_code=404, detail="business not found")
+    return results[index]
+
+
+@app.get("/business/{job_id}/{index}")
+def business_page(job_id: str, index: int) -> Response:
+    from .business_page import generate_business_html
+    job = store.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    results = store.all_results(job_id)
+    if index < 0 or index >= len(results):
+        raise HTTPException(status_code=404, detail="business not found")
+    return Response(generate_business_html(job, results[index], index, len(results)).encode("utf-8"),
+                    media_type="text/html; charset=utf-8")

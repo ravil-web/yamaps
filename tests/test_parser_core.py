@@ -13,6 +13,7 @@ from parser_core.normalize import (
     normalize_company,
 )
 from parser_core.legacy_adapter import LegacyAdapter
+from parser_core.cloak_adapter import CloakAdapter
 
 
 def test_area_validation_contains_and_bbox() -> None:
@@ -148,7 +149,7 @@ class FakeAdapter:
         self.parse_calls: list[str] = []
         self.closed = False
 
-    def collect_urls(self, search_url: str) -> list[str]:
+    def collect_urls(self, search_url: str, stop_flag: threading.Event | None = None) -> list[str]:
         self.collect_calls.append(search_url)
         return list(self.collect_batches[len(self.collect_calls) - 1])
 
@@ -353,3 +354,22 @@ def test_legacy_adapter_disables_signal_registration_in_worker() -> None:
     instance = SingleBusinessParser.__new__(SingleBusinessParser)
     instance.logger = type("Logger", (), {"info": lambda self, message: None})()
     instance.setup_signal_handlers()
+
+
+def test_cloak_adapter_has_required_interface() -> None:
+    params = ParserParams({"target_businesses_count": 5, "target_products_count": 10})
+    import inspect
+    adapter = CloakAdapter.__new__(CloakAdapter)
+    assert callable(getattr(adapter, "collect_urls", None))
+    assert callable(getattr(adapter, "parse_business", None))
+    assert callable(getattr(adapter, "close", None))
+    sig_collect = inspect.signature(adapter.collect_urls)
+    assert "search_url" in sig_collect.parameters
+    sig_parse = inspect.signature(adapter.parse_business)
+    assert "url" in sig_parse.parameters
+
+
+def test_parser_core_defaults_to_cloak_adapter() -> None:
+    core = ParserCore()
+    from parser_core.cloak_adapter import CloakAdapter
+    assert core.adapter_factory is CloakAdapter

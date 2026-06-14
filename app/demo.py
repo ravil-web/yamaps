@@ -53,8 +53,6 @@ class DemoParserCore:
             )
             results.append(company)
             on_item(company)
-            if index % 4 == 0:
-                on_item(company)
             index += 1
             on_progress(
                 Progress(

@@ -1,15 +1,25 @@
 from __future__ import annotations
 
+import logging
+import os
+import re
 import threading
 import time
 import traceback
 import uuid
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Callable
 
 from parser_core import ParserCore, ParserParams, Progress
 
 from .storage import SQLiteStore
+
+logger = logging.getLogger(__name__)
+
+MAX_CONCURRENT_JOBS = int(os.getenv("MAX_CONCURRENT_JOBS", "2"))
+DASHBOARDS_DIR = Path(os.getenv("APP_DATA_DIR", Path(__file__).resolve().parents[1] / "data")) / "dashboards"
+RESULTS_DIR = Path(os.getenv("APP_DATA_DIR", Path(__file__).resolve().parents[1] / "data")) / "results"
 
 
 def utc_now() -> str:
@@ -25,9 +35,13 @@ class JobManager:
         self.store = store
         self.core_factory = core_factory
         self._stops: dict[str, threading.Event] = {}
+        self._active_count = 0
         self._lock = threading.Lock()
 
     def create(self, query: str, area: Any, params: dict[str, Any]) -> dict[str, Any]:
+        with self._lock:
+            if self._active_count >= MAX_CONCURRENT_JOBS:
+                raise ValueError(f"достигнут лимит одновременных задач ({MAX_CONCURRENT_JOBS})")
         job_id = str(uuid.uuid4())
         job = {
             "id": job_id,
@@ -71,6 +85,8 @@ class JobManager:
         return self.store.get_job(job_id)
 
     def _run(self, job_id: str, query: str, area: Any, params: dict[str, Any], stop: threading.Event) -> None:
+        with self._lock:
+            self._active_count += 1
         started = time.monotonic()
         heartbeat_done = threading.Event()
         self.store.update_job(job_id, status="running", started_at=utc_now(), message="Запуск фонового браузера")
@@ -118,6 +134,8 @@ class JobManager:
                 message="Задача остановлена" if status == "stopped" else "Парсинг завершён",
                 finished_at=utc_now(),
             )
+            if status == "completed" and results:
+                self._save_dashboards(job_id, query)
         except Exception as exc:
             self.store.update_job(
                 job_id,
@@ -131,3 +149,46 @@ class JobManager:
             heartbeat_done.set()
             with self._lock:
                 self._stops.pop(job_id, None)
+                self._active_count -= 1
+
+    def _save_dashboards(self, job_id: str, query: str) -> None:
+        try:
+            from .dashboard import generate_dashboard_pdf
+            from .dashboard_html import generate_dashboard_html
+            from .exporters import export_csv, export_json, export_xlsx
+
+            job = self.store.get_job(job_id)
+            results = self.store.all_results(job_id)
+            if not job or not results or len(results) == 0:
+                return
+
+            safe_query = re.sub(r'[<>:"/\\|?*\s]+', '_', query.strip())[:50]
+            ts = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+            folder_name = f"{safe_query}_{ts}"
+            job_dir = RESULTS_DIR / folder_name
+            job_dir.mkdir(parents=True, exist_ok=True)
+
+            html_path = job_dir / "dashboard.html"
+            html_path.write_bytes(generate_dashboard_html(job, results).encode("utf-8"))
+
+            pdf_path = job_dir / "dashboard.pdf"
+            pdf_path.write_bytes(generate_dashboard_pdf(job, results))
+
+            json_path = job_dir / "results.json"
+            json_path.write_bytes(export_json(results))
+
+            csv_path = job_dir / "results.csv"
+            csv_path.write_bytes(export_csv(results))
+
+            xlsx_path = job_dir / "results.xlsx"
+            xlsx_path.write_bytes(export_xlsx(results))
+
+            self.store.update_job(
+                job_id,
+                dashboard_html=str(html_path),
+                dashboard_pdf=str(pdf_path),
+                results_dir=str(job_dir),
+            )
+            logger.info("Results saved to %s", job_dir)
+        except Exception:
+            logger.exception("Failed to save results for job %s", job_id)

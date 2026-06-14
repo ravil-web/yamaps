@@ -1,10 +1,8 @@
 const state = {
   map: null,
-  mapProvider: null,
   clusterer: null,
   areaObject: null,
   addressMarker: null,
-  resultMarkers: [],
   area: null,
   mode: null,
   polygonPoints: [],
@@ -13,10 +11,25 @@ const state = {
   pollTimer: null,
   addressSuggestTimer: null,
   addressSuggestRequest: 0,
+  selectedSuggestion: -1,
   resultIds: new Set(),
+  totalResults: 0,
+  dashboardOpened: false,
 };
 
 const byId = (id) => document.getElementById(id);
+const hidePlaceholder = () => { const el = byId("map-placeholder"); if (el) { el.hidden = true; el.style.display = "none"; } };
+
+function watchMapReady() {
+  try {
+    const mapEl = byId("map");
+    if (!mapEl) return;
+    const obs = new MutationObserver(() => {
+      if (mapEl.children.length > 1) { hidePlaceholder(); obs.disconnect(); }
+    });
+    obs.observe(mapEl, { childList: true });
+  } catch {}
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   bindControls();
@@ -32,18 +45,37 @@ function bindControls() {
   byId("clear-area-button").addEventListener("click", clearArea);
   byId("address-search-button").addEventListener("click", searchAddress);
   byId("address").addEventListener("input", scheduleAddressSuggestions);
-  byId("address").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      searchAddress();
-    } else if (event.key === "Escape") {
-      hideAddressSuggestions();
-    }
-  });
-  byId("address").addEventListener("blur", () => setTimeout(hideAddressSuggestions, 150));
+  byId("address").addEventListener("keydown", onAddressKeydown);
+  byId("address").addEventListener("blur", () => setTimeout(hideAddressSuggestions, 200));
   byId("move-map-button").addEventListener("click", enableMapMovement);
+  byId("theme-toggle").addEventListener("click", toggleTheme);
+  byId("import-url-button").addEventListener("click", importYandexUrl);
+  byId("yandex-url").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); importYandexUrl(); } });
   for (const format of ["json", "csv", "xlsx"]) {
     byId(`export-${format}`).addEventListener("click", () => exportResults(format));
+  }
+  byId("export-dashboard").addEventListener("click", exportDashboard);
+  byId("export-dashboard-html").addEventListener("click", exportDashboardHtml);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+    document.documentElement.setAttribute("data-theme", "dark");
+    byId("theme-toggle").textContent = "\u2600\uFE0F";
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  if (isDark) {
+    document.documentElement.removeAttribute("data-theme");
+    localStorage.setItem("theme", "light");
+    byId("theme-toggle").textContent = "\uD83C\uDF19";
+  } else {
+    document.documentElement.setAttribute("data-theme", "dark");
+    localStorage.setItem("theme", "dark");
+    byId("theme-toggle").textContent = "\u2600\uFE0F";
   }
 }
 
@@ -74,97 +106,79 @@ async function loadParameterForm() {
 }
 
 async function initializeMap() {
+  watchMapReady();
   const config = await fetchJson(`/api/config?t=${Date.now()}`, { cache: "no-store" });
   if (!config.map_enabled) {
-    await initializeFallbackMap("Yandex API-ключ не настроен. Включена резервная OpenStreetMap.");
+    hidePlaceholder();
+    showMapPlaceholder("Yandex API-ключ не настроен. Получите ключ на developer.tech.yandex.ru");
     return;
   }
   const script = document.createElement("script");
+  let mapReady = false;
   const fallbackTimer = setTimeout(() => {
-    const hasMapTiles = byId("map").querySelectorAll("img").length > 0;
-    if (!hasMapTiles) initializeFallbackMap("Yandex Maps не загрузил карту. Включена резервная OpenStreetMap.");
-  }, 4500);
+    if (!mapReady) {
+      hidePlaceholder();
+      showMapPlaceholder("Yandex Maps не загрузился. Проверьте ключ и подключение.");
+    }
+  }, 12000);
   script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(config.yandex_maps_api_key)}&lang=ru_RU`;
   script.onload = () => {
     if (typeof ymaps === "undefined") {
       clearTimeout(fallbackTimer);
-      initializeFallbackMap("Yandex Maps отклонил ключ. Включена резервная OpenStreetMap.");
+      hidePlaceholder();
+      showMapPlaceholder("Yandex Maps API недоступен.");
       return;
     }
+    let readyFired = false;
+    const tryCreateMap = () => {
+      if (readyFired) return;
+      if (typeof ymaps !== "undefined" && typeof ymaps.Map === "function") {
+        readyFired = true;
+        clearTimeout(fallbackTimer);
+        mapReady = true;
+        hidePlaceholder();
+        createMap();
+      }
+    };
+    const readyTimer = setTimeout(tryCreateMap, 2000);
     ymaps.ready(() => {
+      if (readyFired) return;
+      readyFired = true;
+      clearTimeout(readyTimer);
       clearTimeout(fallbackTimer);
+      mapReady = true;
+      hidePlaceholder();
       createMap();
     }, () => {
-      clearTimeout(fallbackTimer);
-      initializeFallbackMap("Yandex Maps отклонил ключ. Включена резервная OpenStreetMap.");
+      setTimeout(tryCreateMap, 500);
     });
   };
   script.onerror = () => {
     clearTimeout(fallbackTimer);
-    initializeFallbackMap("Yandex Maps недоступен. Включена резервная OpenStreetMap.");
+    hidePlaceholder();
+    showMapPlaceholder("Не удалось загрузить Yandex Maps API. Проверьте подключение.");
   };
   document.head.append(script);
 }
 
 function createMap() {
-  byId("map-placeholder").hidden = true;
-  state.map = new ymaps.Map("map", { center: [55.751244, 37.618423], zoom: 10, controls: ["zoomControl", "geolocationControl"] });
-  state.mapProvider = "yandex";
-  state.map.behaviors.enable(["drag", "scrollZoom", "dblClickZoom", "multiTouch"]);
-  state.clusterer = new ymaps.Clusterer({ preset: "islands#blueClusterIcons", groupByCoordinates: false });
-  state.map.geoObjects.add(state.clusterer);
-  state.map.events.add("mousedown", onMapMouseDown);
-  state.map.events.add("mouseup", onMapMouseUp);
-  state.map.events.add("click", onMapClick);
-  state.map.events.add("dblclick", finishPolygon);
-  setTimeout(() => {
-    if (state.mapProvider === "yandex" && byId("map").querySelectorAll("img").length === 0) {
-      initializeFallbackMap("Yandex Maps отклонил ключ. Включена резервная OpenStreetMap.");
-    }
-  }, 2500);
-}
-
-async function initializeFallbackMap(message) {
+  hidePlaceholder();
   try {
-    if (state.mapProvider === "leaflet") return;
-    if (state.mapProvider === "yandex" && state.map?.destroy) state.map.destroy();
-    if (!document.querySelector('link[data-leaflet]')) {
-      const style = document.createElement("link");
-      style.rel = "stylesheet";
-      style.href = "/static/vendor/leaflet/leaflet.css";
-      style.dataset.leaflet = "true";
-      document.head.append(style);
-    }
-    if (typeof L === "undefined") {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "/static/vendor/leaflet/leaflet.js";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.append(script);
-      });
-    }
-    byId("map-placeholder").hidden = true;
-    byId("map").textContent = "";
-    state.mapProvider = "leaflet";
-    state.map = L.map("map", { doubleClickZoom: false }).setView([55.751244, 37.618423], 10);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "© OpenStreetMap",
-    }).addTo(state.map);
-    state.clusterer = L.layerGroup().addTo(state.map);
-    state.map.on("mousedown", onMapMouseDown);
-    state.map.on("mouseup", onMapMouseUp);
-    state.map.on("click", onMapClick);
-    state.map.on("dblclick", finishPolygon);
-    showStatus(message);
-  } catch {
-    showMapPlaceholder("Не удалось загрузить ни Yandex Maps, ни резервную OpenStreetMap. Проверьте подключение.");
+    state.map = new ymaps.Map("map", { center: [55.751244, 37.618423], zoom: 10, controls: ["zoomControl", "geolocationControl"] });
+    state.map.behaviors.enable(["drag", "scrollZoom", "dblClickZoom", "multiTouch"]);
+    state.clusterer = new ymaps.Clusterer({ preset: "islands#blueClusterIcons", groupByCoordinates: false });
+    state.map.geoObjects.add(state.clusterer);
+    state.map.events.add("mousedown", onMapMouseDown);
+    state.map.events.add("mouseup", onMapMouseUp);
+    state.map.events.add("click", onMapClick);
+    state.map.events.add("dblclick", finishPolygon);
+  } catch (e) {
+    console.error("Yandex Map init failed:", e);
+    showMapPlaceholder("Yandex Maps не смог создать карту.");
   }
 }
 
 function eventCoordinates(event) {
-  if (state.mapProvider === "leaflet") return [event.latlng.lat, event.latlng.lng];
   return event.get("coords");
 }
 
@@ -218,15 +232,11 @@ function setArea(area) {
   byId("move-map-button").classList.add("active");
   if (area.type === "bbox") {
     const [west, south, east, north] = area.coordinates;
-    state.areaObject = state.mapProvider === "leaflet"
-      ? L.rectangle([[south, west], [north, east]], leafletAreaStyle())
-      : new ymaps.Rectangle([[south, west], [north, east]], {}, areaStyle());
+    state.areaObject = new ymaps.Rectangle([[south, west], [north, east]], {}, areaStyle());
   } else {
-    state.areaObject = state.mapProvider === "leaflet"
-      ? L.polygon(area.coordinates.map(([lon, lat]) => [lat, lon]), leafletAreaStyle())
-      : new ymaps.Polygon([area.coordinates.map(([lon, lat]) => [lat, lon])], {}, areaStyle());
+    state.areaObject = new ymaps.Polygon([area.coordinates.map(([lon, lat]) => [lat, lon])], {}, areaStyle());
   }
-  addMapObject(state.areaObject);
+  state.map.geoObjects.add(state.areaObject);
   setMapDragging(true);
   showStatus("Область поиска выбрана.");
 }
@@ -234,29 +244,17 @@ function setArea(area) {
 function drawPolygonPreview() {
   clearAreaObject();
   if (state.polygonPoints.length < 2) return;
-  state.areaObject = state.mapProvider === "leaflet"
-    ? L.polyline(state.polygonPoints.map(([lon, lat]) => [lat, lon]), leafletAreaStyle())
-    : new ymaps.Polyline(state.polygonPoints.map(([lon, lat]) => [lat, lon]), {}, areaStyle());
-  addMapObject(state.areaObject);
+  state.areaObject = new ymaps.Polyline(state.polygonPoints.map(([lon, lat]) => [lat, lon]), {}, areaStyle());
+  state.map.geoObjects.add(state.areaObject);
 }
 
 function areaStyle() {
   return { strokeColor: "#2563eb", strokeWidth: 3, fillColor: "#2563eb22" };
 }
 
-function leafletAreaStyle() {
-  return { color: "#2563eb", weight: 3, fillColor: "#2563eb", fillOpacity: 0.15 };
-}
-
-function addMapObject(object) {
-  if (state.mapProvider === "leaflet") object.addTo(state.map);
-  else state.map.geoObjects.add(object);
-}
-
 function clearAreaObject() {
   if (state.map && state.areaObject) {
-    if (state.mapProvider === "leaflet") state.map.removeLayer(state.areaObject);
-    else state.map.geoObjects.remove(state.areaObject);
+    state.map.geoObjects.remove(state.areaObject);
   }
   state.areaObject = null;
 }
@@ -287,13 +285,8 @@ function enableMapMovement() {
 
 function setMapDragging(enabled) {
   if (!state.map) return;
-  if (state.mapProvider === "leaflet") {
-    state.map.dragging[enabled ? "enable" : "disable"]();
-    state.map.scrollWheelZoom.enable();
-  } else {
-    state.map.behaviors[enabled ? "enable" : "disable"]("drag");
-    if (enabled) state.map.behaviors.enable(["scrollZoom", "dblClickZoom", "multiTouch"]);
-  }
+  state.map.behaviors[enabled ? "enable" : "disable"]("drag");
+  if (enabled) state.map.behaviors.enable(["scrollZoom", "dblClickZoom", "multiTouch"]);
 }
 
 async function searchAddress() {
@@ -302,26 +295,13 @@ async function searchAddress() {
   if (!state.map) return showStatus("Для поиска адреса требуется работающая карта.", true);
   showStatus("Ищу адрес...");
   try {
-    let coordinates;
-    let addressLine;
-    if (state.mapProvider === "leaflet") {
-      const item = await fetchJson(`/api/geocode?address=${encodeURIComponent(address)}`);
-      coordinates = [item.latitude, item.longitude];
-      addressLine = item.address;
-      state.map.setView(coordinates, 16);
-      if (state.addressMarker) state.map.removeLayer(state.addressMarker);
-      state.addressMarker = L.marker(coordinates).bindPopup(escapeHtml(addressLine)).addTo(state.map).openPopup();
-    } else {
-      const result = await ymaps.geocode(address, { results: 1 });
-      const object = result.geoObjects.get(0);
-      if (!object) return showStatus("Адрес не найден.", true);
-      coordinates = object.geometry.getCoordinates();
-      addressLine = object.getAddressLine() || address;
-      state.map.setCenter(coordinates, 16, { duration: 300 });
-      if (state.addressMarker) state.map.geoObjects.remove(state.addressMarker);
-      state.addressMarker = new ymaps.Placemark(coordinates, { balloonContentHeader: escapeHtml(addressLine) }, { preset: "islands#redIcon" });
-      state.map.geoObjects.add(state.addressMarker);
-    }
+    const item = await fetchJson(`/api/geocode?address=${encodeURIComponent(address)}`);
+    const coordinates = [item.latitude, item.longitude];
+    const addressLine = item.address;
+    state.map.setCenter(coordinates, 16, { duration: 300 });
+    if (state.addressMarker) state.map.geoObjects.remove(state.addressMarker);
+    state.addressMarker = new ymaps.Placemark(coordinates, { balloonContentHeader: escapeHtml(addressLine) }, { preset: "islands#redIcon" });
+    state.map.geoObjects.add(state.addressMarker);
     enableMapMovement();
     hideAddressSuggestions();
     showStatus(`Адрес найден: ${addressLine}`);
@@ -333,8 +313,9 @@ async function searchAddress() {
 function scheduleAddressSuggestions() {
   clearTimeout(state.addressSuggestTimer);
   const address = byId("address").value.trim();
-  if (address.length < 3) return hideAddressSuggestions();
-  state.addressSuggestTimer = setTimeout(() => loadAddressSuggestions(address), 300);
+  state.selectedSuggestion = -1;
+  if (address.length < 2) return hideAddressSuggestions();
+  state.addressSuggestTimer = setTimeout(() => loadAddressSuggestions(address), 250);
 }
 
 async function loadAddressSuggestions(address) {
@@ -342,23 +323,78 @@ async function loadAddressSuggestions(address) {
   try {
     const items = await fetchJson(`/api/geocode/suggest?address=${encodeURIComponent(address)}`);
     if (requestId !== state.addressSuggestRequest || byId("address").value.trim() !== address) return;
-    renderAddressSuggestions(items);
+    renderAddressSuggestions(items, address);
   } catch {
     if (requestId === state.addressSuggestRequest) hideAddressSuggestions();
   }
 }
 
-function renderAddressSuggestions(items) {
+function onAddressKeydown(event) {
+  const list = byId("address-suggestions");
+  const items = list.querySelectorAll(".address-suggestion");
+  if (list.hidden || items.length === 0) {
+    if (event.key === "Enter") { event.preventDefault(); searchAddress(); }
+    if (event.key === "Escape") hideAddressSuggestions();
+    return;
+  }
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    state.selectedSuggestion = Math.min(state.selectedSuggestion + 1, items.length - 1);
+    highlightSuggestion(items);
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    state.selectedSuggestion = Math.max(state.selectedSuggestion - 1, 0);
+    highlightSuggestion(items);
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    if (state.selectedSuggestion >= 0 && state.selectedSuggestion < items.length) {
+      items[state.selectedSuggestion].click();
+    } else {
+      hideAddressSuggestions();
+      searchAddress();
+    }
+  } else if (event.key === "Escape") {
+    hideAddressSuggestions();
+  }
+}
+
+function highlightSuggestion(items) {
+  items.forEach((el, i) => {
+    el.classList.toggle("active", i === state.selectedSuggestion);
+    if (i === state.selectedSuggestion) el.scrollIntoView({ block: "nearest" });
+  });
+}
+
+function renderAddressSuggestions(items, query) {
   const list = byId("address-suggestions");
   list.textContent = "";
+  state.selectedSuggestion = -1;
+  const q = query.toLowerCase();
   for (const item of items) {
     const option = document.createElement("button");
     option.type = "button";
     option.className = "address-suggestion";
     option.setAttribute("role", "option");
-    option.textContent = item.address;
-    option.addEventListener("click", () => {
-      byId("address").value = item.address;
+    const name = item.name || item.address;
+    const desc = item.description || "";
+    if (name.toLowerCase().includes(q)) {
+      const idx = name.toLowerCase().indexOf(q);
+      option.innerHTML =
+        escapeHtml(name.slice(0, idx)) +
+        "<b>" + escapeHtml(name.slice(idx, idx + q.length)) + "</b>" +
+        escapeHtml(name.slice(idx + q.length));
+    } else {
+      option.textContent = name;
+    }
+    if (desc) {
+      const sub = document.createElement("span");
+      sub.className = "suggestion-desc";
+      sub.textContent = desc;
+      option.append(sub);
+    }
+    option.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      byId("address").value = name;
       hideAddressSuggestions();
       searchAddress();
     });
@@ -375,12 +411,46 @@ function hideAddressSuggestions() {
   byId("address").setAttribute("aria-expanded", "false");
 }
 
+function importYandexUrl() {
+  const raw = byId("yandex-url").value.trim();
+  if (!raw) return showStatus("Вставьте ссылку с Яндекс Карт.", true);
+  let url;
+  try { url = new URL(raw); } catch { return showStatus("Некорректный URL.", true); }
+  const params = url.searchParams;
+  let text = params.get("text") || params.get("pt") || "";
+  if (!text) {
+    const pathMatch = url.pathname.match(/\/search\/([^/]+)/);
+    if (pathMatch) text = decodeURIComponent(pathMatch[1]);
+  }
+  const ll = params.get("ll");
+  const spn = params.get("spn") || params.get("sspn");
+  const z = parseFloat(params.get("z")) || 12;
+  if (!ll) return showStatus("В ссылке нет координат (параметр ll).", true);
+  const [lon, lat] = ll.split(",").map(Number);
+  if (isNaN(lon) || isNaN(lat)) return showStatus("Некорректные координаты в ll.", true);
+  if (text) byId("query").value = text;
+  let bbox;
+  if (spn) {
+    const [dx, dy] = spn.split(",").map(Number);
+    if (!isNaN(dx) && !isNaN(dy)) {
+      bbox = { type: "bbox", coordinates: [lon - dx / 2, lat - dy / 2, lon + dx / 2, lat + dy / 2] };
+    }
+  }
+  if (!bbox) {
+    const factor = 0.02 * Math.pow(2, 12 - z);
+    bbox = { type: "bbox", coordinates: [lon - factor, lat - factor, lon + factor, lat + factor] };
+  }
+  setArea(bbox);
+  if (state.map) state.map.setCenter([lat, lon], z, { duration: 300 });
+  showStatus(`Импортировано: "${text}" — область установлена.`);
+}
+
 async function startJob() {
   const query = byId("query").value.trim();
   if (!query) return showStatus("Введите поисковый запрос.", true);
   if (!state.area) {
     const visibleArea = currentMapArea();
-    if (!visibleArea) return showStatus("Карта ещё не готова. Дождитесь загрузки и повторите запуск.", true);
+    if (!visibleArea) return showStatus("Карта ещё не готова.", true);
     setArea(visibleArea);
   }
   resetResults();
@@ -403,19 +473,13 @@ async function startJob() {
 }
 
 function currentMapArea() {
-  if (!state.map) return null;
-  if (state.mapProvider === "leaflet") {
+  if (!state.map) return { type: "bbox", coordinates: [37.5, 55.7, 37.8, 55.8] };
+  try {
     const bounds = state.map.getBounds();
-    return {
-      type: "bbox",
-      coordinates: [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
-    };
+    return { type: "bbox", coordinates: [bounds[0][1], bounds[0][0], bounds[1][1], bounds[1][0]] };
+  } catch {
+    return { type: "bbox", coordinates: [37.5, 55.7, 37.8, 55.8] };
   }
-  const bounds = state.map.getBounds();
-  return {
-    type: "bbox",
-    coordinates: [bounds[0][1], bounds[0][0], bounds[1][1], bounds[1][0]],
-  };
 }
 
 function collectParams() {
@@ -441,6 +505,10 @@ async function pollJob() {
     } else {
       byId("start-button").disabled = false;
       byId("stop-button").disabled = true;
+      if (job.status === "completed" && job.found > 0 && !state.dashboardOpened) {
+        state.dashboardOpened = true;
+        window.location.href = `/api/jobs/${state.jobId}/dashboard.html`;
+      }
     }
   } catch (error) {
     showStatus(error.message, true);
@@ -458,12 +526,22 @@ function renderJob(job) {
 }
 
 function renderResults(items) {
-  for (const company of items) {
+  for (let i = 0; i < items.length; i++) {
+    const company = items[i];
     const key = company.dedupe_key || company.yandex_id || company.url || `${company.name}-${company.address}`;
     if (state.resultIds.has(key)) continue;
     state.resultIds.add(key);
     const row = document.createElement("tr");
+    row.style.cursor = "pointer";
+    row.title = "Нажмите для просмотра деталей";
     row.innerHTML = `<td>${escapeHtml(company.name || "")}</td><td>${escapeHtml(company.address || "")}</td><td>${escapeHtml(formatPhones(company.phones))}</td><td>${escapeHtml(company.rating || "")}</td>`;
+    const bizIndex = state.totalResults;
+    state.totalResults++;
+    row.addEventListener("click", () => {
+      if (state.jobId) window.open(`/business/${state.jobId}/${bizIndex}`, "_blank");
+    });
+    row.addEventListener("mouseenter", () => row.style.background = "#f0f7ff");
+    row.addEventListener("mouseleave", () => row.style.background = "");
     byId("results-body").append(row);
     addMarker(company);
   }
@@ -471,13 +549,6 @@ function renderResults(items) {
 
 function addMarker(company) {
   if (!state.clusterer || company.latitude == null || company.longitude == null) return;
-  if (state.mapProvider === "leaflet") {
-    const marker = L.marker([company.latitude, company.longitude])
-      .bindPopup(`<strong>${escapeHtml(company.name || "")}</strong><br>${escapeHtml(company.address || "")}<br>${escapeHtml(formatPhones(company.phones))}`);
-    state.clusterer.addLayer(marker);
-    state.resultMarkers.push(marker);
-    return;
-  }
   const marker = new ymaps.Placemark([company.latitude, company.longitude], {
     balloonContentHeader: escapeHtml(company.name || ""),
     balloonContentBody: `${escapeHtml(company.address || "")}<br>${escapeHtml(formatPhones(company.phones))}`,
@@ -487,14 +558,13 @@ function addMarker(company) {
 
 function resetResults() {
   state.resultIds.clear();
+  state.totalResults = 0;
+  state.dashboardOpened = false;
   byId("results-body").textContent = "";
   byId("found-count").textContent = "Найдено: 0";
   byId("progress").style.width = "0%";
   byId("progress").classList.remove("indeterminate");
-  if (state.clusterer) {
-    if (state.mapProvider === "leaflet") state.clusterer.clearLayers();
-    else state.clusterer.removeAll();
-  }
+  if (state.clusterer) state.clusterer.removeAll();
 }
 
 async function stopJob() {
@@ -506,6 +576,16 @@ async function stopJob() {
 function exportResults(format) {
   if (!state.jobId) return showStatus("Сначала запустите задачу.", true);
   window.location.href = `/api/jobs/${state.jobId}/export?format=${format}`;
+}
+
+function exportDashboard() {
+  if (!state.jobId) return showStatus("Сначала запустите задачу.", true);
+  window.location.href = `/api/jobs/${state.jobId}/dashboard`;
+}
+
+function exportDashboardHtml() {
+  if (!state.jobId) return showStatus("Сначала запустите задачу.", true);
+  window.open(`/api/jobs/${state.jobId}/dashboard.html`, "_blank");
 }
 
 function formatPhones(phones) {

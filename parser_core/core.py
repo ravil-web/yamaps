@@ -6,13 +6,15 @@ from collections.abc import Callable
 from typing import Any
 
 from .geometry import build_search_url, make_tiles
-from .legacy_adapter import LegacyAdapter
 from .models import Area, Company, ParserParams, Progress
 from .normalize import company_key, normalize_company
 
 
 class ParserCore:
-    def __init__(self, adapter_factory: Callable[[ParserParams, str], Any] = LegacyAdapter) -> None:
+    def __init__(self, adapter_factory: Callable[[ParserParams, str], Any] | None = None) -> None:
+        if adapter_factory is None:
+            from .cloak_adapter import CloakAdapter
+            adapter_factory = CloakAdapter
         self.adapter_factory = adapter_factory
 
     def run(
@@ -48,7 +50,7 @@ class ParserCore:
                         message=f"Поиск в области {index}/{len(tiles)}",
                     )
                 )
-                for url in adapter.collect_urls(build_search_url(query, tile)):
+                for url in adapter.collect_urls(build_search_url(query, tile), stop_flag=stop_flag):
                     urls.setdefault(url, None)
 
             selected_urls = list(urls)

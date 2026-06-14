@@ -80,7 +80,7 @@ def export_csv(results: Iterable[Mapping[str, Any]]) -> bytes:
     buffer = io.StringIO()
     if not rows:
         buffer.write("result\n")
-        return buffer.getvalue().encode("utf-8")
+        return b"\xef\xbb\xbf" + buffer.getvalue().encode("utf-8")
 
     fieldnames: list[str] = []
     for row in rows:
@@ -92,7 +92,7 @@ def export_csv(results: Iterable[Mapping[str, Any]]) -> bytes:
     writer.writeheader()
     for row in rows:
         writer.writerow(row)
-    return buffer.getvalue().encode("utf-8")
+    return b"\xef\xbb\xbf" + buffer.getvalue().encode("utf-8")
 
 
 def export_xlsx(results: Iterable[Mapping[str, Any]]) -> bytes:
