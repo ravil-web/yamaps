@@ -9,10 +9,11 @@ jobs:
   parse:
     strategy:
       fail-fast: false
+      max-parallel: 16
       matrix:
-        shard: [0, 1, 2, 3]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,7 +25,7 @@ jobs:
         shell: bash
         env:
           SHARD: ${{ matrix.shard }}
-          SHARDS: 4
+          SHARDS: 16
         run: |
           mkdir -p tmp_exact_parser/outputs
           head -c 5790 tmp_exact_parser/records.part1.txt > tmp_exact_parser/records.json.gz.b64
@@ -44,6 +45,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: exact-fixed-results-${{ matrix.shard }}
+          name: exact-fast-results-${{ matrix.shard }}
           path: tmp_exact_parser/outputs/
           retention-days: 1
