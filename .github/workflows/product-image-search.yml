@@ -7,6 +7,9 @@ on:
     paths:
       - 'tools/product_image_search/**'
       - '.github/workflows/product-image-search.yml'
+  pull_request:
+    branches:
+      - rework
 
 jobs:
   search:
