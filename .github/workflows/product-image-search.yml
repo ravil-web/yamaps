@@ -23,8 +23,17 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --disable-pip-version-check requests beautifulsoup4 pillow
       - name: Find and validate product images
-        run: python tools/product_image_search/search.py
+        shell: bash
+        run: |
+          mkdir -p tools/product_image_search/outputs
+          set +e
+          python tools/product_image_search/search.py > tools/product_image_search/outputs/run.log 2>&1
+          code=$?
+          echo "$code" > tools/product_image_search/outputs/exit_code.txt
+          cat tools/product_image_search/outputs/run.log
+          exit 0
       - name: Upload results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: product-image-search-results
