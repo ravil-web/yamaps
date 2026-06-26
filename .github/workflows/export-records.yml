@@ -1,0 +1,22 @@
+name: Export parser records
+
+on:
+  pull_request:
+    branches:
+      - rework
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Join record chunks
+        run: |
+          mkdir -p tmp_exact_parser/exported
+          cat tmp_exact_parser/records.part*.txt > tmp_exact_parser/exported/records.current.b64
+          wc -c tmp_exact_parser/records.part*.txt tmp_exact_parser/exported/records.current.b64 > tmp_exact_parser/exported/sizes.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parser-records-current
+          path: tmp_exact_parser/exported/
+          retention-days: 1

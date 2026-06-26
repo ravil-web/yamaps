@@ -1,0 +1,45 @@
+name: Multi-engine exact image parser
+
+on:
+  pull_request:
+    branches:
+      - rework
+
+jobs:
+  parse:
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install requests beautifulsoup4 pillow
+      - name: Parse product images
+        shell: bash
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARDS: 16
+        run: |
+          head -c 5790 tmp_exact_parser/records.part1.txt > tmp_exact_parser/records.json.gz.b64
+          cat tmp_exact_parser/records.fixchar >> tmp_exact_parser/records.json.gz.b64
+          tail -c +5791 tmp_exact_parser/records.part1.txt >> tmp_exact_parser/records.json.gz.b64
+          cat tmp_exact_parser/records.part2.txt >> tmp_exact_parser/records.json.gz.b64
+          head -c 810 tmp_exact_parser/records.part3.txt >> tmp_exact_parser/records.json.gz.b64
+          cat tmp_exact_parser/records.missing.01 tmp_exact_parser/records.missing.02 tmp_exact_parser/records.missing.03 tmp_exact_parser/records.missing.04 >> tmp_exact_parser/records.json.gz.b64
+          tail -c +811 tmp_exact_parser/records.part3.txt >> tmp_exact_parser/records.json.gz.b64
+          python -c "import base64,gzip,pathlib; p=pathlib.Path('tmp_exact_parser'); (p/'records.json').write_bytes(gzip.decompress(base64.b64decode((p/'records.json.gz.b64').read_bytes())))"
+          python tmp_exact_parser/better_image_parser.py
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: better-exact-results-${{ matrix.shard }}
+          path: tmp_exact_parser/better_outputs/
+          retention-days: 1
