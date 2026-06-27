@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - crocs-cdn-diag-20260627
+  pull_request:
+    branches:
+      - rework
 
 jobs:
   diag:
