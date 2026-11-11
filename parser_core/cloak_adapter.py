@@ -8,6 +8,7 @@ import threading
 import time
 from datetime import datetime
 from typing import Any
+from pathlib import Path
 
 from .models import ParserParams
 
@@ -37,9 +38,10 @@ def _ensure_browser():
         from cloakbrowser import binary_info
 
         info = binary_info()
-        _browser_path = info.get("path") or os.path.expanduser(
-            "~/.cloakbrowser/chromium-146.0.7680.177.5/chrome.exe"
-        )
+        _browser_path = Path(
+            os.getenv("CLOAKBROWSER_BINARY_PATH")
+            or "~/.cloakbrowser/chromium-146.0.7680.177.5/chrome.exe"
+        ).expanduser()
         if not os.path.exists(_browser_path):
             raise FileNotFoundError(f"CloakBrowser binary not found at {_browser_path}")
 
